@@ -8,28 +8,31 @@ public class GartenLesson {
 	private Long time;
 	private Integer ampm;
 	private String lessonName;
-	private Integer workerId;
-	private Long startTime;
-	private Long endTime;
+	private Integer classId;
+	private String startTime;
+	private String endTime;
+	private Integer lessonId;
 	@Override
 	public String toString() {
 		return "GartenLesson [gartenId=" + gartenId + ", time=" + time + ", ampm=" + ampm + ", lessonName=" + lessonName
-				+ ", workerId=" + workerId + ", startTime=" + startTime + ", endTime=" + endTime + "]";
+				+ ", classId=" + classId + ", startTime=" + startTime + ", endTime=" + endTime + ", lessonId="
+				+ lessonId + "]";
 	}
 	public GartenLesson() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public GartenLesson(Integer gartenId, Long time, Integer ampm, String lessonName, Integer workerId, Long startTime,
-			Long endTime) {
+	public GartenLesson(Integer gartenId, Long time, Integer ampm, String lessonName, Integer classId,
+			String startTime, String endTime, Integer lessonId) {
 		super();
 		this.gartenId = gartenId;
 		this.time = time;
 		this.ampm = ampm;
 		this.lessonName = lessonName;
-		this.workerId = workerId;
+		this.classId = classId;
 		this.startTime = startTime;
 		this.endTime = endTime;
+		this.lessonId = lessonId;
 	}
 	public Integer getGartenId() {
 		return gartenId;
@@ -40,8 +43,8 @@ public class GartenLesson {
 	public Long getTime() {
 		return time;
 	}
-	public void setTime(Long time) {
-		this.time = time;
+	public void setTime(Timestamp time) {
+		this.time = time.getTime()/1000;
 	}
 	public Integer getAmpm() {
 		return ampm;
@@ -55,23 +58,31 @@ public class GartenLesson {
 	public void setLessonName(String lessonName) {
 		this.lessonName = lessonName;
 	}
-	public Integer getWorkerId() {
-		return workerId;
+	
+	
+	public Integer getClassId() {
+		return classId;
 	}
-	public void setWorkerId(Integer workerId) {
-		this.workerId = workerId;
+	public void setClassId(Integer classId) {
+		this.classId = classId;
 	}
-	public Long getStartTime() {
+	public String getStartTime() {
 		return startTime;
 	}
-	public void setStartTime(Timestamp startTime) {
-		this.startTime = startTime.getTime();
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
 	}
-	public Long getEndTime() {
+	public String getEndTime() {
 		return endTime;
 	}
-	public void setEndTime(Timestamp endTime) {
-		this.endTime = endTime.getTime();
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
 	}
-	
+	public Integer getLessonId() {
+		return lessonId;
+	}
+	public void setLessonId(Integer lessonId) {
+		this.lessonId = lessonId;
+	}
+
 }

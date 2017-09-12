@@ -13,6 +13,27 @@ public class BabyPerformanceLog {
 	private BigDecimal eat;
 	private BigDecimal sleep;
 	private String remark;
+	private Integer performanceId;
+
+	public Integer getPerformanceId() {
+		return performanceId;
+	}
+	public void setPerformanceId(Integer performanceId) {
+		this.performanceId = performanceId;
+	}
+	public BabyPerformanceLog(Integer gartenId, Integer babyId, Long time, BigDecimal learn, BigDecimal play,
+			BigDecimal eat, BigDecimal sleep, String remark, Integer performanceId) {
+		super();
+		this.gartenId = gartenId;
+		this.babyId = babyId;
+		this.time = time;
+		this.learn = learn;
+		this.play = play;
+		this.eat = eat;
+		this.sleep = sleep;
+		this.remark = remark;
+		this.performanceId = performanceId;
+	}
 	@Override
 	public String toString() {
 		return "BabyPerformanceLog [gartenId=" + gartenId + ", babyId=" + babyId + ", time=" + time + ", learn=" + learn
@@ -50,7 +71,7 @@ public class BabyPerformanceLog {
 		return time;
 	}
 	public void setTime(Timestamp time) {
-		this.time = time.getTime();
+		this.time = time.getTime()/1000;
 	}
 	public BigDecimal getLearn() {
 		return learn;

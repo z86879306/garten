@@ -2,31 +2,78 @@ package com.garten.model.other;
 
 public class Comment {
 	
-	private Integer informId;
+	private Integer infoId;
 	private String commentName;
 	private String commentContent;
-	private Integer upState;
+	private Integer replyCommentId;
+	private Integer commentId;
+	private String replyName;
+	private String job;
+	private Integer jobId;
+	
+	public String getJob() {
+		return job;
+	}
+	public void setJob(String job) {
+		this.job = job;
+	}
+	public Integer getJobId() {
+		return jobId;
+	}
+	public void setJobId(Integer jobId) {
+		this.jobId = jobId;
+	}
+	public Comment(Integer infoId, String commentName, String commentContent, Integer replyCommentId, Integer commentId,
+			String replyName, String job, Integer jobId) {
+		super();
+		this.infoId = infoId;
+		this.commentName = commentName;
+		this.commentContent = commentContent;
+		this.replyCommentId = replyCommentId;
+		this.commentId = commentId;
+		this.replyName = replyName;
+		this.job = job;
+		this.jobId = jobId;
+	}
+	public String getReplyName() {
+		return replyName;
+	}
+	public void setReplyName(String replyName) {
+		this.replyName = replyName;
+	}
+	public Comment(Integer infoId, String commentName, String commentContent, Integer replyCommentId, Integer commentId,
+			String replyName) {
+		super();
+		this.infoId = infoId;
+		this.commentName = commentName;
+		this.commentContent = commentContent;
+		this.replyCommentId = replyCommentId;
+		this.commentId = commentId;
+		this.replyName = replyName;
+	}
 	@Override
 	public String toString() {
-		return "Comment [informId=" + informId + ", commentName=" + commentName + ", commentContent=" + commentContent
-				+ ", upState=" + upState + "]";
+		return "Comment [infoId=" + infoId + ", commentName=" + commentName + ", commentContent=" + commentContent
+				+ ", replyCommentId=" + replyCommentId + ", commentId=" + commentId + "]";
 	}
 	public Comment() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public Comment(Integer informId, String commentName, String commentContent, Integer upState) {
+	public Comment(Integer infoId, String commentName, String commentContent, Integer replyCommentId,
+			Integer commentId) {
 		super();
-		this.informId = informId;
+		this.infoId = infoId;
 		this.commentName = commentName;
 		this.commentContent = commentContent;
-		this.upState = upState;
+		this.replyCommentId = replyCommentId;
+		this.commentId = commentId;
 	}
-	public Integer getInformId() {
-		return informId;
+	public Integer getInfoId() {
+		return infoId;
 	}
-	public void setInformId(Integer informId) {
-		this.informId = informId;
+	public void setInfoId(Integer infoId) {
+		this.infoId = infoId;
 	}
 	public String getCommentName() {
 		return commentName;
@@ -40,14 +87,19 @@ public class Comment {
 	public void setCommentContent(String commentContent) {
 		this.commentContent = commentContent;
 	}
-	public Integer getUpState() {
-		return upState;
+	public Integer getReplyCommentId() {
+		return replyCommentId;
 	}
-	public void setUpState(Integer upState) {
-		this.upState = upState;
+	public void setReplyCommentId(Integer replyCommentId) {
+		this.replyCommentId = replyCommentId;
 	}
-	
-	
-	
+	public Integer getCommentId() {
+		return commentId;
+	}
+	public void setCommentId(Integer commentId) {
+		this.commentId = commentId;
+	}
 
+	
+	
 }

@@ -1,0 +1,858 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.garten.dao.WorkerDao">
+<sql id="BabyCheckByToken">
+gartenId,babyId,arriveTime,arriveImg,leaveTime,leaveImg,temperature,remark,time
+    </sql>
+	
+	<select id="findWorkerByPwd"  resultType="WorkerInfo">
+		SELECT * FROM worker＿info  w
+		where phoneNumber=#{phoneNumber} 
+		and pwd=#{pwd}
+		and w.job='老师'
+		and w.isValid=0
+	</select>
+	
+	<select id="findWorkerByGartenId"  resultType="WorkerInfo">
+		SELECT * FROM worker＿info  w
+		where gartenId=#{gartenId} 
+		and w.job='老师'
+		and w.isValid=0
+	</select>
+	
+	
+	<select id="findWorkerInfoNotified"  resultType="WorkerInfo">
+		SELECT * FROM
+	worker＿info w join garten_class c on w.classId=c.classId
+		WHERE  w.job = '老师'
+		<if test="	leadGrade!=null and leadGrade!=''" >
+				and c.leadGrade=#{leadGrade}
+			</if>
+			<if test="	leadClass!=null and leadClass!=''" >
+				and c.leadClass=#{leadClass}
+			</if>
+		AND w.isValid = 0
+		
+	</select>
+	
+	<select id="findVideosByToken"  resultType="Video">
+		SELECT * FROM
+			garten_video v,worker＿info w
+			WHERE
+			w.gartenId=v.gartenId
+			and w.token=#{token}
+		and NOT EXISTS
+          (SELECT * FROM 	garten_video ,worker＿info 
+         WHERE v.type=0 AND v.pointId not in (w.classId))
+          and type not in ('3')
+	</select>
+	<update id="updateIntroduce"  >
+		update   garten_info  g
+		set introduceHtml=#{htmlAddress},introduceImgs=#{imgAddress}
+		where gartenId=#{gartenId} 
+		
+	</update>
+	
+	
+	<update id="updateToken"  >
+		update   worker＿info  w
+		set w.token=#{token},tokenTime=now()
+		where phoneNumber=#{phoneNumber} 
+		and w.job='老师'
+	</update>
+	
+	<insert id="insertActivity" >
+        insert into activity_detail
+       set          
+		contentHtml=#{htmlAddress},
+		timeStart=FROM_UNIXTIME(#{timeStart},  '%Y-%m-%d %H:%i:%s'),
+		timeEnd=FROM_UNIXTIME(#{timeEnd},  '%Y-%m-%d %H:%i:%s'),
+		gartenId=#{gartenId},
+		img=#{img},
+		content=#{content},
+		activityAddress=#{activityAddress},
+		title=#{title},
+		joinTime=FROM_UNIXTIME(#{joinTime},  '%Y-%m-%d %H:%i:%s'),
+		htmlImgs=#{imgAddress}
+
+    </insert>
+	<select id="findToken"  resultType="String">
+		select  token from  worker＿info  w
+		where phoneNumber=#{phoneNumber} 
+		and w.job='总管理员'
+		and w.isvalid=0
+	</select>
+	
+	
+	<select id="findWorkerInfoById"  resultType="WorkerInfo">
+		SELECT * FROM worker＿info  w
+		where workerId=#{workerId} 
+		and w.isValid=0
+	</select>
+	
+	
+	<select id="findParentPhotoByToken"  resultType="GartenPhotos">
+		SELECT * FROM
+			garten_photos gp,worker＿info w,baby_info b,parent_info p
+			WHERE
+			 w.token=#{token}
+			AND FIND_IN_SET(w.workerId, b.teacherId)
+			AND FIND_IN_SET(b.babyId, p.babyId)
+			and gp.job='家长'
+			and gp.isValid=0 and w.isValid=0 and b.isValid=0 and p.isValid=0
+			group by gp.infoId 
+	</select>
+	
+		<select id="findWorkerPhotoByToken"  resultType="GartenPhotos">
+	select * from garten_photos p
+		join worker＿info w on w.gartenId=p.gartenId
+		where p.job in('老师','园长') and w.token=#{token}
+		and p.isValid=0 and w.isValid=0
+	</select>
+	
+	<select id="findEvaluationByInfoId"  resultType="Comment">
+	select * from comment c
+		where c.infoId=#{infoId}
+		and c.isValid=0 
+	</select>
+	
+	<select id="findDianZanByInfoId"  resultType="PhotoDianZan">
+	select * from photo_dianzan d
+		where d.infoId=#{infoId}
+		and d.isValid=0 
+	</select>
+	
+	
+	<select id="findPhotoByToken"  resultType="GartenPhotos">
+	select * from garten_photos p,worker＿info w
+		where p.id=w.workerId
+		and p.job=w.job
+		and w.token=#{token}
+		and p.isValid=0  and w.isValid=0
+		order by p.infoId desc
+		limit 1
+	</select>
+	
+	<select id="findDaijieById"  resultType="Daijie">
+			SELECT * FROM daijie_info d, baby_info b, worker＿info w, garten_class c
+		WHERE
+			w.token = #{token}
+		and c.classId=w.classId
+		AND d.babyId = b.babyId
+		AND FIND_IN_SET(w.workerId, b.teacherId)
+		AND d.isValid = 0 AND c.isValid = 0 AND b.isValid = 0 AND w.isValid = 0
+		GROUP BY
+			d.daijieId
+	</select>
+	
+	<select id="findIntroduceActivityByToken"  resultType="ActivityDetailAll">
+		SELECT d.activityId, d.contentHtml, d.timeStart, d.timeEnd, d.gartenId,
+			d.img,d.content,d.activityAddress,d.title,d.joinTime,
+			count(l.activityId) count
+		FROM
+			activity_detail d
+		LEFT JOIN activity_log l ON d.activityId = l.activityId
+		WHERE
+			d.gartenId = #{gartenId}
+		AND d.isValid = 0
+		GROUP BY
+			d.activityId
+	</select>
+	
+	<select id="isApplyActivity"  resultType="Integer">
+		select count(1) from activity_log l where  l.babyId=#{babyId}
+and l.activityId=#{activityId}
+	</select>
+	
+	
+	
+		<update id="updatePwdToken"  >
+		update   worker＿info w
+		set token=#{token},tokenTime=now(),pwd=#{pwd}
+		where phoneNumber=#{phoneNumber} 
+		and w.job in ('老师')
+		and w.isvalid=0
+	</update>
+	
+		<update id="findAgreeDaijieByDaijieId"  >
+		update   daijie_info 
+		set daijieState=1
+		where daijieId=#{daijieId} 
+	</update>
+	
+<select id="findWorkerByToken"  resultType="Shouye">
+		select gartenName,workerName,leadClass,leadGrade,flowers,headImg 
+		from `worker＿info` w 
+		 join garten_info g ON w.gartenId = g.gartenId
+		left join garten_class c on w.classId=c.classId
+		where w.token=#{token} 
+		 and g.isValid=0 and w.isValid=0
+	</select>
+	
+	<select id="findVersion"  resultType="Version">
+		select * from version v 
+		where type=0
+		 and v.isValid=0 
+		 order by v.time desc
+		  limit 1
+	</select>
+	
+	<select id="findPhotoOne"  resultType="GartenPhotos">
+		select * from garten_photos p
+		where infoId=#{infoId}
+	</select>
+	
+	
+	<select id="findHasdianzan"  resultType="PhotoDianZan">
+		select * from photo_dianzan d
+		join worker＿info w on w.workerId=d.jobId
+		where token=#{token}
+		and w.job=d.job
+		and d.infoId=#{infoId}
+	</select>
+	
+	
+	<!-- <select id="findGartenArriveLeaveById"  resultType="GartenStartEnd">
+		select g.arriveTime start,g.leaveTime end from garten_info g 
+		join worker＿info w on g.gartenId=w.gartenId
+		where w.token=#{token} and g.isValid=0 and w.isValid=0
+	</select> -->
+	
+	<select id="findGartenInfoById"  resultType="GartenInfo">
+		select * from garten_info g 
+		
+		where gartenId=#{gartenId} and g.isValid=0 
+	</select>
+	
+	<select id="findActivityDetailById"  resultType="ActivityDetailAll">
+			SELECT d.activityId activityId, d.imgs  imgs,
+			d.contents contents, d.timeStart timeStart, d.timeEnd timeEnd, d.isValid isValid,
+				count(1) number
+			FROM
+				activity_detail d join activity_log a on d.activityId=a.activityId
+			WHERE
+				d.activityId =#{activityId} and a.isValid=0 and  d.isValid=0
+		</select>
+	
+	
+	
+	
+	<select id="findInfoCount"  resultType="Integer">
+		select count(1) count from `worker＿info` w LEFT JOIN
+		 info_log i on i.id=w.workerId 
+		 where 
+		 w.token=#{token} 
+		 and w.job=i.job
+		 and i.state=0
+		 and w.isValid=0 and i.isValid=0 
+	</select>
+	
+	<select id="findNotifiedByToken"  resultType="InfoLog">
+		select *  from `worker＿info` w LEFT JOIN info_log i on i.id=w.workerId 
+		 where 
+		 token=#{token} 
+		 and w.job=i.job
+		 and i.type=#{type}
+		 and w.isValid=0 and i.isValid=0
+	</select>
+	
+	
+ 
+	<select id="findImportantCountByToken"  resultType="Integer">
+		select count(1) count  from `worker＿info` w LEFT JOIN info_log i on i.id=w.workerId 
+		 where 
+		 w.token=#{token} 
+		 and w.job=i.job
+		 and i.type=2
+		 and i.state=0
+		 and w.isValid=0 and i.isValid=0 
+	</select>
+	
+	
+	
+	<select id="findBabyCheckByToken"  resultType="BabyCheckLogAll">
+		SELECT *		FROM
+		baby_info b LEFT JOIN baby_check_log c on b.babyId=c.babyId
+		LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
+		WHERE
+		w.token = #{token}
+		and UNIX_TIMESTAMP(c.time)=#{time}
+		and b.isValid=0 and c.isValid=0 and w.isValid=0
+	</select>
+	
+	<select id="findYichangLongByToken"  resultType="Long">
+		SELECT unix_timestamp(u.time)
+		FROM
+			baby_info b
+		 JOIN unusual u ON b.babyId=u.jobId
+		 JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
+		WHERE
+			w.token = #{token}
+		and u.job='宝宝'
+		AND b.isValid = 0 AND u.isValid = 0 AND w.isValid = 0
+		GROUP BY u.time
+	</select>
+	
+	<select id="findLeaveLongByToken"  resultType="BabyLeaveLog">
+		SELECT *		FROM
+		baby_info b LEFT JOIN baby_leave_log c on b.babyId=c.babyId
+		LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
+		WHERE
+		w.token = #{token}
+		and c.time
+		and b.isValid=0 and c.isValid=0 and w.isValid=0
+	</select>
+	
+	<select id="findWLeaveLongByToken"  resultType="WorkerLeaveLog">
+		SELECT 	* 		FROM
+		worker_leave_log l  JOIN worker＿info w on w.workerId=l.workerId
+		WHERE
+		w.token = #{token}
+		and w.isValid=0 and l.isValid=0 
+	</select>
+	
+	<select id="findBabysByToken"  resultType="ClassManage">
+		SELECT
+		 *
+		FROM
+		baby_info b  JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
+		join  garten_class c on c.classId=w.classId
+		WHERE
+		w.token = #{token}
+		and b.isValid=0 and w.isValid=0 and c.isValid=0
+	</select>
+	
+	<select id="findBabyById"  resultType="ClassManage">
+		SELECT
+		 *
+		FROM
+		baby_info b  JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
+		join  garten_class c on c.classId=w.classId
+		WHERE
+		b.babyId=#{babyId}
+		and b.isValid=0 and w.isValid=0 and c.isValid=0
+		group by b.babyId
+	</select>
+	
+	<select id="findUnusualAllByToken"  resultType="UnusualAll">
+		select  u.unusualTime,u.unusualType, u.unusualImg,u.jobId,
+	  u.gartenId,u.state, u.fileId, u.cardNo,u.unusualId,u.time,u.job,
+	 b.babyName jobName,b.babyHead jobHead
+		
+		FROM unusual u, `worker＿info` w, baby_info b
+		where 
+		FIND_IN_SET(w.workerId,b.teacherId)
+		and u.jobId=b.babyId
+		and u.job='宝宝'
+		and w.token=#{token}
+		and UNIX_TIMESTAMP(u.time)=#{time}
+		and u.isValid=0 and w.isValid=0 and b.isValid=0
+	</select>
+	
+	<select id="findUnusualAllByTokenSmall"  resultType="UnusualAll">
+		select  u.unusualTime,u.unusualType, u.unusualImg,u.jobId,
+	  u.gartenId,u.state, u.fileId, u.cardNo,u.unusualId,u.time,u.job,
+	 b.babyName jobName,b.babyHead jobHead
+		FROM unusual u, baby_info b
+		where 
+		u.jobId=b.babyId
+		and u.job='宝宝'
+		and b.gartenId=#{gartenId}
+		and UNIX_TIMESTAMP(u.time)=#{time}
+		and u.isValid=0  and b.isValid=0
+	</select>
+	
+	
+	<select id="findLessonCircleByToken"  resultType="Long">
+		SELECT UNIX_TIMESTAMP(l.time)
+		FROM  garten_lesson l
+		LEFT JOIN worker＿info w ON l.gartenId = w.gartenId
+		WHERE
+			 w.token = #{token}
+		and  not exists (
+   		 select 1 from garten_lesson lesss
+   		 where l.time = lesss.time
+    	and l.lessonId &lt; lesss.lessonId)
+    	and l.isValid =0 and w.isValid=0
+	</select>
+	
+	<select id="findRecipeCircleCircleByToken"  resultType="Long">
+		SELECT UNIX_TIMESTAMP(r.time)
+		FROM garten_recipe r
+		LEFT JOIN worker＿info w ON r.gartenId = w.gartenId
+		WHERE w.token = #{token}
+		AND r.isValid = 0 AND w.isValid = 0
+	</select>
+	
+	<select id="findDaijieCircleCircleByToken"  resultType="Long">
+		SELECT DISTINCT UNIX_TIMESTAMP(r.time)
+		FROM daijie_info r , parent_info p  , baby_info b  , worker＿info w 
+		WHERE
+			 w.token = #{token}
+		and FIND_IN_SET(b.babyId,p.babyId )
+		and  r.parentId = p.parentId
+		and FIND_IN_SET(w.workerId, b.teacherId)
+		AND r.isValid = 0 AND p.isValid = 0 AND b.isValid = 0 AND w.isValid = 0
+		AND r.daijieState = 1
+	</select>
+	
+	<select id="findAttendanceCircleByToken"  resultType="Long">
+		SELECT UNIX_TIMESTAMP(r.time)
+		FROM  ignore_time r
+			join worker＿info w on r.gartenId=w.gartenId
+		WHERE
+			 w.token = #{token}
+    	and r.isValid=0 and w.isValid=0 
+    	order by UNIX_TIMESTAMP(r.time)
+	</select>
+	
+	<select id="findAttendanceCircleByTokenList"  resultType="Long">
+		SELECT UNIX_TIMESTAMP(r.time)
+		FROM  ignore_time r
+			join worker＿info w on r.gartenId=w.gartenId
+		WHERE
+			 w.token = #{token}
+    	and r.isValid=0 and w.isValid=0 
+    	order by UNIX_TIMESTAMP(r.time)
+	</select>
+	
+	<select id="findWCheckLongByToken"  resultType="Long">
+		SELECT UNIX_TIMESTAMP(wc.time)
+		FROM  worker_check_log wc
+			join worker＿info w on wc.workerId=w.workerId
+		WHERE
+		 w.token = #{token}
+		 and wc.arriveTime is not null
+    	and wc.isValid=0 and w.isValid=0 
+	</select>
+	
+	
+	
+	<select id="findLessonByToken"  resultType="GartenLesson">
+		SELECT
+l.gartenId gartenId,l.time time,l.ampm ampm,l.lessonName lessonName,l.classId classId,l.startTime startTime,l.endTime,l.lessonId
+
+		FROM
+		garten_lesson l LEFT JOIN `worker＿info` w ON l.gartenId=w.gartenId
+		where
+		 UNIX_TIMESTAMP(l.time)=#{time}
+		and w.token=#{token}
+		and l.isValid=0 and w.isValid=0
+		and l.classId=w.classId
+	</select>
+	
+	
+	<update id="findUpdateBabyByToken"  >
+	UPDATE baby_info b
+	SET b.allergy =#{allergy}, b.babyName =#{babyName}, b.birthday =FROM_UNIXTIME(#{birthday},  '%Y-%m-%d %H:%i:%s'), b.health =#{health}, 
+	b.height =#{height}, b.hobby =#{hobby}, b.specialty =#{specialty}, b.teacherId =#{teacherId},b.weight=#{weight},b.sex=#{sex}
+	where 
+	 b.babyId=#{babyId}
+	and b.isValid=0 
+	</update>
+	
+	
+	<update id="resolveUnusual"  >
+	UPDATE unusual u set state=1 where unusualId=#{unusualId}
+	</update>
+	
+	
+	
+	
+	<update id="updateAgreeLeaveByCheckId"  >
+	UPDATE baby_leave_log b
+	set leaveState=1
+	where leaveId=#{leaveId}
+	</update>
+	
+	<update id="readNotified"  >
+	UPDATE info_log i
+	set state=1
+	where infoId=#{infoId}
+	</update>
+	
+	
+	<update id="updateTeacherMessage"  >
+	UPDATE worker＿info b
+	set workerName=#{workerName},sex=#{sex},age=#{age}
+	where token=#{token}
+	</update>
+	
+	<update id="updateTeacherHead"  >
+	UPDATE worker＿info b
+	set headImg=#{imgAddress}
+	where token=#{token}
+	</update>
+	
+	
+	
+	
+	<update id="updateLate"  >
+	UPDATE baby_check_log b
+	set checkId=checkId
+	<if test="	0==state " >
+			,	 b.stateLate=1 </if>
+			<if test="	1==state " >
+			,	 b.stateEarly=1 </if>
+	where checkId=#{checkId}
+	</update>
+	
+	<update id="updateLateWorker"  >
+	UPDATE worker_check_log c
+	set checkId=checkId
+	<if test="	0==state " >
+			,	 c.stateLate=1 </if>
+			<if test="	1==state " >
+			,	 c.stateEarly=1 </if>
+	where checkId=#{checkId}
+	</update>
+	
+	
+	
+	<update id="updatePerformance"  >
+	UPDATE baby_performance_log p
+	set 
+	 learn=#{learn}, play=#{play}, eat=#{eat}, sleep=#{sleep}, remark=#{remark}
+	where performanceId=#{performanceId}
+	</update>
+	
+	<select id="findPerformanceByToken"  resultType="BabyPerformanceLogAll">
+		SELECT
+		 p.gartenId gartenId,p.babyId babyId,p.time time,p.learn learn,p.play play,p.eat eat,p.sleep sleep,p.remark remark,p.performanceId performanceId
+		,b.babyName babyName,b.babyHead babyHead
+		FROM
+		  baby_info b  LEFT JOIN baby_performance_log p ON b.babyId=p.babyId
+		  LEFT JOIN worker＿info w on FIND_IN_SET(w.workerId, b.teacherId)
+		WHERE
+		w.token = #{token}
+		and  UNIX_TIMESTAMP(now())-86400   &lt;   UNIX_TIMESTAMP(p.time)
+		 and UNIX_TIMESTAMP(p.time)   &lt;=   UNIX_TIMESTAMP(now())
+		and b.isValid=0 and p.isValid=0 and  w.isValid=0
+	</select>
+	
+	
+	<select id="findWorkerCheckLogByToken"  resultType="WorkerCheckLog">
+		SELECT * FROM
+		  worker_check_log wc LEFT JOIN worker＿info w on wc.workerId=w.workerId
+		WHERE
+		w.token = #{token}
+		AND  UNIX_TIMESTAMP(wc.time) =#{time}
+		and wc.isValid=0 and w.isValid=0
+	</select> 
+	
+	<select id="findWorkerCheckLogOne"  resultType="WorkerCheckLog">
+		SELECT
+		*
+		FROM
+		  worker_check_log wc LEFT JOIN worker＿info w on wc.workerId=w.workerId
+		WHERE
+		w.token = #{token}
+		and  UNIX_TIMESTAMP(now())-86400   &lt;   UNIX_TIMESTAMP(wc.time)
+		 and UNIX_TIMESTAMP(wc.time)   &lt;=   UNIX_TIMESTAMP(now())
+		 and wc.isValid=0 and w.isValid=0
+	</select>
+	
+	<select id="findRecipeByToken"  resultType="GartenRecipe">
+		SELECT
+		*
+		FROM
+		  garten_info i  JOIN worker＿info w on w.gartenId=i.gartenId
+		   join garten_recipe r on r.gartenId=w.gartenId
+		WHERE
+		w.token = #{token}
+		and UNIX_TIMESTAMP(r.time)=#{time}
+		and i.isValid=0 and w.isValid=0 and r.isValid=0
+	</select>
+	
+	<select id="findLeaveLogByToken"  resultType="BabyLeaveLogAll">
+		SELECT r.babyId,r.leaveTime,r.time,r.reason,r.leaveState,r.isValid,r.leaveId,r.endTime,bi.babyHead,bi.babyName
+		 FROM
+			garten_info i
+			JOIN worker＿info w ON w.gartenId = i.gartenId
+			JOIN baby_info bi ON FIND_IN_SET(w.workerId, bi.teacherId)
+			JOIN baby_leave_log r ON r.babyId = bi.babyId
+			WHERE  w.token = #{token}
+			and UNIX_TIMESTAMP(r.leaveTime)-86400 &lt; #{time}
+			and #{time}  &lt; UNIX_TIMESTAMP(r.endTime)
+			AND i.isValid = 0  AND w.isValid = 0  	AND r.isValid = 0
+	</select>
+	
+	<select id="findLeaveLogByTokenSmall"  resultType="BabyLeaveLogAll">
+		SELECT r.babyId,r.leaveTime,r.time,r.reason,r.leaveState,r.isValid,r.leaveId,r.endTime,b.babyHead,b.babyName
+		 FROM
+			 baby_info b 
+			JOIN baby_leave_log r ON r.babyId = b.babyId
+			WHERE  b.gartenId = #{gartenId}
+			and UNIX_TIMESTAMP(r.leaveTime)-86400 &lt; #{time}
+			and #{time}  &lt; UNIX_TIMESTAMP(r.endTime)
+		    AND b.isValid = 0  	AND r.isValid = 0
+	</select>
+	
+	
+	<select id="findTimeWorkerLeaveByToken"  resultType="WorkerLeaveLogPrin">
+		SELECT * FROM
+			 worker＿info w 
+			JOIN worker_leave_log r ON r.workerId = w.workerId
+			WHERE  w.token = #{token}
+			and UNIX_TIMESTAMP(r.leaveTime)-86400  &lt; #{time}
+			and #{time} &lt;  UNIX_TIMESTAMP(r.endTime)
+			AND w.isValid = 0  AND r.isValid = 0
+	</select>
+	
+	
+	
+	<select id="findWorkerInfoByToken"  resultType="WorkerInfo">
+		SELECT * FROM
+		   worker＿info w
+		WHERE
+		w.token = #{token}
+		and w.job='老师'
+		and w.isValid=0
+	</select>
+	
+	<select id="findWorkerInfoByTokenAll"  resultType="WorkerInfo">
+		SELECT * FROM
+		   worker＿info w
+		WHERE
+		w.token = #{token}
+		and w.isValid=0
+	</select>
+	
+	
+	<select id="findWorkerInfoByClass"  resultType="WorkerInfo">
+		SELECT * FROM
+		worker＿info w
+		join garten_class  c on  c.classId=w.classId
+		WHERE
+			c.leadClass = #{leadClass}
+		AND c.leadGrade = #{leadGrade}
+		and w.gartenId=#{gartenId}
+		AND w.isValid = 0 AND c.isValid = 0
+	</select>
+	
+	
+	
+	<select id="findTeacherLinkMan"  resultType="WorkerInfoShort">
+				SELECT * FROM
+			worker＿info wi WHERE
+			wi.gartenId = ( SELECT gartenId
+				FROM worker＿info  WHERE token = #{token} and isValid=0 )
+		and wi.workerId not in  ( SELECT workerId
+				FROM worker＿info 
+				WHERE token = #{token} and isValid=0 )
+				AND wi.isValid = 0
+	</select>
+	
+	<select id="findParentLinkMan"  resultType="ParentInfoShort">
+		select * from parent_info p ,
+		worker＿info w,
+		baby_info b 
+		where 
+		w.token=#{token}
+		and FIND_IN_SET(w.workerId,b.teacherId)
+		and FIND_IN_SET(b.babyId,p.babyId)
+		and w.isValid=0 and p.isValid=0 and b.isValid=0 
+		group by p.parentId
+	</select>
+	
+	
+	<select id="findFlowerByToken"  resultType="FlowerAll">
+		SELECT concat(b.babyName,b.parentRelation) name,b.babyHead headimg,UNIX_TIMESTAMP(f.time ) time,f.flowerId flowerId
+		FROM worker_flower f, baby_info b, worker＿info w
+		WHERE
+		w.token=#{token} and w.workerId=f.workerId
+		and f.parentId=b.parentId
+		and f.isValid=0 and b.isValid=0 and w.isValid=0
+	</select>
+	
+	<select id="findFlowerCountByToken"  resultType="Integer">
+		SELECT count(1)
+		FROM
+		worker_flower f,
+		worker＿info w
+		WHERE w.token = #{token}
+		AND w.workerId = f.workerId   AND f.isValid = 0   AND w.isValid = 0
+	</select>
+	
+	
+	
+	
+	<select id="findTeacherByToken"  resultType="WorkerInfoShort">
+		select * from worker＿info w ,garten_class c
+		where token=#{token}
+		and w.classId=c.classId
+		and w.isValid=0
+	</select>
+	
+	<select id="findCheck" resultType="CheckNumber">
+        select * from duanxin
+        <where>
+            phoneNumber = #{phoneNumber} and
+            type=#{type} 
+        </where>
+        order by time desc limit 1
+    </select>
+    
+	
+	<select id="findWorkerByAccount"  resultType="WorkerInfo">
+		select * from worker＿info w 
+		where phoneNumber=#{phoneNumber}
+		and job='老师'
+		and w.isValid=0
+	</select>
+	
+	
+	
+	
+	
+	<insert id="insetWorker" >
+        insert into worker_check_log(time,gartenId,workerId
+) values(
+          FROM_UNIXTIME(#{time},  '%Y-%m-%d %H:%i:%s'),1,1
+        )
+    </insert>
+    
+    <insert id="insetBabyCheck" >
+        insert into baby_check_log(gartenId,babyId,time
+
+) values(
+          #{gartenId},#{babyId},FROM_UNIXTIME(#{time},  '%Y-%m-%d %H:%i:%s')
+        )
+    </insert>
+    
+     <insert id="insetWorkerCheck" >
+        insert into worker_check_log(gartenId,workerId,time
+
+) values(
+          #{gartenId},#{workerId},FROM_UNIXTIME(#{time},  '%Y-%m-%d %H:%i:%s')
+        )
+    </insert>
+    
+    
+    <insert id="insetBabyPerformance" >
+        insert into baby_performance_log(gartenId,babyId,time
+
+) values(
+          #{gartenId},#{babyId},FROM_UNIXTIME(#{time},  '%Y-%m-%d %H:%i:%s')
+        )
+    </insert>
+    
+    <insert id="createRecipeByToken" >
+        insert into garten_recipe(gartenId,time,foodImg,foodName
+) values(
+          #{gartenId},FROM_UNIXTIME(#{time},  '%Y-%m-%d %H:%i:%s'),"",""
+        )
+    </insert>
+    
+     <insert id="createWorkerCheckLogByToken" >
+        insert into worker_check_log(gartenId,workerId,time
+
+) values(
+          #{gartenId},#{workerId},FROM_UNIXTIME(#{dayStart},  '%Y-%m-%d %H:%i:%s')
+        )
+    </insert>
+    
+     <insert id="createFeadbackByToken" >
+        insert into feedback(gartenId,job,time,jobId,content,name,phoneNumber
+) values(
+          #{gartenId},#{job},now(),#{jobId},#{content},#{name},#{phoneNumber}
+        )
+    </insert>
+    
+     <insert id="createDianzan" >
+        insert into photo_dianzan(infoId,dianzanName,job,jobId
+) values(
+          #{infoId},#{name},#{job},#{jobId}
+        )
+    </insert>
+    
+     
+     <insert id="createPhoto" >
+        insert into garten_photos(
+        gartenId,job,id,imgs,content,state,title,parentName,parentRelation
+) values(
+          #{gartenId},#{job},#{id},#{imgs},#{content},#{state},#{title},#{title},#{title}
+        )
+    </insert>
+    
+    
+    
+    
+     <!-- <update id="updatePhoto" >
+        update  garten_photos set imgs=#{imgs} where infoId=#{infoId}
+    </update> -->
+    
+    <insert id="createCommentPhoto" >
+        insert into comment(
+       infoId,commentName,commentContent,replyCommentId,replyName,job,jobId
+
+) values(
+          #{infoId},#{commentName},#{commentContent},#{replyCommentId},#{replyName},#{job},#{jobId}
+        )
+    </insert>
+    
+    <insert id="insertDuanxin" >
+        insert into duanxin
+        <set>           
+                phoneNumber=#{phoneNumber},
+                type=#{type},
+                number=#{number},
+                time=now()
+        </set>
+    </insert>
+    
+    
+    
+    
+     <insert id="insertWorkerLeaveLog" >
+        insert into worker_leave_log
+        <set>           
+               workerId=#{workerId},leaveTime=FROM_UNIXTIME(#{startTime},  '%Y-%m-%d %H:%i:%s'),
+				leaveReason=#{reason},endTime=FROM_UNIXTIME(#{endTime},  '%Y-%m-%d %H:%i:%s')
+        </set>
+    </insert>
+    
+    
+     <insert id="insertHX" >
+        insert into huanxin_log 
+         set    fromName=#{fromName},toName=#{toName},content=#{content}
+    </insert>
+    
+    
+     <delete id="deleteDuanxin">
+    delete  from duanxin
+       
+        where to_days(now())-to_days(time)>=1
+    </delete>
+    
+    <delete id="deleteDianzan" >
+        delete from photo_dianzan where job=#{job}  and jobId=#{jobId} and infoId=#{infoId}
+    </delete>
+    
+    <delete id="deleteBabyLeaveByleaveId" >
+        delete from baby_leave_log where  leaveId=#{leaveId}
+    </delete>
+    
+    <delete id="deleteComment" >
+        delete from comment where  commentId=#{commentId}
+    </delete>
+    
+     <delete id="deletePhotoComment" >
+        delete from comment where  infoId=#{infoId}
+    </delete>
+     <delete id="deletePhotoDianzan" >
+        delete from photo_dianzan where  infoId=#{infoId}
+    </delete>
+     <delete id="deletePhoto" >
+        delete from garten_photos where  infoId=#{infoId}
+    </delete>
+    <delete id="deleteActivityDetail" >
+        delete from activity_detail where  activityId=#{activityId}
+    </delete>
+    
+     <delete id="deleteActivityLog" >
+        delete from activity_log where  activityId=#{activityId}
+    </delete>
+</mapper> 

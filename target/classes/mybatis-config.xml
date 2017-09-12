@@ -6,5 +6,6 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 	<!-- 别名 -->
 	<typeAliases>
 		<package name="com.garten.model"/>
+		<package name="com.garten.vo"/>
 	</typeAliases>
 </configuration>

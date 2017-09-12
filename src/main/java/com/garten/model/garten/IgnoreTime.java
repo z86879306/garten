@@ -29,7 +29,7 @@ public class IgnoreTime {
 		return time;
 	}
 	public void setTime(Timestamp time) {
-		this.time = time.getTime();
+		this.time = time.getTime()/1000;
 	}
 	
 }

@@ -1,11 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+﻿<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.garten</groupId>
-  <artifactId>garten_crm07</artifactId>
+  <artifactId>garten8.18</artifactId>
   <packaging>war</packaging>
   <version>0.0.1-SNAPSHOT</version>
-  <name>garten_crm07</name>
+  <name>garten8.18</name>
   <url>http://maven.apache.org</url>
   <properties>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -44,13 +44,44 @@
    </profiles>
   
   <dependencies>
-
+  <!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
+<dependency>
+    <groupId>org.freemarker</groupId>
+    <artifactId>freemarker</artifactId>
+    <version>2.3.23</version>
+</dependency>
+  
+  <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>fastjson</artifactId>
+    <version>1.2.31</version>
+</dependency>
+  
+<!-- HTTPCLIENT -->
+  <dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
+    <version>4.4.1</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpcore</artifactId>
+    <version>4.4.1</version>
+</dependency>        
+<!-- HTTPCLIENT -->
+<dependency>
+   <groupId>commons-fileupload</groupId>
+   <artifactId>commons-fileupload</artifactId>
+   <version>1.3.2</version> <!-- makesure correct version here -->
+   
+</dependency>
 <!-- fastjson配置 -->
-	  <dependency>
+	 <!--  <dependency>
 	    <groupId>com.alibaba</groupId>
 	    <artifactId>fastjson</artifactId>
 	    <version>1.2.13</version>
-	  </dependency>
+	  </dependency> -->
       
       <dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
@@ -208,7 +239,8 @@
 		<artifactId>mybatis-spring</artifactId>
 		<version>1.2.3</version>
 	</dependency>
-	
+
+
   
   	<!-- 添加日志支持 -->
   	<dependency>
@@ -258,7 +290,7 @@
   </dependencies>
   
   <build>
-    <finalName>garten_crm07</finalName>
+    <finalName>garten8.18</finalName>
     <!-- 资源文件的设置 -->
     <resources>
     	<resource>

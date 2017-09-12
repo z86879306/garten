@@ -6,21 +6,34 @@
     xmlns:context="http://www.springframework.org/schema/context"  
     xmlns:jee="http://www.springframework.org/schema/jee"  
     xmlns:tx="http://www.springframework.org/schema/tx"  
+    xmlns:task="http://www.springframework.org/schema/task"
     xsi:schemaLocation="    
         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd  
         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.0.xsd  
-        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">    
-        
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd    
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd ">  
 	<!-- 自动扫描 -->
-	<context:component-scan base-package="com.garten.service" />
-	
+<context:component-scan base-package="com.garten.service" />
+		
+		<!-- 定时任务的注解驱动 -->
+	<task:annotation-driven /> <!-- 定时器开关-->  
+     <bean id="flower" class="com.garten.util.TimeTask"></bean>  
+     <task:scheduled-tasks>  
+ 		<!-- 每天添加红花 -->
+         <task:scheduled ref="flower" method="updateHonghua" cron="0 0 0 1/1 * ? " />  
+         <!-- 宝宝生日提醒 -->
+         <task:scheduled ref="flower" method="babyBirthday" cron="0 0 0 1/1 * ? "/>
+         <!-- 每年一月一号添加忽略时间 -->
+         <task:scheduled ref="flower" method="addIgnoreEveryYear" cron="0 0 0 1 1 ? "/>
+    </task:scheduled-tasks>  	
 	<!-- 配置数据源 -->
 	<bean id="dataSource"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-		<property name="url" value="jdbc:mysql://localhost:3306/garten"/>
+		 <property name="url" value="jdbc:mysql://127.0.0.1:3306/garten"/>
+		<!-- <property name="url" value="jdbc:mysql://139.196.102.135:3306/garten"/>  -->
 		<property name="username" value="root"/>
 		<property name="password" value="root"/>
 	</bean>
@@ -34,7 +47,7 @@
 		<!-- mybatis配置文件 -->
 		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
 	</bean>
-
+<bean id="MyUtil" class="com.garten.util.myutil.MyUtil"/>
 	<!-- DAO接口所在包名，Spring会自动查找其下的类 -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.garten.dao" />
@@ -48,39 +61,39 @@
 	</bean>
 	
 	<!-- 自定义Realm -->
-	<bean id="myRealm" class="com.garten.realm.MyRealm"/>  
+	<!-- <bean id="myRealm" class="com.garten.realm.MyRealm"/>   -->
 	
 	<!-- 安全管理器 -->
-	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">  
+	<!-- <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">  
   	  <property name="realm" ref="myRealm"/>  
-	</bean>  
+	</bean>   -->
 	
 	<!-- Shiro过滤器 -->
-	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">  
-	    <!-- Shiro的核心安全接口,这个属性是必须的 -->  
+	<!-- <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">  
+	    Shiro的核心安全接口,这个属性是必须的  
 	    <property name="securityManager" ref="securityManager"/>
-	    <!-- 身份认证失败，则跳转到登录页面的配置 -->  
+	    身份认证失败，则跳转到登录页面的配置  
 	    <property name="loginUrl" value="/index.jsp"/>
-	    <!-- 权限认证失败，则跳转到指定页面 -->  
+	    权限认证失败，则跳转到指定页面  
 	    <property name="unauthorizedUrl" value="/"/>  
-	    <!-- Shiro连接约束配置,即过滤链的定义 -->  
+	    Shiro连接约束配置,即过滤链的定义  
 	    <property name="filterChainDefinitions">  
-	        <value>  
+	        <value>   -->
 				<!-- /admin*=authc
 				/wode/**=roles[teacher]
 				/teacher=perms["user:create"] -->
-	        </value>  
+	       <!--  </value>  
 	    </property>
-	</bean>  
+	</bean>   -->
 	
 	<!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->  
-	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>  
-	
+	<!-- <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>  
+	 -->
 	<!-- 开启Shiro注解 -->
-	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"/>  
+	<!-- <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"/>  
   		<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">  
   	  <property name="securityManager" ref="securityManager"/>  
-    </bean>  
+    </bean>   -->
   
 	<!-- 配置事务通知属性 -->  
     <tx:advice id="txAdvice" transaction-manager="transactionManager">  

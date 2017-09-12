@@ -2,41 +2,66 @@ package com.garten.model.agent;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Arrays;
 
 public class AgentInfo {
 	
 	private Integer agentId;
-	private String agentNumber;
-	private String agentPwd;
-	private String serviceArea;
+	private String phoneNumber;
+	private String pwd;
 	private Integer agentGrade;
-	private BigDecimal initialFee;
+	private BigDecimal agentMoney;
 	private BigDecimal creditMoney;
 	private Long agentStartTime;
 	private Long agentEndTime;
+	private Long registTime;
+	private String name;
+	private String agentName;
+	private Integer rebate;
+	private Integer frost;
+	private String province;
+	private String city;
+	private String countries;
+	private String[] cardFragment;
+	private String token;
+	private Long tokenTime;
 	@Override
 	public String toString() {
-		return "AgentInfo [agentId=" + agentId + ", agentNumber=" + agentNumber + ", agentPwd=" + agentPwd
-				+ ", serviceArea=" + serviceArea + ", agentGrade=" + agentGrade + ", initialFee=" + initialFee
-				+ ", creditMoney=" + creditMoney + ", agentStartTime=" + agentStartTime + ", agentEndTime="
-				+ agentEndTime + "]";
+		return "AgentInfo [agentId=" + agentId + ", phoneNumber=" + phoneNumber + ", pwd=" + pwd + ", agentGrade="
+				+ agentGrade + ", agentMoney=" + agentMoney + ", creditMoney=" + creditMoney + ", agentStartTime="
+				+ agentStartTime + ", agentEndTime=" + agentEndTime + ", registTime=" + registTime + ", name=" + name
+				+ ", agentName=" + agentName + ", rebate=" + rebate + ", frost=" + frost + ", province=" + province
+				+ ", city=" + city + ", countries=" + countries + ", cardFragment=" + Arrays.toString(cardFragment)
+				+ ", token=" + token + ", tokenTime=" + tokenTime + "]";
 	}
 	public AgentInfo() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public AgentInfo(Integer agentId, String agentNumber, String agentPwd, String serviceArea, Integer agentGrade,
-			BigDecimal initialFee, BigDecimal creditMoney, Long agentStartTime, Long agentEndTime) {
+	public AgentInfo(Integer agentId, String phoneNumber, String pwd, Integer agentGrade, BigDecimal agentMoney,
+			BigDecimal creditMoney, Long agentStartTime, Long agentEndTime, Long registTime, String name,
+			String agentName, Integer rebate, Integer frost, String province, String city, String countries,
+			String[] cardFragment, String token, Long tokenTime) {
 		super();
 		this.agentId = agentId;
-		this.agentNumber = agentNumber;
-		this.agentPwd = agentPwd;
-		this.serviceArea = serviceArea;
+		this.phoneNumber = phoneNumber;
+		this.pwd = pwd;
 		this.agentGrade = agentGrade;
-		this.initialFee = initialFee;
+		this.agentMoney = agentMoney;
 		this.creditMoney = creditMoney;
 		this.agentStartTime = agentStartTime;
 		this.agentEndTime = agentEndTime;
+		this.registTime = registTime;
+		this.name = name;
+		this.agentName = agentName;
+		this.rebate = rebate;
+		this.frost = frost;
+		this.province = province;
+		this.city = city;
+		this.countries = countries;
+		this.cardFragment = cardFragment;
+		this.token = token;
+		this.tokenTime = tokenTime;
 	}
 	public Integer getAgentId() {
 		return agentId;
@@ -44,23 +69,17 @@ public class AgentInfo {
 	public void setAgentId(Integer agentId) {
 		this.agentId = agentId;
 	}
-	public String getAgentNumber() {
-		return agentNumber;
+	public String getPhoneNumber() {
+		return phoneNumber;
 	}
-	public void setAgentNumber(String agentNumber) {
-		this.agentNumber = agentNumber;
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
 	}
-	public String getAgentPwd() {
-		return agentPwd;
+	public String getPwd() {
+		return pwd;
 	}
-	public void setAgentPwd(String agentPwd) {
-		this.agentPwd = agentPwd;
-	}
-	public String getServiceArea() {
-		return serviceArea;
-	}
-	public void setServiceArea(String serviceArea) {
-		this.serviceArea = serviceArea;
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
 	}
 	public Integer getAgentGrade() {
 		return agentGrade;
@@ -68,11 +87,11 @@ public class AgentInfo {
 	public void setAgentGrade(Integer agentGrade) {
 		this.agentGrade = agentGrade;
 	}
-	public BigDecimal getInitialFee() {
-		return initialFee;
+	public BigDecimal getAgentMoney() {
+		return agentMoney;
 	}
-	public void setInitialFee(BigDecimal initialFee) {
-		this.initialFee = initialFee;
+	public void setAgentMoney(BigDecimal agentMoney) {
+		this.agentMoney = agentMoney;
 	}
 	public BigDecimal getCreditMoney() {
 		return creditMoney;
@@ -84,20 +103,79 @@ public class AgentInfo {
 		return agentStartTime;
 	}
 	public void setAgentStartTime(Timestamp agentStartTime) {
-		this.agentStartTime = agentStartTime.getTime();
+		this.agentStartTime = agentStartTime.getTime()/1000;
 	}
 	public Long getAgentEndTime() {
 		return agentEndTime;
 	}
 	public void setAgentEndTime(Timestamp agentEndTime) {
-		this.agentEndTime = agentEndTime.getTime();
+		this.agentEndTime = agentEndTime.getTime()/1000;
+	}
+	public Long getRegistTime() {
+		return registTime;
+	}
+	public void setRegistTime(Timestamp registTime) {
+		this.registTime = registTime.getTime()/1000;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getAgentName() {
+		return agentName;
+	}
+	public void setAgentName(String agentName) {
+		this.agentName = agentName;
+	}
+	public Integer getRebate() {
+		return rebate;
+	}
+	public void setRebate(Integer rebate) {
+		this.rebate = rebate;
+	}
+	public Integer getFrost() {
+		return frost;
+	}
+	public void setFrost(Integer frost) {
+		this.frost = frost;
+	}
+	public String getProvince() {
+		return province;
+	}
+	public void setProvince(String province) {
+		this.province = province;
+	}
+	public String getCity() {
+		return city;
+	}
+	public void setCity(String city) {
+		this.city = city;
+	}
+	public String getCountries() {
+		return countries;
+	}
+	public void setCountries(String countries) {
+		this.countries = countries;
+	}
+	public String[] getCardFragment() {
+		return cardFragment;
+	}
+	public void setCardFragment(String cardFragment) {
+		this.cardFragment = cardFragment.split(",");
+	}
+	public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
+	}
+	public Long getTokenTime() {
+		return tokenTime;
+	}
+	public void setTokenTime(Timestamp tokenTime) {
+		this.tokenTime = tokenTime.getTime()/1000;
 	}
 	
-	
-	
-	
-	
-	
-	
-
 }

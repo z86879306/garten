@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="shsxt_crm01">
+    <wb-module deploy-name="garten8.18">
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
-        <property name="java-output-path" value="/shsxt_crm01/target/classes"/>
-        <property name="context-root" value="shsxt_crm07"/>
+        <property name="java-output-path" value="/garten8.18/target/classes"/>
+        <property name="context-root" value="garten8.18"/>
     </wb-module>
 </project-modules>

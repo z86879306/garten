@@ -13,7 +13,54 @@ public class DaijieInfo {
 	private Long arrivedTime;
 	private Long time;
 	private String remark;
-	private String daijieState;
+	private Integer daijieState;
+	private Integer daijieId;
+	private Integer babyId;
+	
+	public Integer getBabyId() {
+		return babyId;
+	}
+	public void setBabyId(Integer babyId) {
+		this.babyId = babyId;
+	}
+	public DaijieInfo(Integer parentId, String phoneNumber, String daijieName, String relation, String daijieHead,
+			String daijiePhoneNumber, Long arrivedTime, Long time, String remark, Integer daijieState, Integer daijieId,
+			Integer babyId) {
+		super();
+		this.parentId = parentId;
+		this.phoneNumber = phoneNumber;
+		this.daijieName = daijieName;
+		this.relation = relation;
+		this.daijieHead = daijieHead;
+		this.daijiePhoneNumber = daijiePhoneNumber;
+		this.arrivedTime = arrivedTime;
+		this.time = time;
+		this.remark = remark;
+		this.daijieState = daijieState;
+		this.daijieId = daijieId;
+		this.babyId = babyId;
+	}
+	public Integer getDaijieId() {
+		return daijieId;
+	}
+	public void setDaijieId(Integer daijieId) {
+		this.daijieId = daijieId;
+	}
+	public DaijieInfo(Integer parentId, String phoneNumber, String daijieName, String relation, String daijieHead,
+			String daijiePhoneNumber, Long arrivedTime, Long time, String remark, Integer daijieState, Integer daijieId) {
+		super();
+		this.parentId = parentId;
+		this.phoneNumber = phoneNumber;
+		this.daijieName = daijieName;
+		this.relation = relation;
+		this.daijieHead = daijieHead;
+		this.daijiePhoneNumber = daijiePhoneNumber;
+		this.arrivedTime = arrivedTime;
+		this.time = time;
+		this.remark = remark;
+		this.daijieState = daijieState;
+		this.daijieId = daijieId;
+	}
 	@Override
 	public String toString() {
 		return "DaijieInfo [parentId=" + parentId + ", phoneNumber=" + phoneNumber + ", daijieName=" + daijieName
@@ -26,7 +73,7 @@ public class DaijieInfo {
 		// TODO Auto-generated constructor stub
 	}
 	public DaijieInfo(Integer parentId, String phoneNumber, String daijieName, String relation, String daijieHead,
-			String daijiePhoneNumber, Long arrivedTime, Long time, String remark, String daijieState) {
+			String daijiePhoneNumber, Long arrivedTime, Long time, String remark, Integer daijieState) {
 		super();
 		this.parentId = parentId;
 		this.phoneNumber = phoneNumber;
@@ -79,13 +126,13 @@ public class DaijieInfo {
 		return arrivedTime;
 	}
 	public void setArrivedTime(Timestamp arrivedTime) {
-		this.arrivedTime = arrivedTime.getTime();
+		this.arrivedTime = arrivedTime.getTime()/1000;
 	}
 	public Long getTime() {
 		return time;
 	}
 	public void setTime(Timestamp time) {
-		this.time = time.getTime();
+		this.time = time.getTime()/1000;
 	}
 	public String getRemark() {
 		return remark;
@@ -93,10 +140,10 @@ public class DaijieInfo {
 	public void setRemark(String remark) {
 		this.remark = remark;
 	}
-	public String getDaijieState() {
+	public Integer getDaijieState() {
 		return daijieState;
 	}
-	public void setDaijieState(String daijieState) {
+	public void setDaijieState(Integer daijieState) {
 		this.daijieState = daijieState;
 	}
 	

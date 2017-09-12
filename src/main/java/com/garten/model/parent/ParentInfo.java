@@ -1,42 +1,31 @@
 package com.garten.model.parent;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 
 public class ParentInfo {
 	
-	private String babyName;
-	private Integer babyId;
-	private String identity;
+	private String[] babyId;
+	private String[] identity;
 	private String parentName;
 	private String phoneNumber;
 	private String parentHead;
 	private String address;
 	private Integer parentId;
 	private String pwd;
-	private Integer monitorState;
-	private Long monitorTime;
-	private Integer attendanceState;
-	private Long attendanceTime;
+	private String[] monitorTime;
+	private String[] attendanceTime;
 	private Integer flower;
 	private String token;
 	private Long tokenTime;
-	@Override
-	public String toString() {
-		return "ParentInfo [babyName=" + babyName + ", babyId=" + babyId + ", identity=" + identity + ", parentName="
-				+ parentName + ", phoneNumber=" + phoneNumber + ", parentHead=" + parentHead + ", address=" + address
-				+ ", parentId=" + parentId + ", pwd=" + pwd + ", monitorState=" + monitorState + ", monitorTime="
-				+ monitorTime + ", attendanceState=" + attendanceState + ", attendanceTime=" + attendanceTime
-				+ ", flower=" + flower + ", token=" + token + ", tokenTime=" + tokenTime + "]";
-	}
-	public ParentInfo() {
+	private Long registTime;
+	private String gartenId;
+	
+	
+	public ParentInfo(String[] babyId, String[] identity, String parentName, String phoneNumber, String parentHead,
+			String address, Integer parentId, String pwd, String[] monitorTime, String[] attendanceTime, Integer flower,
+			String token, Long tokenTime, Long registTime, String gartenId) {
 		super();
-		// TODO Auto-generated constructor stub
-	}
-	public ParentInfo(String babyName, Integer babyId, String identity, String parentName, String phoneNumber,
-			String parentHead, String address, Integer parentId, String pwd, Integer monitorState, Long monitorTime,
-			Integer attendanceState, Long attendanceTime, Integer flower, String token, Long tokenTime) {
-		super();
-		this.babyName = babyName;
 		this.babyId = babyId;
 		this.identity = identity;
 		this.parentName = parentName;
@@ -45,31 +34,57 @@ public class ParentInfo {
 		this.address = address;
 		this.parentId = parentId;
 		this.pwd = pwd;
-		this.monitorState = monitorState;
 		this.monitorTime = monitorTime;
-		this.attendanceState = attendanceState;
 		this.attendanceTime = attendanceTime;
 		this.flower = flower;
 		this.token = token;
 		this.tokenTime = tokenTime;
+		this.registTime = registTime;
+		this.gartenId = gartenId;
 	}
-	public String getBabyName() {
-		return babyName;
+	
+	@Override
+	public String toString() {
+		return "ParentInfo [babyId=" + Arrays.toString(babyId) + ", identity=" + Arrays.toString(identity)
+				+ ", parentName=" + parentName + ", phoneNumber=" + phoneNumber + ", parentHead=" + parentHead
+				+ ", address=" + address + ", parentId=" + parentId + ", pwd=" + pwd + ", monitorTime="
+				+ Arrays.toString(monitorTime) + ", attendanceTime=" + Arrays.toString(attendanceTime) + ", flower="
+				+ flower + ", token=" + token + ", tokenTime=" + tokenTime + ", registTime=" + registTime + "]";
 	}
-	public void setBabyName(String babyName) {
-		this.babyName = babyName;
+	public ParentInfo() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
-	public Integer getBabyId() {
+	public ParentInfo(String[] babyId, String[] identity, String parentName, String phoneNumber, String parentHead,
+			String address, Integer parentId, String pwd, String[] monitorTime, String[] attendanceTime, Integer flower,
+			String token, Long tokenTime, Long registTime) {
+		super();
+		this.babyId = babyId;
+		this.identity = identity;
+		this.parentName = parentName;
+		this.phoneNumber = phoneNumber;
+		this.parentHead = parentHead;
+		this.address = address;
+		this.parentId = parentId;
+		this.pwd = pwd;
+		this.monitorTime = monitorTime;
+		this.attendanceTime = attendanceTime;
+		this.flower = flower;
+		this.token = token;
+		this.tokenTime = tokenTime;
+		this.registTime = registTime;
+	}
+	public String[] getBabyId() {
 		return babyId;
 	}
-	public void setBabyId(Integer babyId) {
-		this.babyId = babyId;
+	public void setBabyId(String babyId) {
+		this.babyId = babyId.split(",");
 	}
-	public String getIdentity() {
+	public String[] getIdentity() {
 		return identity;
 	}
 	public void setIdentity(String identity) {
-		this.identity = identity;
+		this.identity = identity.split(",");
 	}
 	public String getParentName() {
 		return parentName;
@@ -107,29 +122,17 @@ public class ParentInfo {
 	public void setPwd(String pwd) {
 		this.pwd = pwd;
 	}
-	public Integer getMonitorState() {
-		return monitorState;
-	}
-	public void setMonitorState(Integer monitorState) {
-		this.monitorState = monitorState;
-	}
-	public Long getMonitorTime() {
+	public String[] getMonitorTime() {
 		return monitorTime;
 	}
-	public void setMonitorTime(Timestamp monitorTime) {
-		this.monitorTime = monitorTime.getTime();
+	public void setMonitorTime(String monitorTime) {
+		this.monitorTime = monitorTime.split(",");
 	}
-	public Integer getAttendanceState() {
-		return attendanceState;
-	}
-	public void setAttendanceState(Integer attendanceState) {
-		this.attendanceState = attendanceState;
-	}
-	public Long getAttendanceTime() {
+	public String[] getAttendanceTime() {
 		return attendanceTime;
 	}
-	public void setAttendanceTime(Timestamp attendanceTime) {
-		this.attendanceTime = attendanceTime.getTime();
+	public void setAttendanceTime(String attendanceTime) {
+		this.attendanceTime = attendanceTime.split(",");
 	}
 	public Integer getFlower() {
 		return flower;
@@ -147,8 +150,33 @@ public class ParentInfo {
 		return tokenTime;
 	}
 	public void setTokenTime(Timestamp tokenTime) {
-		this.tokenTime = tokenTime.getTime();
+		this.tokenTime = tokenTime.getTime()/1000;
+	}
+	public Long getRegistTime() {
+		return registTime;
+	}
+	public void setRegistTime(Timestamp registTime) {
+		this.registTime = registTime.getTime()/1000;
 	}
 	
+	public String getGartenId() {
+		return gartenId;
+	}
 
+	public void setGartenId(String gartenId) {
+		this.gartenId = gartenId;
+	}
+	public ParentInfo(String[] babyId, String[] identity, String parentName, String phoneNumber, String address,
+			String gartenId,String pwd) {
+		super();
+		this.babyId = babyId;
+		this.identity = identity;
+		this.parentName = parentName;
+		this.phoneNumber = phoneNumber;
+		this.address = address;
+		this.gartenId = gartenId;
+		this.pwd = pwd;
+	}
+	
+	
 }

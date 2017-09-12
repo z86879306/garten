@@ -6,50 +6,85 @@ public class WorkerInfo {
 	
 	private Integer gartenId;
 	private Integer workerId;
-	private String account;
 	private String pwd;
 	private String workerName;
 	private String phoneNumber;
 	private Integer sex;
 	private Integer age;
-	private String leadClass;
+	private Integer classId;
 	private String education;
 	private String certificate;
 	private String chinese;
+	private String job;
 	private Integer flowers;
 	private String token;
 	private Long tokenTime;
-	@Override
-	public String toString() {
-		return "WorkerInfo [gartenId=" + gartenId + ", workerId=" + workerId + ", account=" + account + ", pwd=" + pwd
-				+ ", workerName=" + workerName + ", phoneNumber=" + phoneNumber + ", sex=" + sex + ", age=" + age
-				+ ", leadClass=" + leadClass + ", education=" + education + ", certificate=" + certificate
-				+ ", chinese=" + chinese + ", flowers=" + flowers + ", token=" + token + ", tokenTime=" + tokenTime
-				+ "]";
+	private String headImg;
+	private Long registTime;
+	private String jobcall;
+	
+	public String getJobcall() {
+		return jobcall;
 	}
-	public WorkerInfo() {
-		super();
-		// TODO Auto-generated constructor stub
+	public void setJobcall(String jobcall) {
+		this.jobcall = jobcall;
 	}
-	public WorkerInfo(Integer gartenId, Integer workerId, String account, String pwd, String workerName,
-			String phoneNumber, Integer sex, Integer age, String leadClass, String education, String certificate,
-			String chinese, Integer flowers, String token, Long tokenTime) {
+	public WorkerInfo(Integer gartenId, Integer workerId, String pwd, String workerName, String phoneNumber,
+			Integer sex, Integer age, Integer classId, String education, String certificate, String chinese, String job,
+			Integer flowers, String token, Long tokenTime, String headImg, Long registTime, String jobcall) {
 		super();
 		this.gartenId = gartenId;
 		this.workerId = workerId;
-		this.account = account;
 		this.pwd = pwd;
 		this.workerName = workerName;
 		this.phoneNumber = phoneNumber;
 		this.sex = sex;
 		this.age = age;
-		this.leadClass = leadClass;
+		this.classId = classId;
 		this.education = education;
 		this.certificate = certificate;
 		this.chinese = chinese;
+		this.job = job;
 		this.flowers = flowers;
 		this.token = token;
 		this.tokenTime = tokenTime;
+		this.headImg = headImg;
+		this.registTime = registTime;
+		this.jobcall = jobcall;
+	}
+	@Override
+	public String toString() {
+		return "WorkerInfo [gartenId=" + gartenId + ", workerId=" + workerId + ", pwd=" + pwd + ", workerName="
+				+ workerName + ", phoneNumber=" + phoneNumber + ", sex=" + sex + ", age=" + age + ", classId=" + classId
+				+ ", education=" + education + ", certificate=" + certificate + ", chinese=" + chinese + ", job=" + job
+				+ ", flowers=" + flowers + ", token=" + token + ", tokenTime=" + tokenTime + ", headImg=" + headImg
+				+ ", registTime=" + registTime + "]";
+	}
+	public WorkerInfo() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public WorkerInfo(Integer gartenId, Integer workerId, String pwd, String workerName, String phoneNumber,
+			Integer sex, Integer age, Integer classId, String education, String certificate, String chinese, String job,
+			Integer flowers, String token, Long tokenTime, String headImg, Long registTime) {
+		super();
+		this.gartenId = gartenId;
+		this.workerId = workerId;
+		this.pwd = pwd;
+		this.workerName = workerName;
+		this.phoneNumber = phoneNumber;
+		this.sex = sex;
+		this.age = age;
+		this.classId = classId;
+		this.education = education;
+		this.certificate = certificate;
+		this.chinese = chinese;
+		this.job = job;
+		this.flowers = flowers;
+		this.token = token;
+		this.tokenTime = tokenTime;
+		this.headImg = headImg;
+		this.registTime = registTime;
 	}
 	public Integer getGartenId() {
 		return gartenId;
@@ -62,12 +97,6 @@ public class WorkerInfo {
 	}
 	public void setWorkerId(Integer workerId) {
 		this.workerId = workerId;
-	}
-	public String getAccount() {
-		return account;
-	}
-	public void setAccount(String account) {
-		this.account = account;
 	}
 	public String getPwd() {
 		return pwd;
@@ -99,11 +128,11 @@ public class WorkerInfo {
 	public void setAge(Integer age) {
 		this.age = age;
 	}
-	public String getLeadClass() {
-		return leadClass;
+	public Integer getClassId() {
+		return classId;
 	}
-	public void setLeadClass(String leadClass) {
-		this.leadClass = leadClass;
+	public void setClassId(Integer classId) {
+		this.classId = classId;
 	}
 	public String getEducation() {
 		return education;
@@ -123,6 +152,12 @@ public class WorkerInfo {
 	public void setChinese(String chinese) {
 		this.chinese = chinese;
 	}
+	public String getJob() {
+		return job;
+	}
+	public void setJob(String job) {
+		this.job = job;
+	}
 	public Integer getFlowers() {
 		return flowers;
 	}
@@ -139,8 +174,19 @@ public class WorkerInfo {
 		return tokenTime;
 	}
 	public void setTokenTime(Timestamp tokenTime) {
-		this.tokenTime = tokenTime.getTime();
+		this.tokenTime = tokenTime.getTime()/1000;
 	}
-	
-	
+	public String getHeadImg() {
+		return headImg;
+	}
+	public void setHeadImg(String headImg) {
+		this.headImg = headImg;
+	}
+	public Long getRegistTime() {
+		return registTime;
+	}
+	public void setRegistTime(Timestamp registTime) {
+		this.registTime = registTime.getTime()/1000;
+	}
+
 }
