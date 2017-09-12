@@ -414,4 +414,30 @@ public class BigcontrolController {
   			Map<String, Object> map = bigcontrolService.addLiveCameraUrl(token, gartenId, cameraIp, cameraPort, cameraUser, cameraPwd, deviceSerial, validateCode, type, pointId,url);
   			return map;
   		}
+  		
+  		
+  	//家长关系 List
+  		@RequestMapping("relation")
+  		@ResponseBody
+  		public synchronized Map<String,Object> relation(){
+  			Map<String, Object> map = bigcontrolService.relation();
+  			return map;
+  		}
+  		
+  	//家长关系 添加
+  		@RequestMapping("addrelation")
+  		@ResponseBody
+  		public synchronized Map<String,Object> addrelation(String relation){
+  			Map<String, Object> map = bigcontrolService.addrelation(relation);
+  			return map;
+  		}
+  		
+  		
+  	//家长关系 删除
+  		@RequestMapping("deleterelation")
+  		@ResponseBody
+  		public synchronized Map<String,Object> deleterelation(Integer relationId){
+  			Map<String, Object> map = bigcontrolService.deleterelation(relationId);
+  			return map;
+  		}
 }

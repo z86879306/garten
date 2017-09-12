@@ -1067,4 +1067,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		set creditMoney=creditMoney+#{price}
 		where   agentId=#{agentId}
 	</update>
+	<update id="deleteOrderNoPay">
+		update torder set
+		isValid=1
+		where state=0
+	</update>
+	
+	<select id="relation"  resultType="Relation">
+		SELECT * FROM parent_relation  w
+	</select>
+	
+	<insert id="addrelation"  >
+		insert  into  parent_relation  set relation=#{relation}
+	</insert>
+	
+	
+	<delete id="deleterelation"  >
+		delete  FROM parent_relation  where relationId=#{relationId}
+	</delete>
 </mapper> 

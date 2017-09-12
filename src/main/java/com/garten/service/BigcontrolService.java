@@ -28,6 +28,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.garten.Thread.BigControlSendNotify;
 import com.garten.Thread.GartenRegisteNotify;
 import com.garten.Thread.HuanXinThread;
 import com.garten.dao.AgentDao;
@@ -47,6 +48,7 @@ import com.garten.model.other.Feedback;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.Order;
 import com.garten.model.parent.ParentInfo;
+import com.garten.model.parent.Relation;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.util.LyParam;
 import com.garten.util.LyUtils;
@@ -719,53 +721,13 @@ public class BigcontrolService {
 			 WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0);
 				if(null!=workerInfo){
-					for(int i=0;i<gartenIds.length;i++){
-						WorkerInfo principal=new WorkerInfo();//准备好给谁发通知
-						List<WorkerInfo> workers=new ArrayList<WorkerInfo>();
-						List<ParentInfo> parents=new ArrayList<ParentInfo>();
-						List<InfoLog> infoLogs=new ArrayList<InfoLog>();
-						if(1==type||0==type){//1给园长发
-							 principal=principalDao.findPrincipalByGartenId(gartenIds[i]);
-						}
-						if(2==type||0==type){//2给家长发
-							parents=parentDao.findParentByGartenId(gartenIds[i]);
-						}
-						if(3==type||0==type){//3给老师发
-							workers=workerDao.findWorkerByGartenId(gartenIds[i]);
-						}
-						//建立通知记录  并发送通知
-						infoLogs.add(new InfoLog(principal.getGartenId(),info,null,"园长",principal.getWorkerId(),null,null,title,2));
-						System.err.println("园长开始发");
 					try {
-						pushOne(MyParamAll.JIGUANG_PRINCIPAL_APP,MyParamAll.JIGUANG_PRINCIPAL_MASTER,info,principal.getPhoneNumber());
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					System.err.println("老师开始发");	
-					for(WorkerInfo w:workers){
-							infoLogs.add(new InfoLog(w.getGartenId(),info,null,"老师",w.getWorkerId(),null,null,title,2));
-							try {
-								pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,info,w.getPhoneNumber());
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-					System.err.println("家长开始发");	
-						for(ParentInfo p:parents){
-							infoLogs.add(new InfoLog(Integer.valueOf(p.getGartenId().split(",")[0]),info,null,"家长",p.getParentId(),null,null,title,2));
-							try {
-								pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,info,p.getPhoneNumber());
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-						for(InfoLog infoLog:infoLogs){//建立通知记录
-							bigcontrolDao.insertInfoLog(infoLog);
-						}
-						
+						BigControlSendNotify bs = new BigControlSendNotify(gartenIds, type, title, info);
+						Thread thread = new Thread(bs);
+						thread.start();
+					} catch (Exception e) {
+						e.printStackTrace();
+						return result;
 					}
 					
 					MyUtil.putMapParams(result,"state", 1);
@@ -1578,9 +1540,80 @@ public class BigcontrolService {
 			
 		}
 		
+		public Map<String, Object> relation() {
+			List<Relation>  list=bigcontrolDao.relation();
+			Map<String,Object> reult=MyUtil.putMapParams("state",1,"info",list);
+			return reult;
+		}
+
+		public Map<String, Object> addrelation(String relation) {
+			bigcontrolDao.addrelation(relation);
+			Map<String,Object> reult=MyUtil.putMapParams("state",1);
+			return reult;
+		}
+
+		public Map<String, Object> deleterelation(Integer relationId) {
+			bigcontrolDao.deleterelation(relationId);
+			Map<String,Object> reult=MyUtil.putMapParams("state",1);
+			return reult;
+		}
+		
 		public void GartenRegisterNotify(String[] datas ,String phoneNumber){
 			MyUtil.register(phoneNumber,MyParamAll.YTX_DUANXIN_ZC, datas);
 		}
 
+		public void deleteOrderNoPay(){
+			bigcontrolDao.deleteOrderNoPay();
+		}
 		
+		public void bigControlSendNotify(Integer[] gartenIds,Integer type,String title,String info){
+			for(int i=0;i<gartenIds.length;i++){
+				WorkerInfo principal=new WorkerInfo();//准备好给谁发通知
+				List<WorkerInfo> workers=new ArrayList<WorkerInfo>();
+				List<ParentInfo> parents=new ArrayList<ParentInfo>();
+				List<InfoLog> infoLogs=new ArrayList<InfoLog>();
+				if(1==type||0==type){//1给园长发
+					 principal=principalDao.findPrincipalByGartenId(gartenIds[i]);
+				}
+				if(2==type||0==type){//2给家长发
+					parents=parentDao.findParentByGartenId(gartenIds[i]);
+				}
+				if(3==type||0==type){//3给老师发
+					workers=workerDao.findWorkerByGartenId(gartenIds[i]);
+				}
+				//建立通知记录  并发送通知
+				infoLogs.add(new InfoLog(principal.getGartenId(),info,null,"园长",principal.getWorkerId(),null,null,title,2));
+				System.err.println("园长开始发");
+			try {
+				pushOne(MyParamAll.JIGUANG_PRINCIPAL_APP,MyParamAll.JIGUANG_PRINCIPAL_MASTER,info,principal.getPhoneNumber());
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			System.err.println("老师开始发");	
+			for(WorkerInfo w:workers){
+					infoLogs.add(new InfoLog(w.getGartenId(),info,null,"老师",w.getWorkerId(),null,null,title,2));
+					try {
+						pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,info,w.getPhoneNumber());
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			System.err.println("家长开始发");	
+				for(ParentInfo p:parents){
+					infoLogs.add(new InfoLog(Integer.valueOf(p.getGartenId().split(",")[0]),info,null,"家长",p.getParentId(),null,null,title,2));
+					try {
+						pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,info,p.getPhoneNumber());
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				for(InfoLog infoLog:infoLogs){//建立通知记录
+					bigcontrolDao.insertInfoLog(infoLog);
+				}
+				
+			}
+		}
 }

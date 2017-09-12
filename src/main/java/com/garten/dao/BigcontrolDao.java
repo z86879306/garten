@@ -30,6 +30,7 @@ import com.garten.model.other.InfoLog;
 import com.garten.model.other.Order;
 import com.garten.model.other.Version;
 import com.garten.model.parent.ParentInfo;
+import com.garten.model.parent.Relation;
 import com.garten.model.worker.WorkerCheckLog;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.model.worker.WorkerLeaveLog;
@@ -232,4 +233,13 @@ public interface BigcontrolDao {
 	void updateAgentCredits(Map<String, Object> m);
 
 	Integer findParentMessageCount(Map<String, Object> params);
+
+	void deleteOrderNoPay();
+	
+	List<Relation> relation();
+
+	void addrelation(String relation);
+
+	void deleterelation(Integer relationId);
+
 }

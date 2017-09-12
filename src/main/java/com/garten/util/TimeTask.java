@@ -22,16 +22,24 @@ public class TimeTask {
 	@Autowired
 	private BigcontrolService bigcontrolService;
 	
+	
+	//每天更新红花
 	public void updateHonghua(){
 		parentService.updateFlower();
 	}
 	
-	
+	//宝宝生日提醒
 	public void babyBirthday() throws APIConnectionException, APIRequestException{
 		parentService.babyBirthday();
 	}
 	
+	//每年添加忽略时间
 	public  void addIgnoreEveryYear() throws ParseException {
 		bigcontrolService.addIgnoreEveryYear();
+	}
+	
+	//每天删除未支付订单
+	public void deleteOrderNoPay(){
+		bigcontrolService.deleteOrderNoPay();
 	}
 }

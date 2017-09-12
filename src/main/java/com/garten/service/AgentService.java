@@ -22,6 +22,7 @@ import com.garten.dao.AgentDao;
 import com.garten.dao.BigcontrolDao;
 import com.garten.dao.ParentDao;
 import com.garten.dao.PrincipalDao;
+import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
@@ -77,7 +78,8 @@ public class AgentService {
 	private ParentService parentService;
 	@Autowired
 	private PrincipalDao principalDao;
-	
+	@Autowired
+	private SmallcontrolDao smallcontrolDao;
 	public Map<String, Object> login(String phoneNumber, String pwd) {
 		Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
 		AgentInfo agent=agentDao.findAgentByPwd(param);
@@ -235,6 +237,10 @@ public class AgentService {
 			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 			 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 			 if(null!=agentInfo){
+				 WorkerInfo worker = smallcontrolDao.findWorkerByPhoneNumber(phoneNumber);
+				 if(null!=worker){
+					 return MyUtil.putMapParams(result,"state", 2);			//该幼儿园联系手机号码已经被注册
+				 }
 				 agentDao.addApplyGarten(gartenName,name, phoneNumber, contractNumber, province,
 							 city, countries, count, money, equipment,agentInfo.getAgentId());
 				 MyUtil.putMapParams(result,"state", 1,"info","操作成功" );
