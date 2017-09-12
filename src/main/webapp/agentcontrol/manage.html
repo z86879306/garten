@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/manage.css">
+</head>
+<body>
+<header id="header">
+    {{name}}
+</header>
+<main id="main">
+    <nav id="nav">
+        <div class="sidebar-title"><span></span>子代理管理</div>
+        <ul class="sidebar-content">
+            <li>
+                <router-link to="/agentList"><span></span>子代理列表</router-link>
+            </li>
+            <li>
+                <router-link to="/performanceStatistics"><span></span>子代理业绩统计</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>幼儿园管理</div>
+        <ul class="sidebar-content">
+            <li>
+                <router-link to="/kindergartenManage"><span></span>幼儿园管理</router-link>
+            </li>
+            <li>
+                <router-link to="/kindergartenApply"><span></span>开园申请</router-link>
+            </li>
+            <li>
+                <router-link to="/kindergartenFollow"><span></span>访园跟进</router-link>
+            </li>
+        </ul>
+    </nav>
+    <section id="content">
+        <router-view></router-view>
+        <form action=""></form>
+    </section>
+
+
+</main>
+</body>
+<script src="lib/vue/vue.js"></script>
+<script src="lib/vue/vue-router.js"></script>
+<script src="lib/jQuery/jquery-3.2.1.js"></script>
+<script src="js/manage.js"></script>
+</html>

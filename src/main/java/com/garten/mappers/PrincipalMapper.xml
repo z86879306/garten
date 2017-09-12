@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.garten.dao.PrincipalDao">
+	<select id="findPrincipalByPwd"  resultType="WorkerInfo">
+		SELECT * FROM worker＿info  w
+		where phoneNumber=#{phoneNumber} 
+		and pwd=#{pwd}
+		and job='园长'
+		and w.isValid=0
+	</select>
+	
+	<select id="findPrincipalInfoById"  resultType="WorkerInfo">
+		SELECT * FROM worker＿info  w
+		where  w.workerId=#{id}
+		and job='园长'
+		and w.isValid=0
+	</select>
+	
+	
+	<update id="updateToken"  >
+		update   worker＿info  w
+		set w.token=#{token},tokenTime=now()
+		where phoneNumber=#{phoneNumber} 
+		and w.job='园长'
+	</update>
+	
+	
+	
+	<update id="updatePwdToken"  >
+		update   worker＿info w
+		set token=#{token},tokenTime=now(),pwd=#{pwd}
+		where phoneNumber=#{phoneNumber} 
+		and w.job in ('园长')
+	</update>
+    
+    <update id="updateTeacherHead"  >
+	UPDATE worker＿info w
+	set headImg=#{imgAddress}
+	where workerId=#{workerId}
+	</update>
+	
+    <select id="findParentPhotoByToken"  resultType="GartenPhotos">
+			SELECT * FROM
+		garten_photos gp, worker＿info w, baby_info b, parent_info p
+		WHERE
+			w.token = #{token}
+		AND w.gartenId=gp.gartenId
+		AND FIND_IN_SET(b.babyId, p.babyId)
+		AND gp.job = '家长'
+		AND gp.isValid = 0 AND w.isValid = 0 AND b.isValid = 0 AND p.isValid = 0
+		GROUP BY gp.infoId
+	</select>
+	
+	<select id="findWorkerPhotoByToken"  resultType="GartenPhotos">
+	select * from garten_photos p
+		join worker＿info w on w.gartenId=p.gartenId
+		where p.job in('老师','园长') and w.token=#{token}
+		and p.isValid=0 and w.isValid=0
+	</select>
+	
+	
+    <select id="findVideosByToken"  resultType="Video">
+		SELECT * FROM
+			garten_video v,worker＿info w
+			WHERE
+			w.gartenId=v.gartenId
+			and w.token=#{token}
+				and w.isvalid=0 and v.isvalid=0
+				
+				
+				
+			
+			
+			<if test="	classId!=null and classId!=''" >
+				and NOT EXISTS
+          (SELECT * FROM 	garten_video ,worker＿info 
+         WHERE v.type=0 AND v.pointId not in (#{classId}))
+         and v.type not in ('3')
+			</if>
+			
+			<if test="	classId==null or classId==''" >
+				and v.type not in ('0')
+			</if>
+	
+	</select>
+	<!-- 
+	<select id="findVideosByToken"  resultType="Video">
+		SELECT * FROM
+			garten_video v,worker＿info w
+			WHERE
+			w.gartenId=v.gartenId
+			and w.token=#{token}
+			and w.isvalid=0 and v.isvalid=0
+			
+			
+			and NOT EXISTS
+          (SELECT * FROM 	garten_video ,worker＿info 
+         WHERE type=0 AND v.pointId not in (classId))
+		
+	</select> -->
+	
+	
+	<select id="findVersion"  resultType="Version">
+		select * from version v 
+		where type=2
+		 and v.isValid=0 
+		 order by v.time desc
+		  limit 1
+	</select>
+	
+	
+    <select id="findWorkerCheckByToken"  resultType="WorkerCheckLogAll">
+			SELECT 	 w.gartenId, w.workerId,c.arriveTime,
+c.leaveTime,c.time,c.checkId, c.amFileId, c.pmFileId, c.amMacId,c.pmMacId, c.arriveImg,  c.leaveImg,
+	 w.workerName,w.headImg workerHead 
+	 FROM
+		 		worker_check_log c 
+	 			JOIN worker＿info w ON c.workerId=w.workerId
+			WHERE
+				w.gartenId = (select wi.gartenId from worker＿info wi where wi.token=#{token})
+				and UNIX_TIMESTAMP(c.time)=#{time}
+				AND c.isValid = 0	AND w.isValid = 0
+	</select>
+	
+	<select id="findUnusualAllByToken"  resultType="UnusualAll">
+		SELECT u.unusualTime, u.unusualType, u.unusualImg,
+	u.jobId, u.gartenId, u.state, u.fileId,
+	u.cardNo, u.unusualId, u.time, u.job,
+	w.workerName jobName, w.headImg jobHead
+		FROM
+			unusual u, `worker＿info` w
+		WHERE
+			 u.jobId = w.workerId
+		AND u.job = '老师'
+		AND w.gartenId = (select gartenId from worker＿info where token=#{token})
+		AND UNIX_TIMESTAMP(u.time) &lt; #{endTime}
+		AND UNIX_TIMESTAMP(u.time) &gt; #{startTime}
+		AND u.isValid = 0 AND w.isValid = 0
+	</select>
+	
+	
+	<select id="findBabyCheckByClass"  resultType="BabyCheckLogAll">
+		SELECT * FROM baby_info b
+		LEFT JOIN baby_check_log c ON b.babyId = c.babyId
+		LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
+		WHERE w.classId = #{classId}
+		AND UNIX_TIMESTAMP(c.time) = #{time}
+		AND b.isValid = 0 AND c.isValid = 0 AND w.isValid = 0
+		GROUP BY b.babyId
+	</select>
+	
+	<select id="findBabyCheckByClassSmall"  resultType="BabyCheckLogAll">
+		SELECT * FROM baby_info b
+		LEFT JOIN baby_check_log c ON b.babyId = c.babyId
+		LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
+		left join garten_class gc on w.classId=gc.classId
+		WHERE  UNIX_TIMESTAMP(c.time) = #{time}
+		
+		<if test="	classId==null or  classId=='' " >
+				and w.classId in (select classId from garten_class where gartenId=#{gartenId})
+			</if>
+			
+			<if test=" classId!=null and classId!='' " >
+				and w.classId = #{classId}
+			</if>
+		AND b.isValid = 0 AND c.isValid = 0 AND w.isValid = 0
+		GROUP BY b.babyId
+	</select>
+	
+	
+	
+    <select id="findPrincipalByAccount"  resultType="WorkerInfo">
+		select * from worker＿info w 
+		where phoneNumber=#{phoneNumber}
+		and job='园长'
+		and w.isValid=0
+	</select>
+	
+	 <select id="findPrincipalByGartenId"  resultType="WorkerInfo">
+		select * from worker＿info w 
+		where gartenId=#{gartenId}
+		and job='园长'
+		and w.isValid=0
+	</select>
+	
+	
+	<select id="findPrincipalInfoByToken"  resultType="WorkerInfo">
+		SELECT * FROM
+		   worker＿info w
+		WHERE
+		w.token = #{token}
+		and w.job='园长'
+		and w.isValid=0
+	</select>
+	
+	<select id="findLeaveLogByToken"  resultType="WorkerLeaveLogPrin">
+		SELECT * FROM
+		 worker＿info w 
+		JOIN worker_leave_log l ON w.workerId =l.workerId
+		WHERE
+		w.gartenId = (select gartenId from worker＿info where token=#{token} )
+		and UNIX_TIMESTAMP(l.leaveTime)-86400 &lt; #{time}
+		and #{time}  &lt; UNIX_TIMESTAMP(l.endTime)
+		AND l.isValid = 0	AND w.isValid = 0
+
+	</select>
+	
+	<select id="findYichangLongByToken"  resultType="Long">
+		SELECT unix_timestamp(u.time) FROM
+			worker＿info w
+		JOIN unusual u ON w.workerId = u.jobId
+		WHERE
+			w.gartenId in (select gartenId from worker＿info  where token=#{token})
+		AND u.job = '老师'
+		AND u.isValid = 0
+		AND w.isValid = 0
+		GROUP BY
+			u.time
+	</select>
+	
+	
+	<!-- <select id="findWorkerCheckAllByToken"  resultType="WorkerCheckLogAll">
+		SELECT * FROM worker_check_log c 
+	 	JOIN worker＿info w ON c.workerId=w.workerId
+		WHERE
+		w.gartenId = (select wi.gartenId from worker＿info wi where wi.token=#{token})
+		AND c.arriveTime IS NOT NULL
+		AND c.leaveTime IS NOT NULL
+		AND c.isValid = 0	AND w.isValid = 0
+	</select> -->
+	
+	 <select id="findYichangCircleByToken"  resultType="Long">
+		select UNIX_TIMESTAMP(u.time) from unusual u where job='老师' 
+		and u.gartenId = (select w.gartenId from worker＿info w where w.token=#{token} 
+		and w.isvalid=0)
+		and u.isValid=0 
+	</select>
+	
+	
+	<select id="findLeaveLongByToken"  resultType="WorkerLeaveLog">
+		SELECT * FROM
+		 worker_leave_log l
+		join  worker＿info w ON l.workerId=w.workerId
+		WHERE
+			w.gartenId = (select gartenId from worker＿info where token=#{token} )
+		AND l.isValid = 0 AND w.isValid = 0
+	</select>
+	
+	
+	<select id="findParentLinkMan"  resultType="ParentInfoShort">
+		select * from parent_info p ,
+		worker＿info w,
+		baby_info b 
+		where 
+		 w.classId=#{classId}
+		and FIND_IN_SET(w.workerId,b.teacherId)
+		and FIND_IN_SET(b.babyId,p.babyId)
+		and w.isValid=0 and p.isValid=0 and b.isValid=0 
+		group by p.parentId
+	</select>
+	
+	
+	<update id="updateAgreeLeaveByCheckId"  >
+	UPDATE worker_leave_log l
+	set leaveState=1
+	where wleaveId=#{wleaveId}
+	</update>
+	
+	 <delete id="deleteWorkerLeaveByleaveId" >
+        delete from worker_leave_log where  wleaveId=#{wleaveId}
+    </delete>
+</mapper> 

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        input {
+
+        }
+    </style>
+</head>
+<body>
+<input type="text">
+<div id="box">
+
+        <div v-for="item in arr"><input type="text" v-model="item.checked"></div>
+
+
+    <child ref="aaa" :data1="arr"></child>
+</div>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+<script>
+    Vue.component('child', {
+        props: ['data1'],
+        data: function () {
+            return {
+                x: 1,
+            }
+        },
+        template:
+        '<div class="infoManage">'+
+        '<div class="filter">'+
+        '<div>' +
+        '<select v-model="current_usersType">' +
+        '<option>家长信息管理</option>'+
+        '<option>宝宝信息管理</option>'+
+        '<option>老师信息管理</option>'+
+        '<option>幼儿园信息管理</option>'+
+        '</select>'+
+        '<public-address3></public-address3>'+
+        '<public-kindergarten v-show="current_usersType !=='+"'幼儿园信息管理'"+'"></public-kindergarten>'+
+        '</div>'+
+        '姓名(或幼儿园名): <input class="name" type="text">'+
+        '<div v-show="current_usersType !=='+"'宝宝信息管理'"+'" class="inlineBlock">' +
+        '手机号: <input type="text">'+
+        '</div>'+
+        '<div v-show="current_usersType ==='+"'家长信息管理'"+' || current_usersType ==='+"'幼儿园信息管理'"+'" class="inlineBlock">' +
+        '视频功能: '+
+        '<select>'+
+        '<option>请选择</option>'+
+        '<option>未开通</option>'+
+        '<option>已开通</option>'+
+        '</select>'+
+        '考勤功能: '+
+        '<select>'+
+        '<option>请选择</option>'+
+        '<option>未开通</option>'+
+        '<option>已开通</option>'+
+        '</select>'+
+        '</div>' +
+        '<div v-show="current_usersType ==='+"'宝宝信息管理'"+'" class="inlineBlock">' +
+        '年级: ' +
+        '<select>'+
+        '<option>请选择</option>'+
+        '<option>大班(名字自动生成)</option>'+
+        '<option>二班(名字自动生成)</option>'+
+        '</select>'+
+        '班级: '+
+        '<select>'+
+        '<option>请选择</option>'+
+        '<option>1班(名字自动生成)</option>'+
+        '<option>小班(名字自动生成)</option>'+
+        '</select>'+
+        '</div>'+
+        '</div>'+
+        '<public-table :title="current_usersData.tableTitle" :item="current_usersData.tableItem" :itemCount="16 - current_usersData.tableItem.length" v-on:getOperationObj="operation"></public-table>'+
+        '<public-paging :pages="pages" v-on:goPage="getGoPage"></public-paging>' +
+        //家长详细信息
+        '<div class="look-Detaildata" v-if="showDetail === '+"'patriarch'"+'">'+
+        '<h3>家长详细信息: </h3>'+
+        '<div>姓名: <input type="text" value="" disabled></div>'+
+        '<div>详细地址: <input type="text" value="" disabled></div>'+
+        '<div>手机号: <input disabled type="text" value=""></div>'+
+        '<div>密码: <input type="text" disabled></div>'+
+        '<div>视频功能开启状态: <input type="text" disabled></div>'+
+        '<div>考勤功能开启状态: <input type="text" disabled></div>'+
+        '<div class="look"><input @click="closeDetail" class="clear" type="button" value="关闭"></div>'+
+        '</div>'+
+        //宝宝详细信息
+        '<div class="look-Detaildata" v-if="showDetail === '+"'baby'"+'">'+
+        '<h3>宝宝详细信息: </h3>'+
+        '<div>姓名: <input type="text" value="" disabled></div>'+
+        '<div>学号: <input type="text" value="" disabled></div>'+
+        '<div>所在幼儿园ID: <input  type="text" value="" disabled></div>'+
+        '<div>带班老师: <input  type="text" value="" disabled></div>'+
+        '<div>年级: <input type="text" disabled></div>'+
+        '<div>班级: <input type="text" disabled></div>'+
+        '<div>监护人: <input type="text" disabled></div>'+
+        '<div>监护人关系: <input type="text" disabled></div>'+
+        '<div>监护人手机号: <input type="text" disabled></div>'+
+        '<div class="look"><input @click="closeDetail" class="clear" type="button" value="关闭"></div>'+
+        '</div>'+
+        //老师详细信息
+        '<div class="look-Detaildata" v-if="showDetail === '+"'teacher'"+'">'+
+        '<h3>老师详细信息: </h3>'+
+        '<div>姓名: <input type="text" value="" disabled></div>'+
+        '<div>性别: <input type="text" value="" disabled></div>'+
+        '<div>年龄: <input type="text" value="" disabled></div>'+
+        '<div>学历: <input type="text" value="" disabled></div>'+
+        '<div>教师资格证: <input type="text" value="" disabled></div>'+
+        '<div>普通话: <input type="text" value="" disabled></div>'+
+        '<div>所在幼儿园ID: <input  type="text" value="" disabled></div>'+
+        '<div>教职工编号: <input  type="text" value="" disabled></div>'+
+        '<div>所带班级: <input  type="text" value="" disabled></div>'+
+        '<div>手机号: <input  type="text" value="" disabled></div>'+
+        '<div class="look"><input @click="closeDetail" class="clear" type="button" value="关闭"></div>'+
+        '</div>'+
+        '</div>', //infoManage
+        watch:{
+            data1:function () {
+                console.log(this.data1);
+            }
+        },
+        methods:{
+            fn:function () {
+                console.log(this.data1);
+            }
+        }
+
+
+    });
+    var vm = new Vue({
+        el: '#box',
+        data: {
+            arr:[
+                {
+                    name : 'xiaoming',
+                    checked:true
+                },
+                {
+                    name : 'zhangsan',
+                    checked:false
+                }
+            ]
+        }
+    });
+</script>
+</body>
+</html>

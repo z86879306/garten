@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.garten.dao.AttendanceDao">
+    
+    <select id="findPartnerById" resultType="PartnerInfo">
+    select *  
+    from 
+    	partner_info 
+    where 
+    	partnerId=#{partnerId}      
+     </select>
+      
+    <update id="updateToken">
+    	update partner_info
+    	set 
+    		partnerToken=#{token},tokenTime=UNIX_TIMESTAMP(now()),
+    		tokenExpireTime=UNIX_TIMESTAMP(now())+2592000
+    	where partnerId=#{partnerId}
+    </update>
+    
+    <select id="findPartnerTokenInfo" resultType="PartnerTokenInfo">
+    	select p.partnerID,p.partnerToken,p.tokenTime,p.tokenExpireTime 
+    	from 
+    		partner_info p,attendance_machine am
+    	where p.partnerId=#{partnerId}
+    		and am.macId=#{macId}
+    		and am.isValid=0
+    </select>
+    
+    <select id="findGartenByToken" resultType="GartenInfo">
+    	select * from garten_info
+    	where token=#{schoolToken} and isValid=0
+    </select>
+    
+    <select id="findPartnerByTokenAndId" resultType="PartnerInfo">
+    	select * from partner_info
+    	where partnerToken=#{partnerToken}
+    	and UNIX_TIMESTAMP(now()) &lt; tokenExpireTime
+    	and partnerId=#{partnerId}
+    </select>
+    
+    
+    <resultMap type="AttGartenClass" id="GartenClassMap">
+    	<result property="classId" column="classId"/>
+    	<result property="gradeName" column="leadGrade"/>
+    	<result property="className" column="leadClass"/>
+    </resultMap>
+    
+    <select id="findGartenClass"  resultMap="GartenClassMap">
+    	select 
+    		classId,leadGrade,leadClass
+    	from 
+    		garten_class gc,garten_info g
+    	where
+    		gc.gartenId=g.gartenId
+    		and g.token=#{schoolToken}
+    		and gc.isValid=0 and g.isValid=0 
+    </select>
+    
+    <select id="findBabyByClassId" resultType="BabySimpleInfo">
+    	select
+    		b.babyName,b.babyId
+    	from
+    		baby_info b,worker＿info w
+    	where
+    		w.classId=#{classId}
+    		and b.teacherId=w.workerId
+    		and w.isValid=0
+    		and b.isValid=0
+    	group by b.babyId
+    </select>
+   
+    <update id="updateBabyAmCheckLog">
+    	update baby_check_log 
+    	set 
+    	arriveTime=#{attendanceDate},temperature=#{examValue},
+    	amFileId=#{fileId},amMacId=#{macId},arriveImg=#{imgUrl}
+    	where
+    	gartenId=#{gartenId}
+    	and babyId=#{babyId} 
+    	and time=#{examDate}
+    </update>
+    
+    
+    <resultMap type="TeacherAndBabyInfo" id="TeachersMap">
+    	<result property="babyId" column="workerId"/>
+    	<result property="name" column="workerName"/>
+    	<result property="classesId" column="classesId"/>
+    	<result property="classesName" column="leadClass"/>
+    	<result property="cardNo1" column="cardNo1"/>
+    	<result property="cardNo2" column="cardNo2"/>
+    	<result property="cardNo3" column="cardNo3"/>
+    	<result property="fileUrl" column="headImg"/>
+    	<result property="type" column="job"/>
+    </resultMap>
+    <select id="findTeachers" resultMap="TeachersMap">
+    	select 
+    		w.workerId,w.workerName,w.classId,gc.leadClass,an.cardNo1,w.headImg,an.job,an.cardNo2,an.cardNo3
+    	from
+    		worker＿info w,attendance_no an,garten_class gc
+    	where
+    		w.gartenId=#{gartenId}
+    		and w.classId=gc.classId
+    		and w.workerId=an.jobId
+    		and an.job='老师'
+    		and w.isValid=0
+    </select>
+    
+    <resultMap type="TeacherAndBabyInfo" id="BabysMap">
+    	<result property="babyId" column="babyId"/>
+    	<result property="name" column="babyName"/>
+    	<result property="classesId" column="classesId"/>
+    	<result property="classesName" column="leadClass"/>
+    	<result property="cardNo1" column="cardNo1"/>
+    	<result property="cardNo2" column="cardNo2"/>
+    	<result property="cardNo3" column="cardNo3"/>
+    	<result property="fileUrl" column="babyHead"/>
+    	<result property="type" column="job"/>
+    </resultMap>
+    
+    <select id="findBabys" resultMap="BabysMap">
+    	select 
+    		b.babyId,b.babyName,w.classId,gc.leadClass,an.cardNo1,b.babyHead,an.job,an.cardNo2,an.cardNo3
+    	from
+    		baby_info b,worker＿info w,attendance_No an,garten_class gc
+    	where
+    		find_in_set(w.workerId,b.teacherId)
+    		and b.gartenId=#{gartenId}
+    		and b.babyId=an.jobId
+    		and an.job='宝宝'
+			and w.classId=gc.classId
+			and b.isValid=0
+			group by b.babyId
+    </select>
+    
+ 
+ 	<select id="findEquipmentByMacId" resultType="EquipmentShort">
+		select cameraIp,cameraPort,cameraUser,cameraPwd,type
+		from
+		equipment
+		where
+		gartenId=#{gartenId} and Find_IN_SET(#{macId},macId) and isValid=0
+ 	</select>
+    
+    
+    <select id="findGartenAttendanceFlag" resultType="map">
+    	select 
+    		teacherAttendanceFlag,studentAttendanceFlag
+    	from
+    		garten_info
+    	where
+    		gartenId=#{gartenId}
+    	
+    </select>
+    
+    <update id="updateBabyPmCheckLog">
+    	update baby_check_log
+    	set
+    		leaveTime=#{attendanceDate},pmFileId=#{fileId},pmMacId=#{macId},leaveImg=#{imgUrl}
+    	<if test="examValue!=null">
+    		,temperature=#{examValue}
+    	</if>
+    	where
+    		gartenId=#{gartenId}
+    		and time=#{examDate}
+    		and babyId=#{babyId}
+    </update>
+    
+    <select id="findParmByFileIdFromDakaLog" resultType="map">
+    	select jobId,imgUrl,job from
+    	daka_log
+    	where
+    	fileId=#{fileId} 
+    </select>
+    
+    <update id="updateBabyArriveImg">
+    	update baby_check_log
+    	set
+    		arriveImg=#{imgPath}
+    	where
+    		amFileId=#{fileId}
+    </update>
+    
+    <update id="updateBabyLeaveImg">
+    	update baby_check_log
+    	set
+    		leaveImg=#{imgPath}
+    	where
+    		pmFileId=#{fileId}
+    </update>
+   
+   
+	<select id="findPlayTimeByGartenToken" resultType="map">
+  		select arriveStartTime,arriveEndTime,leaveStartTime,leaveEndTime
+  		from
+  			garten_info
+  		where
+  			token=#{schoolToken}
+	</select>
+	
+	<select id="findBabyCheckByTime" resultType="BabyCheckLog">
+		select * from baby_check_log
+		where time=#{time}
+		and babyId=#{babyId}
+	</select>
+	<select id="findArriveLeaveTimeByToken" resultType="map">
+		select arriveEndTime,leaveStartTime
+		from garten_info
+		where token=#{schoolToken}
+	</select>
+	
+	<insert id="addUnusual">
+		insert into unusual(unusualTime,unusualType,jobId,gartenId,time,state,fileId,cardNo,unusualImg,job)
+		values(#{unusualTime},#{unusualType},#{babyId},#{gartenId},#{time},#{stage},#{fileId},#{cardNo},#{imgUrl},#{job})
+	</insert>
+	
+	<select id="fingBabyIdByFileIdFromUnusual" resultType="Integer">
+		select jobId from
+    	unusual
+    	where
+    	fileId=#{fileId}
+	</select>
+	
+	<update id="updateUnusualImg">
+		update unusual
+		set unusualImg=#{imgPath}
+		where
+			fileId=#{fileId}
+	</update>
+	
+	<select id="findJobById" resultType="string">
+		select job from
+		attendance_no
+		where jobId=#{jobId}
+	</select>
+	
+	<insert id="addAttendanceLog">
+		insert into 
+		daka_log(attendanceTime,jobId,gartenId,time,fileId,cardNo,macId,job,imgUrl)
+		values(#{attendanceTime},#{babyId},#{gartenId},#{time},#{fileId},#{cardNo},#{macId},#{job},#{imgUrl})
+	</insert>
+	
+	<select id="findWorkerCheckByTime" resultType="WorkerCheckLog">
+		select * from worker_check_log
+		where 	time=#{time}
+		and workerId=#{workerId}
+	</select>
+	
+	<update id="updateWorkerAmCheckLog">
+		update worker_check_log
+    	set 
+    		arriveTime=#{attendanceDate},amFileId=#{fileId},amMacId=#{macId},arriveImg=#{imgUrl}
+    	where
+    		gartenId=#{gartenId}
+    		and time=#{examDate}
+    		and workerId=#{babyId}
+		
+	</update>
+	<update id="updateWorkerPmCheckLog">
+		update worker_check_log
+		set 
+			leaveTime=#{attendanceDate},pmFileId=#{fileId},pmMacId=#{macId},leaveImg=#{imgUrl}
+		where
+		gartenId=#{gartenId}
+		and time=#{examDate}
+   		and workerId=#{workerId}
+	</update>
+	
+	<select id="findNameAndParentAndTeachersByBabyId" resultType="map">
+		select parentId,babyName,teacherId from baby_info 
+		where babyId=#{babyId}
+	</select>
+	
+	<insert id="addInfoLog">
+		insert into info_log(gartenId,info,time,job,id,state,title,type)
+		values(#{gartenId},#{info},#{time},#{job},#{parentId},0,#{babyName},1)
+	</insert>
+	
+	<select id="findAdminByGartenId" resultType="AdminInfoLog">
+		select workerName,workerId,job,phoneNumber
+		from worker＿info 
+		where gartenId=#{gartenId}
+		and job='园长' <!-- or job='总管理员' -->  
+	</select>
+	
+	<select id="findTeacherNameById" resultType="string">
+		select workerName from 
+		worker＿info
+		where 
+		workerId=#{workerId}
+	</select>
+	
+	<update id="updateDakaLogImg">
+		update daka_log 
+		set imgUrl=#{imgPath}
+		where fileId=#{fileId}
+	</update>
+
+	<select id="findBabyArriveImgByFileId" resultType="string">
+		select arriveImg from baby_check_log
+		where amFileId=#{fileId} or pmFileId=#{fileId}
+	</select>
+	
+	<select id="findWorkerArriveImgByFileId" resultType="string">
+		select arriveImg from worker_check_log
+		where amFileId=#{fileId} or pmFileId=#{fileId}
+	</select>
+	
+	<update id="updateWorkerArriveImg">
+    	update worker_check_log
+    	set
+    		arriveImg=#{imgPath}
+    	where
+    		amFileId=#{fileId}
+    </update>
+    
+   <update id="updateWorkerLeaveImg">
+    	update worker_check_log
+    	set
+    		leaveImg=#{imgPath}
+    	where
+    		pmFileId=#{fileId}
+    </update>
+    
+    <select id="findGartenRebootFlag" resultType="Integer">
+    	select rebootFlag from attendance_machine 
+    	where macId=#{macId}
+    </select>
+    
+    <update id="updateRebootFlag">
+    	update attendance_machine set
+    	rebootFlag=0
+    	where macId=#{macId}
+    </update>
+    
+    <select id="findCardIsExist" resultType="string">
+    	select cardNo from attendance_no where jobId=#{jobId}
+    </select>
+    
+    <update id="updateCardNoById">
+    	update attendance_no set cardNo=#{cardNo} where jobId=#{jobId}
+    </update>
+    
+    <select id="findParentPhoneById" resultType="string">
+    	select phoneNumber from parent_info where parentId=#{parentId}
+    </select>
+    
+    <select id="getTeacherPhoneById" resultType="string">
+    	select phoneNumber from worker＿info where workerId=#{id}
+    </select>
+    
+    <select id="findIgnoreTimeByGartenToken" resultType="string">
+    	select it.time from 
+    	ignore_time it,garten_info g 
+    	where it.gartenId=g.gartenId and g.token=#{schoolToken}
+    </select>
+    
+    <select id="findAttendanceUseful" resultType="Integer">
+    	SELECT unix_timestamp(attendanceTime)>unix_timestamp(NOW()) from garten_info WHERE token=#{schoolToken}
+    </select>
+    
+    <insert id="addCheckImg">
+    	insert into check_img(imgUrl,fileId) values(#{imgPath},#{fileId})
+    </insert>
+</mapper>

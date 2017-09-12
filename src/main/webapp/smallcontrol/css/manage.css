@@ -1,0 +1,570 @@
+html, body {
+    height: 100%;
+}
+
+#header {
+    padding: 0 20px;
+    position: fixed;
+    width: 100%;
+    z-index: 1;
+    height: 50px;
+    background-color: #b9df8b;
+    line-height: 50px;
+    font-size: 24px;
+    text-align: center;
+    color: #742402;
+}
+
+#header .manage,
+#header .cancel {
+    position: absolute;
+    font-size: 16px;
+}
+
+#header .manage {
+    padding-right: 30px;
+    top: 0;
+    right: 100px;
+    border-right: 1px solid #D2F8A2;
+}
+
+#header .manage .manage-name {
+    color: #ffcc01;
+}
+
+#header .cancel {
+    top: 0;
+    right: 20px;
+    width: 80px;
+}
+
+#nav {
+    position: fixed;
+    padding-top: 50px;
+    top: 0;
+    bottom: 0;
+    background-color: #c1e98c;
+    width: 220px;
+    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    vertical-align: middle;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#nav .sidebar-title span {
+    display: inline-block;
+    width: 12.25px;
+    height: 12px;
+    margin: 0 8px 0 20px;
+    vertical-align: middle;
+    background: url(../images/arrow.png) no-repeat 0 0/100%;
+}
+
+#nav span.current {
+    transform: rotate(90deg);
+}
+
+#nav .sidebar-title {
+    height: 40px;
+    color: #742402;
+    line-height: 40px;
+    letter-spacing: 0.02em;
+}
+
+#nav .sidebar-title:hover {
+    background-color: #ffe551;
+}
+
+#nav .sidebar-content {
+    display: none;
+    background-color: #b9df8b;
+}
+
+#nav .sidebar-content li {
+    height: 40px;
+    line-height: 40px;
+    color: #742402;
+}
+
+#nav .sidebar-content li:hover {
+    background-color: #c5eb97;
+}
+
+#nav .sidebar-content li.current {
+    background-color: #ffe551;
+}
+
+#nav .sidebar-content li a {
+    color: #742402;
+    display: block;
+}
+
+#nav .sidebar-content li span {
+    float: left;
+    margin-top: 8px;
+    margin-left: 14px;
+    margin-right: 10px;
+    width: 24px;
+    height: 24px;
+    background: no-repeat 0 0/100%;
+    background-image: url(../images/statistics.png);
+}
+
+/*内容部分*/
+#content {
+    position: absolute;
+    top: 50px;
+    bottom: 0;
+    left: 220px;
+    right: 0;
+    padding: 4px 4px 0 4px;
+    font-size: 16px;
+    line-height: 150%;
+}
+
+#content .address3,
+#content .date {
+    display: inline-block;
+}
+
+#content .inlineBlock {
+    display: inline-block;
+}
+
+/*所有select样式*/
+#content select {
+    padding-bottom: 4px;
+    margin-right: 10px;
+    background-color: #c5eb97;
+    color: #742402;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+/*所有表格组件默认样式*/
+#content table {
+    width: 100%;
+    margin: 0 auto;
+    margin-top: 4px;
+    collapse: collapse;
+    border-spacing: 0;
+    min-width: 680px;
+    vertical-align: middle;
+}
+
+#content table th,
+#content table td {
+    border: 1px solid #c5eb97;
+    line-height: 150%;
+    font-size: 16px;
+    text-align: center;
+    min-width: 80px;
+    padding: 0 6px;
+    height: 26px;
+}
+
+#content table th {
+    background-color: #fbff96;
+}
+
+#content table tr:nth-of-type(2n) td {
+    background-color: #edffca;
+}
+
+#content table tr:nth-of-type(2n-1) td {
+    background-color: #dfffbc;
+}
+
+#content table th + th,
+#content table td + td {
+    border-left: none;
+}
+
+#content td .monitor {
+    width: 16px;
+    height: 16px;
+}
+
+#content td.operation {
+    text-align: center
+}
+
+#content table span {
+    color: #006105;
+    cursor: pointer;
+}
+
+#content table span + span {
+    margin-left: 10px;
+}
+
+/*所有分页样式 跟随表格*/
+#content .paging {
+    line-height: 150%;
+    font-size: 16px;
+    background-color: #edffca;
+    padding: 0 20px;
+}
+
+#content .paging .first,
+#content .paging .last,
+#content .paging .prev,
+#content .paging .next {
+    text-align: center;
+    font-size: 16px;
+    line-height: 150%;
+    background-color: #c0dfa9;
+    margin-right: 20px;
+    padding: 0 20px;
+    cursor: pointer;
+}
+
+#content .paging span {
+    color: #742402;
+}
+
+#content .paging .input-go {
+    font-size: 16px;
+    line-height: 120%;
+    width: 60px;
+    margin-left: 20px;
+}
+
+#content .paging .go {
+    text-align: center;
+    font-size: 16px;
+    line-height: 150%;
+    background-color: #c0dfa9;
+    width: 30px;
+    margin-left: 5px;
+}
+
+/*所有 导航条 查找 筛选 样式*/
+#content .nav {
+    border-bottom: 1px solid #D8FFA4;
+    color: #742402;
+}
+
+#content .nav div {
+    font-size: 16px;
+    display: inline-block;
+    line-height: 30px;
+    padding: 0 6px;
+    cursor: pointer;
+    background-color: #edffca;
+    border: 1px solid #D8FFA4;
+    margin-bottom: -1px;
+    border-bottom: 1px solid #edffca;
+}
+
+#content .nav div + div {
+    margin-left: 8px;
+}
+
+#content .nav div:hover,
+#content .nav .current {
+    background-color: #fbff96;
+    border-bottom: 1px solid #fbff96;
+}
+
+#content .filter {
+    min-width: 800px;
+    background-color: #dfffbc;
+    line-height: 150%;
+    padding: 4px 0 4px 10px;
+}
+
+#content .filter input[class="name"] {
+    width: 80px;
+}
+
+#content .filter input[class="identityCard"] {
+    width: 180px;
+}
+
+#content input[type="text"] {
+    font-size: 14px;
+    line-height: 140%;
+    padding-left: 5px;
+    width: 120px;
+    margin-right: 10px;
+    border: 1px solid #c5eb97;
+}
+
+#content .filter select {
+    margin-top: -3px;
+    font-size: 14px;
+    height: 22px;
+    color: #000;
+    padding-bottom: 0;
+}
+
+/*所有添加幼儿园、家长、老师、宝宝数据样式*/
+
+#content .add-Newdata {
+    border: 1px solid #D8FFA4;
+    padding: 10px 15px;
+}
+
+#content .add-Newdata h3,
+#content .add-Newdata div {
+    color: #006105;
+    line-height: 150%;
+}
+#content .add-Newdata div {
+    margin-top: 5px;
+    color: #742402;
+}
+
+#content .add-Newdata select {
+    background-color: #fff;
+    margin-bottom: 0;
+}
+
+#content .add-Newdata .postData,
+#content .look-Detaildata .look {
+    text-align: left;
+}
+
+#content .add-Newdata .mark {
+    padding-left: 15px;
+    font-size: 14px;
+    color: #ccc;
+}
+
+#content .add-Newdata .remark {
+    width: 600px;
+    height: 100px;
+    resize: none;
+    font-size: 16px;
+    padding: 5px;
+}
+#content .add-Newdata input[name="birth"]{
+    width:50px;
+}
+#content .add-Newdata input[name="birth"] + input[name="birth"]{
+    margin-left:10px;
+}
+
+/*所有查看幼儿园、家长、老师、宝宝详细信息样式*/
+#content .save,
+#content .btn-skyblue,
+#content .clear {
+    padding:0 14px;
+    height: 20px;
+    line-height: 22px;
+    background-color: #DEEFD3;
+    cursor: pointer;
+}
+
+#content .look-Detaildata {
+    position: absolute;
+    top: 4px;
+    min-width: 680px;
+    min-height:600px;
+    left: 4px;
+    right: 4px;
+    padding:10px 15px;
+    background-color: #fff;
+    color: #742402;
+    border: 1px solid #D8FFA4;
+}
+
+#content .look-Detaildata h3,
+#content .look-Detaildata div {
+    line-height: 150%;
+}
+
+#content .look-Detaildata h3 {
+    color: #006105;
+}
+
+#content .look-Detaildata div {
+    margin-top: 5px;
+}
+
+#content .look-Detaildata input[type="text"] {
+    border: 1px solid #c5eb97;
+    padding-left: 5px;
+    line-height: 150%;
+}
+#content .look-Detaildata textarea {
+    width:400px;
+    height:100px;
+    resize:none;
+}
+
+/*信息管理界面*/
+#content .infoManage table th:nth-last-child(2),
+#content .attendanceManage table th:nth-last-child(2) {
+    display: none;
+}
+
+#content .infoManage table td:nth-last-child(2),
+#content .attendanceManage table td:nth-last-child(2) {
+    display: none;
+}
+
+/*推送消息界面*/
+#content .pushInfo .pushInfo-info{
+    width:100%;
+    padding:8px 60px;
+    margin: 0 auto;
+    background-color: #f4ffe8
+}
+#content .pushInfo .pushInfo-info-title{
+    width:100%;
+    min-width: 600px;
+}
+#content .pushInfo .main {
+    margin-top:10px;
+}
+#content .pushInfo div span{
+    position: absolute;
+    vertical-align: top;
+    margin-left:-50px;
+}
+#content .pushInfo div.pushInfo-info-main{
+    margin-top:5px;
+}
+#content .pushInfo div textarea{
+    width:100%;
+    min-width: 600px;
+    height:316px;
+    margin-top:5px;
+    font-size:16px;
+    padding:6px;
+    resize: none;
+}
+/*使用者管理*/
+#content .adminManage .admin-list h3,
+#content .teacherManage .teacher-list h3,
+#content .patriarchManage .patriarch-list h3,
+#content .babyManage .baby-list h3 {
+    line-height: 150%;
+    color: #006105;
+}
+/*升班管理*/
+#content .upGrade .nowClass {
+    margin-top:4px;
+    background-color: #dfffbc;
+    line-height: 150%;
+    padding: 4px 0 4px 10px;
+}
+#content .upGrade .nowClass .save{
+    background-color: #b8efc5;
+}
+/*打卡时间管理*/
+#content .attendanceTimeManage div {
+    margin-top:10px;
+}
+#content .attendanceTimeManage .mark {
+    color: #ccc;
+}
+#content .attendanceTimeManage input[name="checkIn"]{
+    width:60px;
+}
+#content .attendanceTimeManage input[name="checkIn"] + input[name="checkIn"]{
+    margin-left:10px;
+}
+#content .attendanceTimeManage h3 {
+    margin-top:10px;
+    color: #006105;
+}
+#content .attendanceTimeManage table {
+    width:50%;
+    float: left;
+    min-width: 200px;
+    min-width: auto;
+}
+/*课程管理 一周固定*/
+/*#content .curriculumManage h3{*/
+    /*line-height: 150%;*/
+    /*color: #006105;*/
+/*}*/
+/*#content .curriculumManage table th,*/
+/*#content .curriculumManage table td{*/
+    /*padding:0;*/
+/*}*/
+/*#content .curriculumManage table input {*/
+    /*line-height:150%;*/
+    /*border:none;*/
+    /*text-align: center;*/
+    /*margin:0;*/
+    /*padding:0 4px;*/
+    /*width:60px;*/
+/*}*/
+/*#content .curriculumManage  tr:nth-of-type(2n-1) input{*/
+    /*background-color: #dfffbc;*/
+/*}*/
+/*#content .curriculumManage  tr:nth-of-type(2n) input{*/
+    /*background-color: #edffca;*/
+/*}*/
+
+/*#content .curriculumManage tr .time  input{*/
+    /*background-color: #fbff96;*/
+/*}*/
+
+
+/*课程管理 添加课程*/
+
+#content .curriculumManage table input{
+    text-align: center;
+    margin: 0;
+    width:60px;
+    border:none;
+}
+#content .curriculumManage table input:hover{
+    border:1px solid #006105;
+}
+#content .curriculumManage tr:nth-of-type(2n-1) input {
+    background-color: #dfffbc;
+}
+#content .curriculumManage tr:nth-of-type(2n) input {
+    background-color: #edffca;
+}
+#content .curriculumManage .demo .mark {
+    color: #ccc;
+}
+#content .curriculumManage .demo table {
+    width: 600px;
+    margin-left:0;
+}
+
+
+
+
+/*食谱设置*/
+#content .date{
+    margin-left:10px;
+}
+#content .cookbookSet form {
+    
+}
+#content .cookbookSet .food{
+    width:300px;
+    float: left;
+    margin:10px 0 0 10px;
+    border: 1px dashed #006105;
+    padding:10px;
+}
+#content .cookbookSet .food+.food{
+
+}
+#content .cookbookSet div+div{
+    margin-top:10px;
+}
+#content .cookbookSet textarea {
+    resize: none;
+    width:200px;
+    height:50px;
+}
+#content .cookbookSet .operation {
+    padding-left:10px;
+    margin-top:4px;
+}
+#content .cookbookSet .operation input + input {
+    margin-left:14px;
+}

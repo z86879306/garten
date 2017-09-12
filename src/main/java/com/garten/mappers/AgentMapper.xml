@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.garten.dao.AgentDao">
+	
+	<select id="findAgentByPwd"  resultType="AgentInfo">
+		SELECT * FROM agent_info  a
+		where phoneNumber=#{phoneNumber} 
+		and pwd=#{pwd}
+		and a.isValid=0
+	</select>
+	
+	<select id="findToken"  resultType="String">
+		select  token from  agent_info  a
+		where phoneNumber=#{phoneNumber} 
+		and a.isvalid=0
+	</select>
+	
+	<select id="findAgentByAccount"  resultType="AgentInfo">
+		select * from agent_info a 
+		where phoneNumber=#{phoneNumber}
+		and a.isValid=0
+	</select>
+	
+	<update id="updatePwdToken"  >
+		update   agent_info a
+		set token=#{token},tokenTime=now(),pwd=#{pwd}
+		where phoneNumber=#{phoneNumber} 
+		and a.isvalid=0
+	</update>
+	
+	
+	<select id="findAgentInfoByToken"  resultType="AgentInfo">
+		SELECT * FROM
+		   agent_info a
+		WHERE
+		a.token = #{token}
+		and a.isValid=0
+	</select>
+	
+	<select id="findProChildAgent" resultType="AgentInfoAndGarten">
+		select * from 
+		agent_info 
+		where 
+		agentGrade=2 and province=#{province}
+		and city!='' and isValid=0
+	</select>
+	
+	
+	<select id="findCityChildAgent" resultType="AgentInfoAndGarten">
+		select * from 
+		agent_info 
+		where 
+		agentGrade=3 and city=#{city}
+		and countries!='' and isValid=0
+	</select>
+	
+	<select id="findGartenByAgent" resultType="GartenInfo">
+		select * from
+		garten_info g
+		where isValid=0
+		and agent=#{agentId}
+		<if test=" name!=null and name!=''">
+			and g.gartenName=#{name}
+		</if>
+		<if test="	phoneNumber!=null and phoneNumber!=''" >
+			and g.phoneNumber=#{phoneNumber}
+		</if>
+	</select>
+	
+	<update id="frostGarten">
+		update garten_info set isValid=1
+		where gartenId=#{gartenId}
+	</update>
+	
+	<update id="recoverGarten">
+		update garten_info set isValid=0
+		where gartenId=#{gartenId}
+	</update>
+	
+	<update id="updateGarten">
+		update garten_info 
+		set
+		gartenName=#{gartenName}, name=#{name}, phoneNumber=#{phoneNumber},contractNumber=#{contractNumber},
+		contractStart=#{contractStart} ,contractEnd=#{contractEnd}, organizationCode=#{organizationCode},
+		province=#{province} ,city=#{city},countries=#{countries}, address=#{address},charge=#{charge}
+		where gartenId=#{gartenId}
+	</update>
+	
+	<select id="findAgentAudit" resultType="AgentAudit">
+		select * from agent_audit
+		where resourceId=#{agentId} and isvalid=0
+	</select>
+	
+	<update id="cancelApply">
+		update agent_audit set
+		isvalid=1
+		where auditId=#{auditId}
+	</update>
+	
+	<insert id="addApplyGarten">
+		insert into agent_audit(gartenName,name,phoneNumber,contractNumber,province,city,countries,count,money1,equipment,resource,registTime,resourceId)
+		values(#{gartenName},#{name},#{phoneNumber},#{contractNumber},#{province},#{city},#{countries},#{count},#{money},#{equipment},1,now(),#{agentId})
+	</insert>
+	
+	<insert id="addVisit">
+		insert into agent_visit(agentId,title,content,gartenId,time)
+		values(#{agentId},#{title},#{content},#{gartenId},now())
+	</insert>
+	
+	<select id="getAgentVisit" resultType="AgentVisitDetail">
+		select 
+		av.agentId,av.visitId,av.title,av.content,av.gartenId,UNIX_TIMESTAMP(av.time),g.gartenName
+		from 
+		agent_visit av,garten_info g
+		where
+		av.agentId=#{agentId} and g.gartenId=av.gartenId and av.isValid=0 
+		<if test="gartenId!=null and gartenId!=''">
+			and av.gartenId=#{gartenId}
+		</if>
+		
+	</select>
+	
+	<select id="getChildAgentBusiness" resultType="AgentAudit">
+		select * from
+		agent_audit a
+		where
+		isValid=0
+		and resourceId=#{agentId}
+	</select>
+	
+	<select id="findGartenById" resultType="GartenInfo">
+		select * from 
+		garten_info
+		where 
+		agent=#{agentId}
+	</select>
+	
+	<select id="getGartenNameAndId" resultType="GartenSimple">
+		select gartenName,gartenId from
+		garten_info
+		where agent=#{agentId}
+		AND isValid=0
+	</select>
+	
+	<select id="FindParentByGartenId" resultType="GartenCountTongJi">
+		select gartenId,monitorTime,attendanceTime from
+		parent_info
+		where
+		FIND_IN_SET(#{gartenId},gartenId)
+		AND isValid=0
+	</select>
+	
+	<update id="deleteVisit">
+		update agent_visit set isValid=1
+		where visitId=#{visitId}
+	</update>
+	<select id="findAgentById"  resultType="AgentInfo">
+		SELECT * FROM agent_info  a
+		where agentId=#{agent}
+	</select>
+	
+</mapper> 

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="lib/vue/vue.js"></script>
+<script src="lib/jQuery/jquery-3.2.1.js"></script>
+<body>
+    <div id="box">
+        <img src="" alt="">
+    </div>
+    <input type="file" name="" id="file">
+    <script>
+        $(function () {
+            $('#file').on('change',function () {
+                var file = $('#file').serialize();
+                console.log(file);
+            });
+          
+        });
+    </script>
+</body>
+</html>

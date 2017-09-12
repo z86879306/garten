@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <canvas id="canvas" width="1024" height="768" style="border:1px solid #aaa;display: block;margin:0 auto"></canvas>
+</body>
+<script>
+
+    (function (window,document) {
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        var data = [
+            {
+                value: 0.1,
+                color: 'red',
+                title: 'canvas'
+            },
+            {
+                value: 0.2,
+                color: 'green',
+                title: 'html'
+            },{
+                value: 0.3,
+                color: 'blue',
+                title: 'css'
+            },
+            {
+                value: 0.4,
+                color: '#ccc',
+                title: 'js'
+            }
+        ];
+        var i = 0;
+        var tempAngel = -90;
+        for(;i<data.length;i++){
+            ctx.beginPath();
+            ctx.moveTo(300,300);
+            var angel = 360*data[i].value;
+            var startAngel = tempAngel*Math.PI/180;
+            var endAngel = (tempAngel + angel)*Math.PI/180;
+            ctx.arc(300,300,100,startAngel,endAngel);
+            ctx.fillStyle = data[i].color;
+            ctx.stroke();
+            ctx.fill();
+            tempAngel += angel;
+        }
+    })(window,document);
+</script>
+</html>

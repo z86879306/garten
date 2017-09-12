@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.garten.dao.YinShiYunDao">
+    
+    <insert id="addDakaCamera">
+    	insert into equipment(gartenId,cameraIp,cameraPort,cameraUser,
+    	cameraPwd,type,macId,deviceSerial,validateCode)
+    	values(#{gartenId},#{cameraIp},#{cameraPort},#{cameraUser},
+    	#{cameraPwd},#{type},#{macId},#{deviceSerial},#{validateCode})
+    </insert>
+    
+    <insert id="addLiveCamera">
+    	insert into equipment(gartenId,cameraIp,cameraPort,cameraUser,
+    	cameraPwddeviceSerial,validateCode)
+    	values(#{gartenId},#{cameraIp},#{cameraPort},#{cameraUser},
+    	#{cameraPwd},#{deviceSerial},#{validateCode})
+    </insert>
+    
+    <insert id="addGartenVideo">
+    	insert into garten_video(type,gartenId,pointId,time,url,img,deviceSerial)
+    	values(#{type},#{gartenId},#{pointId},now(),#{url},#{gartenVideoImg},#{deviceSerial})
+    </insert>
+    
+    <update id="deleteCamera">
+    	update equipment set isValid=1 where deviceSerial=#{deviceSerial}
+    </update>
+    
+    <update id="deleteGartenVideo">
+    	update garten_video set isValid=1 deviceSerial=#{deviceSerial}
+    </update>
+    
+    <select id="findEquipBygartenId" resultType="Equipment">
+    	select * from equipment 
+    	where gartenId=#{gartenId}
+    	and isvalid=0 and macId is not null
+    </select>
+    
+    <select id="findVideoByGartenId" resultType="LiveCamera">
+    	select * from equipment 
+    	where gartenId=#{gartenId}
+    	and isvalid=0 and macId is null
+    </select>
+</mapper>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<div id="divtest">
+    <input type="button" id="btn" value="序列化">
+    <form action="">
+        <input type="text" name="text" value="111111111111">
+        <input type="text" name="text" value="111111111111">
+    </form>
+    <div id="box"></div>
+</div>
+<script src="../lib/jQuery/jquery-3.2.1.js"></script>
+<script>
+    $(function () {
+        $('#btn').on('click',function () {
+            console.log(1);
+            console.log($('form').serialize());
+            $('#box').html();
+        });
+    });
+</script>
+</body>
+</html>

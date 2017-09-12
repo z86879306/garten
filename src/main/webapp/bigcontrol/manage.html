@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/manage.css">
+</head>
+<script>
+//    if(!sessionStorage.token){
+//        window.location.href = 'http://a.yiyunwangl.com:8082/bigcontrol/login.html'
+//    }
+</script>
+<body>
+<header id="header">
+    成长记忆管理后台
+</header>
+<main id="main">
+    <nav id="nav">
+        <div class="sidebar-title"><span></span>首页</div>
+        <ul class="sidebar-content index">
+            <li>
+                <router-link to="/infoStatistics"><span></span>统计</router-link>
+            </li>
+            <li>
+                <router-link to="/attendanceManage"><span></span> 考勤管理</router-link>
+            </li>
+            <li>
+                <router-link to="infoManage"><span></span> 信息管理</router-link>
+            </li>
+            <li>
+                <router-link to="/kindergartenManage"><span></span> 幼儿园管理</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>审核</div>
+        <ul class="sidebar-content index">
+            <li>
+                <router-link to="/kindergartenCheck"><span></span>开园审核</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>代理商管理</div>
+        <ul class="sidebar-content agent">
+            <li>
+                <router-link to="/agentManage"><span></span>代理商管理</router-link>
+            </li>
+            <li>
+                <router-link to="/agentFinanceManage"><span></span>代理商财务管理</router-link>
+            </li>
+            <li>
+                <router-link to="/agentPerformance"><span></span>代理商业绩统计</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>费用设置</div>
+        <ul class="sidebar-content kindergartenPayFee">
+            <li><router-link to="/setChargePrice"><span></span>视频、考勤收费价格设置</router-link></li>
+        </ul>
+        <div class="sidebar-title"><span></span>消息中心</div>
+        <ul class="sidebar-content inform">
+            <li><router-link to="/pushInfo"><span></span>推送消息</router-link></li>
+        </ul>
+        <div class="sidebar-title"><span></span>运营中心</div>
+        <ul class="sidebar-content indent">
+            <li><router-link to="/orderLook"><span></span>订单查看</router-link></li>
+        </ul>
+        <div class="sidebar-title"><span></span>终端管理</div>
+        <ul class="sidebar-content indent">
+            <li><router-link to="/attendanceMachine"><span></span>考勤机</router-link></li>
+            <li><router-link to="/attendanceCamera"><span></span>考勤摄像头</router-link></li>
+            <li><router-link to="/liveCamera"><span></span>直播摄像头</router-link></li>
+        </ul>
+    </nav>
+    <section id="content">
+        <router-view></router-view>
+    </section>
+</main>
+</body>
+<script src="lib/vue/vue.js"></script>
+<script src="lib/vue/vue-router.js"></script>
+<script src="lib/jQuery/jquery-3.2.1.js"></script>
+<script src="js/manage.js"></script>
+</html>

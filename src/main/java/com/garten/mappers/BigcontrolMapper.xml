@@ -1,0 +1,1070 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.garten.dao.BigcontrolDao">
+	
+	<select id="findWorkerByPwd"  resultType="WorkerInfo">
+		SELECT * FROM worker＿info  w
+		where phoneNumber=#{phoneNumber} 
+		and pwd=#{pwd}
+		and job='总管理员'
+		and w.isValid=0
+	</select>
+	
+	
+	
+	<select id="findParentInfoCharge"  resultType="ParentInfoCharge">
+		SELECT  p.babyId,
+	  p.identity,
+	  p.parentName,
+	  p.phoneNumber,
+	  p.parentHead,
+	  p.address,
+	  p.parentId,
+	  p.pwd,
+	  p.monitorTime,
+	  p.attendanceTime,
+	  p.flower,
+	 p.token,
+	  p.tokenTime,
+	  p.registTime,
+	 p.gartenId,
+	b.babyId mainBabyId
+	 FROM baby_info  b join parent_info p on b.parentId=p.parentId
+		where 
+		b.gartenId=#{gartenId}
+		and b.parentId is not null
+		and b.isValid=0 and p.isValid=0
+	</select>
+	
+	<select id="findWorkerByToken"  resultType="WorkerInfo">
+		SELECT * FROM worker＿info  w
+		where token=#{token}
+		and job='总管理员'
+		and w.isValid=0
+	</select>
+	
+	<select id="findOrder"  resultType="OrderAll">
+		SELECT * FROM torder  o
+		
+		left join garten_info g on o.gartenId=g.gartenId
+		where 
+		 o.isValid=0 
+		 <if test=" state!=null and state!='' ">
+		 	and o.state=#{state}
+		 </if>
+		 <if test=" type!=null and type!='' ">
+		 	and o.type=#{type}
+		 </if>
+		 <if test=" gartenId!=null and gartenId!='' ">
+		 	and o.gartenId=#{gartenId}
+		 </if>
+		 <if test=" province!=null and province!='' ">
+		 	and g.province=#{province}
+		 </if>
+		 <if test=" city!=null and city!='' ">
+		 	and g.city=#{city}
+		 </if>
+		 <if test=" countries!=null and countries!='' ">
+		 	and g.countries=#{countries}
+		 </if>
+		 order by o.orderTime desc
+	</select>
+	
+	<select id="findFeedback"  resultType="Feedback">
+		SELECT * FROM feedback  b
+		where 
+		 b.isValid=0 order by b.time desc
+	</select>
+	
+	<select id="fingMaxGartenId"  resultType="Integer">
+		select max(gartenId) from garten_info where isvalid=0;
+	</select>
+	
+	<select id="fingMaxJobId"  resultType="Integer">
+		select max(jobId) from attendance_no where isvalid=0 ;
+	</select>
+	
+	
+	<select id="findGartens"  resultType="GartenInfo">
+		SELECT * FROM garten_info  g
+		where  g.isValid=0
+	</select>
+	
+	
+	<select id="findWorkerMessage"  resultType="WorkerMessage">
+		SELECT 	* FROM
+			worker＿info w
+		left join garten_info g on g.gartenId=w.gartenId
+		left join garten_class c on w.classId=c.classId
+		where
+		 w.job not in ('总管理员','园长')
+		and  (c.isvalid=0 or c.isvalid is null) and  (w.isvalid=0 or w.isvalid is null)
+		 and  (g.isvalid=0 or g.isvalid is null)
+		<if test="	name!=null and name!=''" >
+				and w.workerName=#{name}
+			</if>
+			<if test="	phoneNumber!=null and phoneNumber!=''" >
+				and w.phoneNumber=#{phoneNumber}
+			</if>
+			<if test="	province!=null and province!=''" >
+				and g.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and g.city=#{city}
+			</if>
+			<if test="	countries!=null and countries!=''" >
+				and g.countries=#{countries}
+			</if>
+			<if test="	gartenId!=null and gartenId!=''" >
+				and g.gartenId=#{gartenId}
+			</if>
+	</select>
+	
+	<select id="findGartenMessage"  resultType="GartenInfo">
+		SELECT 	* FROM
+			garten_info g 
+		where
+		  g.isvalid=0
+		<if test="	name!=null and name!=''" >
+				and g.gartenName=#{name}
+			</if>
+			<if test="	phoneNumber!=null and phoneNumber!=''" >
+				and g.phoneNumber=#{phoneNumber}
+			</if>
+			<if test="	province!=null and province!=''" >
+				and g.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and g.city=#{city}
+			</if>
+			<if test="	countries!=null and countries!=''" >
+				and g.countries=#{countries}
+			</if>
+			<if test="	gartenId!=null and gartenId!=''" >
+				and g.gartenId=#{gartenId}
+			</if>
+			<if test="	monitorState==0" >
+				and g.monitorTime &lt; now()
+			</if>
+			<if test="	monitorState==1" >
+				and g.monitorTime > now()
+			</if>
+			<if test="	attendanceState==0" >
+					and g.attendanceTime &lt; now()
+			</if>
+			<if test="	attendanceState==1" >
+				and g.attendanceTime > now()
+			</if>
+	</select>
+	
+	
+	<select id="findBabyByIdBig"  resultType="ClassManageBig">
+		SELECT  b.babyName,b.babyId,b.birthday, b.height,
+	 b.health,b.hobby,b.specialty,b.gartenId,b.teacherId, b.babyHead, b.allergy,
+	b.weight,b.sex,b.registTime, w.classId,c.leadClass,c.leadGrade 
+	FROM
+		baby_info b LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
+		left join garten_class c on  c.classId=w.classId 
+		WHERE
+		b.babyId = #{babyId}
+		AND (b.isValid = 0 or  b.isValid is null)
+		AND (w.isValid = 0 or w.isvalid is null)
+		AND (c.isValid = 0 or c.isvalid is null)
+		group by b.babyId
+	</select>
+	
+	
+	<select id="findAgentAudit"  resultType="AgentAuditMessage">
+		SELECT  * from agent_audit  a 
+		left join agent_info ai on a.resourceId=ai.agentId
+		where resource=#{resource} and a.isvalid=0 and state=0
+	</select>
+	
+	<select id="findAgentAuditOne"  resultType="AgentAudit">
+		SELECT  * from agent_audit where auditId=#{auditId} and isvalid=0
+	</select>
+	
+	<select id="agentPerformance"  resultType="AgentAudit">
+		SELECT  * from agent_audit  a where 
+		resourceId=resourceId
+		<if test="	agentId!=null and agentId!=''" >
+				and a.resourceId=#{agentId}
+			</if>
+			
+			<if test="	province!=null and province!=''" >
+				and a.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and a.city=#{city}
+			</if>
+			<if test="	countries!=null and countries!=''" >
+				and a.countries=#{countries}
+			</if>
+			<if test="	state!=null and state!=''" >
+				and a.state=#{state}
+			</if>
+			
+	</select>
+	
+	
+	
+	<select id="findParentMessage"  resultType="ParentInfo">
+		SELECT * FROM parent_info  p 
+		left join garten_info g on   g.gartenId=substring_index(p.gartenId,',', 1)
+		where  (p.isValid=0 or p.isvalid is null)  and (g.isvalid=0  or g.isvalid is null)
+		
+		<if test="	name!=null and name!=''" >
+				and p.parentName=#{name}
+			</if>
+			<if test="	phoneNumber!=null and phoneNumber!=''" >
+				and p.phoneNumber=#{phoneNumber}
+			</if>
+			<if test="	province!=null and province!=''" >
+				and g.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and g.city=#{city}
+			</if>
+			<if test="	countries!=null and countries!=''" >
+				and g.countries=#{countries}
+			</if>
+			<if test="	gartenId!=null and gartenId!=''" >
+				and g.gartenId=#{gartenId}
+			</if>
+			limit #{pageNo},16
+	</select>
+	
+	<select id="findParentMessageCount"  resultType="Integer">
+		SELECT count(1) FROM parent_info  p 
+		left join garten_info g on   g.gartenId=substring_index(p.gartenId,',', 1)
+		where  (p.isValid=0 or p.isvalid is null)  and (g.isvalid=0  or g.isvalid is null)
+		
+		<if test="	name!=null and name!=''" >
+				and p.parentName=#{name}
+			</if>
+			<if test="	phoneNumber!=null and phoneNumber!=''" >
+				and p.phoneNumber=#{phoneNumber}
+			</if>
+			<if test="	province!=null and province!=''" >
+				and g.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and g.city=#{city}
+			</if>
+			<if test="	countries!=null and countries!=''" >
+				and g.countries=#{countries}
+			</if>
+			<if test="	gartenId!=null and gartenId!=''" >
+				and g.gartenId=#{gartenId}
+			</if>
+			
+	</select>
+	<select id="findBabyMessage"  resultType="BabyMessage">
+		SELECT * FROM 
+		baby_info  b left join worker＿info w on FIND_IN_SET(w.workerId, b.teacherId)
+		left join  garten_class c on w.classId=c.classId
+		left join  attendance_no n on n.jobId=b.babyId and n.job='宝宝'
+		left join  garten_info g on   g.gartenId =w.gartenId
+		where  (b.isValid=0 or b.isvalid is null) and (w.isvalid=0 or w.isvalid is null) and (c.isvalid=0 or c.isValid is null)
+		and (n.isvalid=0 or n.isvalid is null)and (g.isvalid=0 or g.isvalid is null)
+		
+		<if test="	name!=null and name!=''" >
+				and b.babyName=#{name}
+			</if>
+			
+			<if test="	province!=null and province!=''" >
+				and g.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and g.city=#{city}
+			</if>
+			<if test="	countries!=null and countries!=''" >
+				and g.countries=#{countries}
+			</if>
+			<if test="	gartenId!=null and gartenId!=''" >
+				and g.gartenId=#{gartenId}
+			</if>
+			<if test="	leadGrade!=null and leadGrade!=''" >
+				and c.leadGrade=#{leadGrade}
+			</if>
+			<if test="	leadClass!=null and leadClass!=''" >
+				and c.leadClass=#{leadClass}
+			</if>
+			group by b.babyId
+			
+	</select>
+	
+	
+	<select id="findCheckLong"  resultType="Long">
+		SELECT UNIX_TIMESTAMP(r.time)
+		FROM  ignore_time r
+		WHERE
+			 r.gartenId = #{gartenId}
+    	and r.isValid=0 
+	</select>
+	
+		<select id="gartenCharge"  resultType="GartenCharge">
+		SELECT *
+		FROM  garten_charge c
+		WHERE
+    	 c.isValid=0 
+			<if test="	province!=null and province!=''" >
+				and c.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and c.city=#{city}
+			</if>
+			<if test="	countries!=null and countries!=''" >
+				and c.countries=#{countries}
+			</if>
+			<if test="	gartenId!=null and gartenId!=''" >
+				and c.gartenId=#{gartenId}
+			</if>
+			<if test="	type!=null " >
+				and c.type=#{type}
+			</if>
+	</select>
+	
+	
+	
+	
+	<select id="gartenChargeOne"  resultType="GartenCharge">
+		SELECT *
+		FROM  garten_charge c
+		WHERE
+    	 c.isValid=0 
+				and c.province=#{province}
+				and c.city=#{city}
+				and c.countries=#{countries}
+				and c.gartenId=#{gartenId}
+				and c.type=#{type}
+	</select>
+	
+	<select id="findGartenGrade"  resultType="String">
+		SELECT c.leadGrade from garten_class c
+		WHERE
+			 c.gartenId = #{gartenId}
+    	and c.isValid=0 
+    	group by c.leadGrade
+	</select>
+	
+	<select id="findGartenClasses"  resultType="GartenClass">
+		SELECT * from garten_class c
+		WHERE
+			 c.gartenId = #{gartenId}
+			 and c.leadGrade=#{leadGrade}
+    	and c.isValid=0 
+    	group by c.leadClass
+	</select>
+	
+	
+	
+	<select id="findAgentMessge"  resultType="AgentInfo">
+		SELECT * from agent_info i WHERE i.isValid=0 
+		<if test="	province!=null and province!=''" >
+				and i.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and i.city=#{city}
+			</if>
+			
+			<if test="	countries!=null and countries!=''" >
+				and i.countries=#{countries}
+			</if>
+			<if test="	agentId!=null and agentId!=''" >
+				and i.agentId=#{agentId}
+			</if>
+			<if test="	parentAgentId!=null and parentAgentId!=''" >
+				and i.agentId not in (${parentAgentId})
+			</if>
+	</select>
+
+	
+	
+	<select id="findAgentMessgeOne"  resultType="AgentInfo">
+		SELECT * from agent_info i WHERE i.isValid=0 
+				and i.province=#{province}
+				and i.city=#{city}
+				and i.countries=#{countries}
+	</select>
+	
+	<select id="findAgentName"  resultType="AgentInfo">
+		SELECT * from agent_info i WHERE i.isValid=0 
+		<if test="	province!=null and province!=''" >
+				and i.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and i.city=#{city}
+			</if>
+			
+			<if test="	countries!=null and countries!=''" >
+				and i.countries=#{countries}
+			</if>
+	</select>
+	
+	<select id="getAllGarten" resultType="GartenInfo">
+		select * from garten_info
+	</select>
+	<select id="findBabyCheckByToken"  resultType="BabyCheckLogAll">
+		SELECT *		FROM
+		baby_info b LEFT JOIN baby_check_log c on b.babyId=c.babyId
+		LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
+		WHERE
+		w.gartenId = #{gartenId}
+		and UNIX_TIMESTAMP(c.time)=#{time}
+		and b.isValid=0 and c.isValid=0 and w.isValid=0
+		group by b.babyId
+	</select>
+	
+	
+	<select id="findWorkerByAccount"  resultType="WorkerInfo">
+		SELECT * FROM worker＿info  w
+		where phoneNumber=#{phoneNumber} 
+		and job='总管理员'
+		and w.isValid=0
+	</select>
+	
+	
+	<select id="addtongjiBaby"  resultType="Integer">
+		select count(1)  from baby_info  b where UNIX_TIMESTAMP(b.registTime)>#{start} and b.isvalid=0
+	and  #{end}>UNIX_TIMESTAMP(b.registTime)
+	</select>
+	
+	<select id="addtongjiWorker"  resultType="Integer">
+		select count(1)  from worker＿info  w where UNIX_TIMESTAMP(w.registTime)>#{start} and w.isvalid=0
+	and  #{end}>UNIX_TIMESTAMP(w.registTime)
+	</select>
+	
+	<select id="addtongjiParent"  resultType="Integer">
+		select count(1)  from parent_info  p where UNIX_TIMESTAMP(p.registTime)>#{start} and p.isvalid=0
+		and  #{end}>UNIX_TIMESTAMP(p.registTime)
+	</select>
+	
+	
+	
+	<select id="deletetongjiBaby"  resultType="Integer">
+		select count(1)  from baby_info  b where UNIX_TIMESTAMP(b.registTime)>#{start} and b.isvalid=1
+			and  #{end}>UNIX_TIMESTAMP(b.registTime)
+	</select>
+	<select id="deletetongjiWorker"  resultType="Integer">
+		select count(1)  from worker＿info  w where UNIX_TIMESTAMP(w.registTime)>#{start} and w.isvalid=1
+			and  #{end}>UNIX_TIMESTAMP(w.registTime)
+	</select>
+	<select id="deletetongjiParent"  resultType="Integer">
+		select count(1)  from parent_info  p where UNIX_TIMESTAMP(p.registTime)>#{start} and p.isvalid=1
+			and  #{end}>UNIX_TIMESTAMP(p.registTime)
+	</select>
+	
+	
+	<select id="adddetailBaby"  resultType="AddDetail">
+		SELECT
+		g.gartenName gartenName,g.province province,g.city city,g.countries countries,g.address address,'宝宝' type,b.babyName name,b.registTime registTime
+		FROM
+			baby_info b,
+			garten_info g
+		WHERE
+			UNIX_TIMESTAMP(b.registTime) > #{start}
+			and #{end}>UNIX_TIMESTAMP(b.registTime) 
+			<if test="	province!=null and province!=''" >
+				and g.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and g.city=#{city}
+			</if>
+			<if test="	countries!=null and countries!=''" >
+				and g.countries=#{countries}
+			</if>
+			<if test="	gartenId!=null and gartenId!=''" >
+				and g.gartenId=#{gartenId}
+			</if>
+		and b.gartenId=g.gartenId
+		and b.isvalid=0 and g.isvalid=0
+	</select>
+	
+	<select id="adddetailWorker"  resultType="AddDetail">
+		SELECT
+	g.gartenName gartenName,g.province province,g.city city,g.countries countries,g.address address,'老师' type,w.workerName name,w.registTime registTime
+	FROM
+		worker＿info w,
+		garten_info g
+	WHERE
+		UNIX_TIMESTAMP(w.registTime) > #{start}
+			and #{end}>UNIX_TIMESTAMP(w.registTime) 
+	and w.gartenId=g.gartenId
+	and w.job='老师'
+	<if test="	province!=null and province!=''" >
+				and g.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and g.city=#{city}
+			</if>
+			
+			<if test="	countries!=null and countries!=''" >
+				and g.countries=#{countries}
+			</if>
+				<if test="	gartenId!=null and gartenId!=''" >
+				and g.gartenId=#{gartenId}
+			</if>
+	and w.isValid=0
+	and g.isValid=0
+	</select>
+	
+	<select id="adddetailParent"  resultType="AddDetail">
+		SELECT
+	g.gartenName gartenName,g.province province,g.city city,g.countries countries,g.address address,'家长' type,p.parentName name,p.registTime registTime
+		
+		FROM
+			parent_info p,
+			garten_info g
+		WHERE
+			UNIX_TIMESTAMP(p.registTime) > #{start}
+				and #{end}>UNIX_TIMESTAMP(p.registTime) 
+		and g.gartenId=substring_index(p.gartenId,',', 1)<!--对家长的幼儿园ID分割取第一个,这里如果是2是取前2个和的意思'1,2'  -->
+		
+		<if test="	province!=null and province!=''" >
+				and g.province=#{province}
+			</if>
+			
+			<if test="	city!=null and city!=''" >
+				and g.city=#{city}
+			</if>
+			
+			<if test="	countries!=null and countries!=''" >
+				and g.countries=#{countries}
+			</if>
+				<if test="	gartenId!=null and gartenId!=''" >
+				and g.gartenId=#{gartenId}
+			</if>
+			and p.isValid=0
+		and g.isValid=0
+	</select>
+	
+	
+	
+	
+	
+	
+	<select id="deletedetailBaby"  resultType="AddDetail">
+		SELECT
+		g.gartenName gartenName,g.province province,g.city city,g.countries countries,g.address address,'宝宝' type,b.babyName name,b.registTime registTime
+		FROM
+			baby_info b,
+			garten_info g
+		WHERE
+			UNIX_TIMESTAMP(b.registTime) > #{start}
+			and #{end}>UNIX_TIMESTAMP(b.registTime)
+			<if test="	province!=null and province!=''" >
+				and g.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and g.city=#{city}
+			</if>
+			
+			<if test="	countries!=null and countries!=''" >
+				and g.countries=#{countries}
+			</if>
+			<if test="	gartenId!=null and gartenId!=''" >
+				and g.gartenId=#{gartenId}
+			</if>
+		and b.gartenId=g.gartenId
+		and b.isvalid=1
+	</select>
+	
+	<select id="deletedetailWorker"  resultType="AddDetail">
+		SELECT
+	g.gartenName gartenName,g.province province,g.city city,g.countries countries,g.address address,'老师' type,w.workerName name,w.registTime registTime
+	FROM
+		worker＿info w,
+		garten_info g
+	WHERE
+		UNIX_TIMESTAMP(w.registTime) > #{start}
+		and #{end}>UNIX_TIMESTAMP(w.registTime)
+	and w.gartenId=g.gartenId
+	<if test="	province!=null and province!=''" >
+				and g.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				and g.city=#{city}
+			</if>
+			
+			<if test="	countries!=null and countries!=''" >
+				and g.countries=#{countries}
+			</if>
+			<if test="	gartenId!=null and gartenId!=''" >
+				and g.gartenId=#{gartenId}
+			</if>
+	and w.isValid=1
+	</select>
+	
+	<select id="deletedetailParent"  resultType="AddDetail">
+		SELECT
+	g.gartenName gartenName,g.province province,g.city city,g.countries countries,g.address address,'家长' type,p.parentName name,p.registTime registTime
+		
+		FROM
+			parent_info p,
+			garten_info g
+		WHERE
+			UNIX_TIMESTAMP(p.registTime) > #{start}
+			and #{end}>UNIX_TIMESTAMP(p.registTime)
+		and g.gartenId=substring_index(p.gartenId,',', 1)<!--对家长的幼儿园ID分割取第一个,这里如果是2是取前2个和的意思'1,2'  -->
+		
+		<if test="	province!=null and province!=''" >
+				and g.province=#{province}
+			</if>
+			
+			<if test="	city!=null and city!=''" >
+				and g.city=#{city}
+			</if>
+			
+			<if test="	countries!=null and countries!=''" >
+				and g.countries=#{countries}
+			</if>
+			<if test="	gartenId!=null and gartenId!=''" >
+				and g.gartenId=#{gartenId}
+			</if>
+			and p.isValid=1
+	</select>
+	
+	
+	
+	
+	<update id="updatePwdToken"  >
+		update   worker＿info w
+		set token=#{token},tokenTime=now(),pwd=#{pwd}
+		where phoneNumber=#{phoneNumber} 
+		and w.job in ('总管理员')
+		and w.isValid=0
+	</update>
+	
+	<update id="agreeAgentAudit"  >
+		update   agent_audit a
+		set state=1
+		where auditId=#{auditId} 
+		and a.isValid=0
+	</update>
+	
+	<update id="deleteAgentMessge"  >
+		update   agent_info i
+		set isvalid=1
+		where agentId=#{agentId} 
+	</update>
+	
+	<update id="frostAgentMessge"  >
+		update   agent_info i
+		set frost=1
+		where agentId=#{agentId} 
+		and i.isvalid=0
+	</update>
+	
+	<update id="unfrostAgentMessge"  >
+		update   agent_info i
+		set frost=0
+		where agentId=#{agentId} 
+		and i.isvalid=0
+	</update>
+	
+	<update id="changeGartenDredge"  >
+		update   garten_info g
+		set g.gartenId=g.gartenId
+		<if test="	type==0  " >
+			<if test="	count==0 " >
+				, g.monitorTime=now()
+			</if>
+			<if test="	count>0   " >
+			,g.monitorTime=date_add((CASE WHEN g.monitorTime &lt; now() THEN now() ELSE g.monitorTime end), interval #{count} month)
+			</if>
+		</if>
+		<if test="	type==1  " >
+			<if test="	count==0 " >
+				, g.attendanceTime=now()
+			</if>
+			<if test="	count>0   " >
+			,g.attendanceTime=date_add((CASE WHEN g.attendanceTime &lt; now() THEN now() ELSE g.attendanceTime end), interval #{count} month)
+			</if>
+		</if>
+		where g.gartenId=#{gartenId} 
+		and g.isvalid=0
+	</update>
+	
+	
+	
+	<update id="updateAgentMessge"  >
+		update   agent_info i
+		set agentName=#{agentName},phoneNumber=#{phoneNumber},
+		province=#{province},city=#{city},countries=#{countries},cardFragment=#{cardFragment},agentGrade=#{agentGrade}
+		where agentId=#{agentId} 
+		and i.isvalid=0
+	</update>
+	
+		<update id="updateGarten"  >
+		update   garten_info g
+		set  g.gartenName= g.gartenName
+		<if test="	gartenName!=null and gartenName!=''" >
+				, g.gartenName=#{gartenName}
+			</if>
+			<if test="	name!=null and name!=''" >
+				, g.gartenName=#{name}
+			</if>
+			<if test="	phoneNumber!=null and phoneNumber!=''" >
+				, g.phoneNumber=#{phoneNumber}
+			</if>
+			<if test="	contractNumber!=null and contractNumber!=''" >
+				, g.contractNumber=#{contractNumber}
+			</if>
+			<if test="	contractStart!=null and contractStart!=''" >
+				, g.contractStart=#{contractStart}
+			</if>
+			<if test="	contractEnd!=null and contractEnd!=''" >
+				, g.contractEnd=#{contractEnd}
+			</if>
+			<if test="	organizationCode!=null and organizationCode!=''" >
+				, g.organizationCode=#{organizationCode}
+			</if>
+			<if test="	province!=null and province!=''" >
+				, g.province=#{province}
+			</if>
+			<if test="	city!=null and city!=''" >
+				, g.city=#{city}
+			</if>
+			<if test="	countries!=null and countries!=''" >
+				, g.countries=#{countries}
+			</if>
+			<if test="	address!=null and address!=''" >
+				, g.address=#{address}
+			</if>
+			<if test="	accountState!=null " >
+				, g.accountState=#{accountState}
+			</if>
+			<if test="	charge!=null and charge!=''" >
+				, g.charge=#{charge}
+			</if>
+			<if test="	attendanceTime!=null and attendanceTime!=''" >
+				, g.attendanceTime=FROM_UNIXTIME(#{attendanceTime},  '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="	monitorTime!=null and monitorTime!=''" >
+				, g.monitorTime=FROM_UNIXTIME(#{monitorTime},  '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="	accountState!=null and accountState!=''" >
+				, g.accountState=#{accountState}
+			</if>
+				
+		where g.gartenId=#{gartenId} 
+		and g.isValid=0
+	</update>
+	
+	
+	
+	
+	
+	
+	<insert id="addGartenCharge"  >
+		insert into garten_charge 
+		set type=#{type},province=#{province},
+		city=#{city},countries=#{countries},gartenId=#{gartenId},month1=#{month1}
+		,month3=#{month3},month6=#{month6},month12=#{month12},gartenName=#{gartenName}
+	</insert>
+	
+	<delete id="deleteGartenCharge"  >
+		delete from  garten_charge 
+		where chargeId=#{chargeId}
+	</delete>
+	
+	
+	<insert id="insertInfoLog"  >
+		insert into info_log 
+		set gartenId=#{gartenId},info=#{info},job=#{job},id=#{id},
+		title=#{title},type=#{type}
+	</insert>
+	
+	
+		<insert id="insertGartenInfo"  >
+		insert into garten_info 
+		set  phoneNumber=#{phoneNumber}, 
+		gartenGrade=#{gartenGrade}, 
+		 gartenName=#{gartenName}, 
+		 address=#{address}, 
+		 pwd=#{pwd},
+		 attendanceTime=FROM_UNIXTIME(#{attendanceTime},  '%Y-%m-%d %H:%i:%s'), 
+		 monitorTime=FROM_UNIXTIME(#{monitorTime},  '%Y-%m-%d %H:%i:%s'), 
+		 charge=#{charge}, 
+		  agent=#{agent}, 
+		 arriveStartTime=#{arriveStartTime}, 
+		 leaveStartTime=#{leaveStartTime}, 
+		  arriveEndTime=#{arriveEndTime}, 
+		   leaveEndTime=#{leaveEndTime}, 
+		 province=#{province}, 
+		 city=#{city}, 
+		  countries=#{countries}, 
+		  teacherAttendanceFlag=#{teacherAttendanceFlag}, 
+		 studentAttendanceFlag=#{studentAttendanceFlag}, 
+		 contractNumber=#{contractNumber}, 
+		 contractStart=FROM_UNIXTIME(#{contractStart},  '%Y-%m-%d %H:%i:%s'), 
+		 contractEnd=FROM_UNIXTIME(#{contractEnd},  '%Y-%m-%d %H:%i:%s'), 
+		 organizationCode=#{organizationCode}, 
+		  name=#{name},
+		  token=#{token}
+	</insert>
+	
+	<insert id="insertWorkerInfo"  >
+		insert into worker＿info 
+		set  gartenId=#{gartenId},
+		pwd=#{pwd},
+		workerName=#{name},
+		phoneNumber=#{phoneNumber},
+		education=#{education},
+		certificate=#{certificate},
+		chinese=#{chinese},
+		job=#{job},
+		workerId=#{jobId},
+		jobcall=#{jobcall},
+		token=#{token}
+	</insert>
+	
+	
+	<insert id="insertClass"  >
+		insert into garten_class 
+		set  leadClass=#{leadClass},
+		leadGrade=#{leadGrade},
+		gartenId=#{gartenId}
+	</insert>
+	
+	<delete id="deleteClass"  >
+		delete from  garten_class 
+		where  leadClass=#{leadClass},
+		leadGrade=#{leadGrade},
+		gartenId=#{gartenId}
+	</delete>
+	
+	<insert id="insertAttendanceNo"  >
+		insert into attendance_no  
+		set  job=#{job},gartenId=#{gartenId}
+	</insert>
+	
+	<insert id="insertIgnore"  >
+		insert into ignore_time  
+		set  gartenId=#{gartenId},time=#{date}
+	</insert>
+	
+	<delete id="deleteIgnore"  >
+		delete from  ignore_time  
+		where   time=FROM_UNIXTIME(#{date},  '%Y-%m-%d %H:%i:%s')
+		and gartenId=#{gartenId}
+	</delete>
+	
+	
+	<update id="updateGartenTime"  >
+		update  garten_info  
+		set  attendanceTime=FROM_UNIXTIME(#{attendanceTime},  '%Y-%m-%d %H:%i:%s'), 
+		monitorTime=FROM_UNIXTIME(#{monitorTime},  '%Y-%m-%d %H:%i:%s')
+		where gartenId=#{gartenId} and isvalid=0
+
+	</update>
+	
+	
+	<insert id="insertAgent"  >
+		insert into agent_info  
+		set 
+		phoneNumber=#{phoneNumber},
+		pwd=#{pwd},
+		agentGrade=#{agentGrade},
+		agentMoney=#{agentMoney},
+		creditMoney=#{creditMoney},
+		agentStartTime=FROM_UNIXTIME(#{agentStartTime},  '%Y-%m-%d %H:%i:%s'), 
+		agentEndTime=FROM_UNIXTIME(#{agentEndTime},  '%Y-%m-%d %H:%i:%s'), 
+		name=#{name},
+		agentName=#{agentName},
+		rebate=#{rebate},
+		province=#{province},
+		city=#{city},
+		countries=#{countries},
+		token=#{token}
+	</insert>
+	
+		<select id="getMachine" resultType="MachineDetail">
+		select p.partnerId,p.partnerSecret,am.type,am.machineId,g.gartenName,am.macId
+		from garten_info g,attendance_machine am,partner_info p
+		where
+		g.gartenId=am.gartenId
+		and p.gartenId=am.gartenId 
+		and am.isValid=0  and g.isValid=0
+		and p.machineId=am.machineId
+		<if test=" type!=null and type!=''">
+			and am.type=#{type}
+		</if>
+		<if test=" province!=null and province!=''">
+			and g.province=#{province}
+		</if>
+		<if test=" city!=null and city!=''">
+			and g.city=#{city}
+		</if>
+		<if test=" countries!=null and countries!=''">
+			and g.countries=#{countries}		
+		</if>
+		<if test=" gartenId!=null and gartenId!=''">
+			and g.gartenId=#{gartenId}
+		</if>
+	</select>
+	
+	<insert id="addMachine">
+		insert into attendance_machine(gartenId,macId,type)
+		values(#{gartenId},#{macId},#{type})
+	</insert>
+	
+	<update id="updateMachine">
+		update attendance_machine set
+		macId=#{macId}
+		where machineId=#{machineId}
+	</update>
+	<select id="getOldMacId" resultType="string">
+		select macId from attendance_machine
+		where machineId=#{machineId}
+	</select>
+	<update id="updateEquipMac">
+		update equipment set macId=#{macId}
+		where macId=#{oldMacId}
+	</update>
+	<update id="deleteMachine">
+		update attendance_machine set
+		isValid=1
+		where machineId=#{machineId}
+	</update>
+	<update id="updateEquipIsValid">
+		update equipment set
+		isValid=1 
+		where macId=#{oldMacId}
+	</update>
+	
+	<select id="findEquipBygartenId" resultType="DakaCamera">
+    	select g.gartenName,e.deviceSerial,e.validateCode,e.type,
+    	e.macId,e.cameraIp,e.cameraPort,e.cameraUser,e.cameraPwd,e.cameraId
+    	from
+    	equipment e,garten_info g
+    	where
+    	e.isValid=0 and e.macId is not null
+    	and e.gartenId=g.gartenId
+    	<if test=" province!=null and province!=''">
+			and g.province=#{province}
+		</if>
+		<if test=" city!=null and city!=''">
+			and g.city=#{city}
+		</if>
+		<if test=" countries!=null and countries!=''">
+			and g.countries=#{countries}		
+		</if>
+		<if test=" gartenId!=null and gartenId!=''">
+			and g.gartenId=#{gartenId}
+		</if>
+    </select>
+    
+    <select id="findVideoByGartenId" resultType="LiveCamera">
+    	select g.gartenName,e.deviceSerial,e.validateCode,gv.type,g.gartenId,
+    	e.cameraIp,e.cameraPort,e.cameraUser,e.cameraPwd,e.cameraId,gv.url,gv.img,gv.pointId
+    	from
+    	equipment e,garten_info g,garten_video gv
+    	where
+    	e.isValid=0 and e.macId is null
+    	and e.gartenId=g.gartenId and gv.cameraId=e.cameraId
+    	<if test=" province!=null and province!=''">
+			and g.province=#{province}
+		</if>
+		<if test=" city!=null and city!=''">
+			and g.city=#{city}
+		</if>
+		<if test=" countries!=null and countries!=''">
+			and g.countries=#{countries}		
+		</if>
+		<if test=" gartenId!=null and gartenId!=''">
+			and g.gartenId=#{gartenId}
+		</if>
+		group by e.cameraId
+    </select>
+    
+    <insert id="addDakaCamera">
+    	insert into equipment(gartenId,cameraIp,cameraPort,cameraPwd,
+    		cameraUser,type,macId,deviceSerial,validateCode)
+    	values(#{gartenId},#{cameraIp},#{cameraPort},#{cameraPwd},
+    		#{cameraUser},#{type},#{macId},#{deviceSerial},#{validateCode})
+    </insert>
+    
+    <select id="getDeviceSerialById" resultType="string">
+    	select deviceSerial from equipment
+    	where cameraId=#{cameraId}
+    </select>
+    
+    <update id="deleteDakaCamera">
+    	update equipment set
+    	isValid=1
+    	where cameraId=#{cameraId}
+    </update>
+    <update id="updateDakaCamera">
+    	update equipment set
+    	cameraPort=#{cameraPort}, type=#{type}, macId=#{macId},
+    	cameraUser=#{cameraUser}, cameraPwd=#{cameraPwd},cameraIp=#{cameraIp}
+    	where
+    	cameraId=#{cameraId}
+    </update>
+    
+    <insert id="addLiveCamera">
+    	insert into
+    	 equipment(gartenId,cameraIp,cameraPort,cameraUser,
+    		cameraPwd,deviceSerial,validateCode)
+    	values(#{gartenId},#{cameraIp},#{cameraPort},#{cameraUser},
+    		#{cameraPwd},#{deviceSerial},#{validateCode})
+    </insert>
+    
+    <insert id="addLiveGartenVideo">
+    	insert into garten_video(type,gartenId,pointId,time,url,img,cameraId)
+    	values(#{type},#{gartenId},#{pointId},now(),#{url},#{img},
+    	(select cameraId from equipment where deviceSerial=#{deviceSerial} and isValid=0))
+    </insert>
+    <update id="deleteLiveCamera">
+    	update equipment set
+    	isValid=1 where cameraId=#{cameraId}
+    </update>
+    <update id="deleteGartenVideo">
+    	update garten_video set
+    	isValid=1 where cameraId=#{cameraId}
+    </update>
+    <update id="updateLiveCamera">
+    	update equipment set
+    	cameraPort=#{cameraPort},cameraUser=#{cameraUser},cameraPwd=#{cameraPwd},
+    	cameraIp=#{cameraIp}
+    	where
+    	cameraId=#{cameraId}
+    </update>
+    <update id="updateLiveVideo">
+    	update garten_video set
+    	type=#{type},pointId=#{pointId},img=#{img},url=#{url}
+    	where
+    	cameraId=#{cameraId}
+    </update>
+    <update id="updateAgentFinance">
+    	update agent_info 
+    	set
+    	creditMoney=#{creditMoney},agentMoney=#{agentMoney},rebate=#{rebate}
+    	where
+    	agentId=#{agentId}
+    </update>
+    <insert id="addPartner">
+    	insert into partner_info(partnerID,partnerSecret,tokenTime,tokenExpireTime,gartenId,machineId)
+    	values(#{partnerID},#{partnerSecret},UNIX_TIMESTAMP(now()),UNIX_TIMESTAMP(now())+2592000,#{gartenId},#{machineId})
+    </insert>
+    <select id="findEquipmentByDeviceSerial" resultType="Equipment">
+    	select * from equipment
+    	where deviceSerial=#{deviceSerial}
+    </select>
+    <select id="findMaxMachineId" resultType="Integer">
+		select max(machineId) from attendance_machine where isvalid=0;  	
+    </select>
+    <delete id="deletePartner">
+    	delete  from partner_info
+    	where machineId=#{machineId}
+    </delete>
+    <update id="updateAgentCredits"  >
+		update   agent_info  
+		set creditMoney=creditMoney+#{price}
+		where   agentId=#{agentId}
+	</update>
+</mapper> 

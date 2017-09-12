@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>成长记忆代理商管理后台</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+<header id="header">成长记忆代理商管理后台</header>
+<section id="login">
+    <h3>成长记忆代理商管理后台</h3>
+    <input class="admin" type="text" v-model="phoneNumber" placeholder="请输入管理员账号">
+    <input class="password" type="password" v-model="password" placeholder="请输入管理员密码">
+    <div class="alterAndFindPwd" @click="show_alterAndFindPwd=true">修改、找回密码</div>
+    <div class="vcode">
+        <div class="vcode-info"></div>
+        <input type="text" class="vcode-input">
+    </div>
+    <input @click="postData(login)" class="login" type="button" value="登 录">
+    <div class="alterAndFindPwd_content" v-show="show_alterAndFindPwd">
+        <div class="clear" @click="show_alterAndFindPwd=false">×</div>
+        <h3>修改、找回密码</h3>
+        <div>手机号: <input v-model="phoneNumber" type="text"></div>
+        <div>新密码: <input v-model="newPassword" type="newPassword"></div>
+        <div><input class="btn" @click="postData(getSecurityCode)" class="btn" type="button" value="发送短信获取验证码"></div>
+        <div>请输入验证码: <input class="number" type="text" v-model="number"></div>
+        <div><input class="btn" @click="postData(updatePassword)" class="btn" type="button" value="提交"></div>
+    </div>
+</section>
+</body>
+<script src="lib/jQuery/jquery-3.2.1.js"></script>
+<script src="lib/vue/vue.js"></script>
+<script>
+    (function (window,document) {
+        var baseUrl = 'http://120.76.189.101/agent';
+        var login = new Vue({
+            el: '#login',
+            data: {
+                show_alterAndFindPwd: false,
+                phoneNumber: '',
+                password: '',
+                newPassword: '',
+                number: '',
+            },
+            computed:{
+                login:function () {
+                    return {
+                        url:baseUrl+'/login.do',
+                        data: {
+                            phoneNumber: this.phoneNumber,
+                            pwd: this.password
+                        },
+                        type: 'post',
+                        success:function (data) {
+                            if(data.state == 1){
+                                sessionStorage.agentToken = data.info;
+                                sessionStorage.province = data.province;
+                                sessionStorage.city = data.city;
+                                sessionStorage.counties = data.countries;
+                                sessionStorage.agentName = data.agentName;
+                                window.location.href = 'http://120.76.189.101/agentcontrol/manage.html';
+                            }else if (data.state == 0){
+                                alert('账号或密码错误');
+                            }
+                        }
+                    }
+                },
+                getSecurityCode:function () {
+                    return {
+                        url: 'http://120.76.189.101/worker/sendControlAgent.do',
+                        type: 'post',
+                        data: {
+                            phoneNumber: this.phoneNumber
+                        },
+                        success:function (data) {
+                            console.log(data);
+                            if(data.state == 1){
+                                alert('验证码发送成功');
+                            }
+                        },
+                        error:function () {
+                            alert('验证码发送失败');
+                        }
+                    }
+                },
+                updatePassword:function () {
+                    return {
+                        url: baseUrl+'/updateLogin.do',
+                        type: 'post',
+                        data: {
+                            phoneNumber: this.phoneNumber,
+                            number: this.number,
+                            pwd: this.newPassword
+                        },
+                        success: function (data) {
+                            console.log(data);
+                            switch(data.state){
+                                case 0:
+                                    alert('密码修改失败');
+                                case 1:
+                                    alert('密码修改成功');
+                                    break;
+                                case 2:
+                                    alert('验证码错误');
+                            }
+                        }
+                    }
+                }
+            },
+            methods: {
+                postData:function (option) {
+                    $.ajax(option);
+                }
+            }
+        });
+    })(window,document);
+</script>
+</html>

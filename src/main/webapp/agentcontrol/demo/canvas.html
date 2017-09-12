@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <!--<canvas id="canvas" width="1024" height="768" style="border:1px solid #aaa;display: block;margin:0 auto"></canvas>-->
+    <!--<img src="" alt="">-->
+    <div id="container"></div>
+</body>
+<script src="konva.js"></script>
+<script>
+
+    (function (window,document) {
+//        var canvas = document.getElementById('canvas');
+//        var ctx = canvas.getContext('2d');
+
+
+        //封装精灵图
+//        function Sprite(option){
+//            this._init(option);
+//        }
+//        // width height imgSrc  x y  dir fps
+//        // render
+//        Sprite.prototype = {
+//            _init: function (option) {
+//                this.w = option.h || 0,
+//                this.h = option.h || 0,
+//                this.imgSrc = option.imgSrc || '',
+//                this.x = option.x === 0? 0:(option.x || 10);
+//                this.y = option.y === 0? 0:(option.y || 10);
+//                this.fps = option.fps || 10;
+//            },
+//            render: function (ctx) {
+//                var self = this,
+//                    img = new Image(),
+//                    frameIndex = 0,
+//                    dirIndex = 0;
+//                img.src = this.imgSrc;
+//                img.onload = function () {
+//                    setInterval(function () {
+//                        ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+//                        ctx.drawImage(
+//                            img,
+//                            frameIndex*40,
+//                            dirIndex*65,
+//                            40,
+//                            65,
+//                            self.x,
+//                            self.y,
+//                            self.w,
+//                            self.h
+//                        )
+//                        frameIndex++;
+//                        frameIndex %= 4;
+//                    },1000/self.fps);
+//                }
+//            }
+//        }
+//        var o = {
+//            w: 40*4,
+//            h: 65*4,
+//            imgSrc: 'npc.png',
+//            x: 100,
+//            y: 100,
+//            fps: 5
+//        }
+//        var s = new Sprite(o);
+//        s.render(ctx);
+
+
+
+//        var x0 = 100,
+//            y0 = 500,
+//            maxHeight = 400;
+//            arrowWidth = 10;
+//        //绘制X轴
+//        ctx.beginPath();
+//        ctx.strokeStyle = 'green';
+//        ctx.moveTo(x0,y0);
+//        ctx.lineTo(600,y0);
+//        ctx.lineTo(600-arrowWidth,y0-arrowWidth);
+//        ctx.moveTo(600,y0);
+//        ctx.lineTo(600-arrowWidth,y0+arrowWidth);
+//        ctx.stroke();
+//        //绘制Y轴
+//        ctx.beginPath();
+//        ctx.strokeStyle = 'red';
+//        ctx.moveTo(x0,y0);
+//        ctx.lineTo(x0,100);
+//        ctx.lineTo(x0-arrowWidth,100+arrowWidth);
+//        ctx.moveTo(x0,100);
+//        ctx.lineTo(x0+arrowWidth,100+arrowWidth);
+//        ctx.stroke();
+//        ctx.beginPath();
+//        var data = [0.2,0.7,0.4,0.8],
+//            len = data.length,
+//            pointWidth = 500/(len+1),
+//            x,
+//            y;
+//        for(var i=0;i<data.length;i++){
+//            x = x0 + (i+1)*pointWidth;
+//            y = y0 - data[i]*maxHeight;
+//            ctx.lineTo(x,y);
+//        }
+//        ctx.stroke();
+        var stage = new Konva.Stage({
+            container: 'container',
+            width: window.innerWidth,
+            height: window.innerHeight
+        });
+        var layer = new Konva.Layer();
+        stage.add(layer);
+        var rect = new Konva.Rect({
+            x: 100,
+            y: 100,
+            width: 100,
+            height: 100,
+            scaleX: 1.5,
+            rotaiton: 65,
+            draggable: true,
+            fill: 'red'
+        });
+        layer.add(rect);
+        layer.draw();
+    })(window,document);
+</script>
+</html>

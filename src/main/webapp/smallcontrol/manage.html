@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/manage.css">
+</head>
+<body>
+<header id="header">
+    成长记忆幼儿园控制台
+    <div class="cancel">退出</div>
+    <div class="manage">欢迎<span class="manage-name">xxxx</span>登录</div>
+</header>
+<main id="main">
+    <nav id="nav">
+        <div class="sidebar-title"><span></span>消息中心</div>
+        <ul class="sidebar-content">
+            <li>
+                <router-link to="/pushInfo"><span></span>消息推送</router-link>
+            </li>
+            <li>
+                <router-link to="/infoHistory"><span></span>消息历史</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>用户管理</div>
+        <ul class="sidebar-content">
+            <li>
+                <router-link to="/adminManage"><span></span>使用者管理</router-link>
+            </li>
+            <li>
+                <router-link to="/teacherManage"><span></span>老师管理</router-link>
+            </li>
+            <li>
+                <router-link to="/babyManage"><span></span>宝宝管理</router-link>
+            </li>
+            <li>
+                <router-link to="/patriarchManage"><span></span>家长管理</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>班级管理</div>
+        <ul class="sidebar-content">
+            <li>
+                <router-link to="/gradeAndClassManage"><span></span>年级、班级管理</router-link>
+            </li>
+            <li>
+                <router-link to="/upGrade"><span></span>升班管理</router-link>
+            </li>
+            <li>
+                <router-link to="/graduateManage"><span></span>毕业管理</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>考勤管理</div>
+        <ul class="sidebar-content">
+            <li>
+                <router-link to="/attendanceTimeManage"><span></span>考勤时间管理</router-link>
+            </li>
+            <li>
+                <router-link to="/attendanceCardManage"><span></span>考勤卡管理</router-link>
+            </li>
+            <li>
+                <router-link to="/attendanceAnomalyManage"><span></span>考勤异常管理</router-link>
+            </li>
+            <li>
+                <router-link to="/leaveManage"><span></span>请假管理</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>晨检统计</div>
+        <ul class="sidebar-content">
+            <li>
+                <router-link to="/morningCheckLook"><span></span>晨检查看</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>课程管理</div>
+        <ul class="sidebar-content">
+            <li>
+                <router-link to="/curriculumManage"><span></span>课程管理</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>食谱管理</div>
+        <ul class="sidebar-content">
+            <li>
+                <router-link to="/cookbookSet"><span></span>食谱设置</router-link>
+            </li>
+            <li>
+                <router-link to="/cookbookList"><span></span>食谱列表</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>财务管理</div>
+        <ul class="sidebar-content">
+            <li>
+                <router-link to="/payQuery"><span></span>付费查询</router-link>
+            </li>
+        </ul>
+        <div class="sidebar-title"><span></span>缴纳费用</div>
+        <ul class="sidebar-content">
+            <li>
+                <router-link to="/payFees"><span></span>全园缴费</router-link>
+            </li>
+        </ul>
+    </nav>
+    <section id="content">
+        <router-view></router-view>
+    </section>
+
+
+</main>
+</body>
+<script src="lib/vue/vue.js"></script>
+<script src="lib/vue/vue-router.js"></script>
+<script src="lib/jQuery/jquery-3.2.1.js"></script>
+<script src="js/manage.js"></script>
+<script>
+
+</script>
+</html>

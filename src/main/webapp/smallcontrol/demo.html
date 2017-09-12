@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>demo</div>
+<script src="lib/jQuery/jquery-3.2.1.js"></script>
+<script>
+    $(function () {
+       $.ajax({
+           url: 'http://a.yiyunwangl.com:8082/bigcontrol/alipay.do?',
+           data: 'token=255c84f9-adea-4972-b346-84a007431384&type=0&monthCount=1&gartenId=1',
+           type: 'post',
+           success: function (data) {
+               console.log(1);
+               console.log(data);
+               window.location.href = 'http://a.yiyunwangl.com:8082/bigcontrol/alipay.do?token=255c84f9-adea-4972-b346-84a007431384&type=0&monthCount=1&gartenId=1';
+           }
+       });
+    });
+    window.location.href = 'http://a.yiyunwangl.com:8082/bigcontrol/alipay.do?token=255c84f9-adea-4972-b346-84a007431384&type=0&monthCount=1&gartenId=1'
+</script>
+</body>
+</html>

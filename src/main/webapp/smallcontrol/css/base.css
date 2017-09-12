@@ -1,0 +1,63 @@
+
+/*
+    初始化
+*/
+html, body, ul, li, ol, dl, dd, dt, p, h1, h2, h3, h4, h5, h6,input, form, fieldset, legend, img, div, i ,header,footer,section,nav,a,main,textarea,table,th,td{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+i,ins,em,strong{
+    font-style: normal;
+    text-decoration: none;
+}
+
+fieldset, img, input, button, ::before, ::after {
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline-style: none;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+select, input {
+    vertical-align: middle;
+}
+
+select, input, textarea {
+    margin: 0;
+}
+body {
+    font-family: "Microsoft YaHei","宋体";
+    margin: 0 auto;
+    position: relative;
+    font-size: 0.24rem;
+}
+a {
+    text-decoration: none;
+}
+
+img {
+    vertical-align: middle;
+}
+input,button,select,textarea{ outline:none;}
+
+
+.clearfix::before, .clearfix::after {
+    content: "";
+    display: table;
+}
+
+.clearfix::after {
+    clear: both;
+}
+
+.clearfix {
+    *zoom: 1;
+}

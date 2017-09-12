@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>js html5图片验证码输入验证效果代码_素材中国17素材网</title>
+</head>
+
+<body>
+
+<style type="text/css">
+    /* reset */
+    *{margin:0;padding:0;list-style-type:none;}
+    a{blr:expression(this.onFocus=this.blur())}/*去掉a标签的虚线框，避免出现奇怪的选中区域*/
+    :focus{outline:0;}
+    label{cursor:pointer;}
+    img{vertical-align:middle;}
+    table{empty-cells:show;border-collapse:collapse;border-spacing:0;}
+    h1{font-size:16px;}h2,h3,h4{font-size:14px;}h5,h6{font-size:12px;}
+    abbr,acronym{border:0;font-variant:normal}
+    address,caption,cite,code,dfn,em,th,var,optgroup{font-style:normal;font-weight:normal}
+    input,button,textarea,select,optgroup,option{font-family:inherit;font-size:inherit;font-style:inherit;font-weight:inherit}
+    input,button,textarea,select{*font-size:100%}
+    a,img{border:0;}
+    a,a:visited{color:#5e5e5e; text-decoration:none;}
+    a:hover{color:#4183C4;text-decoration:underline;}
+    .clear{display:block;overflow:hidden;clear:both;height:0;line-height:0;font-size:0;}
+    .clearfix:after{content:".";display:block;height:0;clear:both;visibility:hidden;}
+    .clearfix{display:inline-table;}/* Hides from IE-mac \*/
+    *html .clearfix{height:1%;}
+    .clearfix{display:block;}/* End hide from IE-mac */
+    *+html .clearfix{min-height:1%;}
+    body{font:12px/180% Arial,Lucida,Verdana,"宋体",Helvetica,sans-serif;color:#333;background:#fff;}
+    /* shortcut */
+    .shortcut{height:32px;line-height:32px;font-size:12px;background:#eee;text-transform:uppercase;box-shadow:1px 0px 2px rgba(0,0,0,0.2);border-bottom:1px solid #DDDDDD;}
+    .shortcut h1{font-size:14px;font-family:"微软雅黑","宋体";}
+    .shortcut a,.shortcut h1{padding:0px 10px;letter-spacing:1px;color:#333;text-shadow:0px 1px 1px #fff;display:block;float:left;width:360px;height:32px;overflow:hidden;}
+    .shortcut a:hover{background:#fff;}
+    .shortcut span.right{float:right;display:inline-block;width:468px;height:15px;overflow:hidden;margin:8px 5px 0 0;}
+    .shortcut .close{
+        background:url(/Public/images/close-demo.gif) no-repeat 0 0;width:20px;height:20px;line-height:99em;overflow:hidden;display:inline-block;margin:6px 10px 0 10px;float:right;padding:0;
+        -webkit-transition:all .3s ease-out 0s;
+        -moz-transition:all .3s ease-out 0s;
+        -ms-transition:all .3s ease-out 0s;
+        -o-transition:all .3s ease-out 0s;
+        transition:all .3s ease-out 0s;
+    }
+    .shortcut .close:hover{background:url(/Public/images/close-demo.gif) no-repeat 0 -20px}
+    .shortcut .close:active{background:url(/Public/images/close-demo.gif) no-repeat 0 -40px}
+</style>
+
+<div class="shortcut">
+    <h1><a href="http://www.17sucai.com/pins/23579.html">js html5图片验证码输入验证效果代码</a></h1>
+    <a title="查看原网页" href="http://www.17sucai.com/preview/1/2017-03-19/Yzm/index.html" class="close">关闭</a>
+
+    <span class="right">
+	</span>
+
+</div><!-- shortcut end -->
+
+<script type="text/javascript" src="http://www.17sucai.com/static/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        var iframeHeight = function () {
+            var _height = $(window).height() - 34;
+            $('#content').height(_height);
+        }
+        window.onresize = iframeHeight;
+        $(function () {
+            iframeHeight();
+        });
+
+    });
+
+</script>
+
+<div id="container" style="overflow:hidden;">
+    <iframe border="0" id="content" src="http://www.17sucai.com/preview/1/2017-03-19/Yzm/index.html" frameborder="0" height="100%" width="100%"></iframe>
+</div>
+
+<script type="text/javascript">
+    var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+    document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F382f81c966395258f239157654081890' type='text/javascript'%3E%3C/script%3E"));
+</script>
+</body>
+</html>
+
+<script>
+    !(function(window, document) {
+        function GVerify(options) { //创建一个图形验证码对象，接收options对象为参数
+            this.options = { //默认options参数值
+                id: "", //容器Id
+                canvasId: "verifyCanvas", //canvas的ID
+                width: "100", //默认canvas宽度
+                height: "30", //默认canvas高度
+                type: "blend", //图形验证码默认类型blend:数字字母混合类型、number:纯数字、letter:纯字母
+                code: ""
+            }
+
+            if(Object.prototype.toString.call(options) == "[object Object]"){//判断传入参数类型
+                for(var i in options) { //根据传入的参数，修改默认参数值
+                    this.options[i] = options[i];
+                }
+            }else{
+                this.options.id = options;
+            }
+
+            this.options.numArr = "0,1,2,3,4,5,6,7,8,9".split(",");
+            this.options.letterArr = getAllLetter();
+
+            this._init();
+            this.refresh();
+        }
+
+        GVerify.prototype = {
+            /**版本号**/
+            version: '1.0.0',
+
+            /**初始化方法**/
+            _init: function() {
+                var con = document.getElementById(this.options.id);
+                var canvas = document.createElement("canvas");
+                this.options.width = con.offsetWidth > 0 ? con.offsetWidth : "100";
+                this.options.height = con.offsetHeight > 0 ? con.offsetHeight : "30";
+                canvas.id = this.options.canvasId;
+                canvas.width = this.options.width;
+                canvas.height = this.options.height;
+                canvas.style.cursor = "pointer";
+                canvas.innerHTML = "您的浏览器版本不支持canvas";
+                con.appendChild(canvas);
+                var parent = this;
+                canvas.onclick = function(){
+                    parent.refresh();
+                }
+            },
+
+            /**生成验证码**/
+            refresh: function() {
+                var canvas = document.getElementById(this.options.canvasId);
+                if(canvas.getContext) {
+                    var ctx = canvas.getContext('2d');
+                }
+                ctx.textBaseline = "middle";
+
+                ctx.fillStyle = randomColor(180, 240);
+                ctx.fillRect(0, 0, this.options.width, this.options.height);
+
+                if(this.options.type == "blend") { //判断验证码类型
+                    var txtArr = this.options.numArr.concat(this.options.letterArr);
+                } else if(this.options.type == "number") {
+                    var txtArr = this.options.numArr;
+                } else {
+                    var txtArr = this.options.letterArr;
+                }
+
+                for(var i = 1; i <= 4; i++) {
+                    var txt = txtArr[randomNum(0, txtArr.length)];
+                    this.options.code += txt;
+                    ctx.font = randomNum(this.options.height/2, this.options.height) + 'px SimHei'; //随机生成字体大小
+                    ctx.fillStyle = randomColor(50, 160); //随机生成字体颜色
+                    ctx.shadowOffsetX = randomNum(-3, 3);
+                    ctx.shadowOffsetY = randomNum(-3, 3);
+                    ctx.shadowBlur = randomNum(-3, 3);
+                    ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+                    var x = this.options.width / 5 * i;
+                    var y = this.options.height / 2;
+                    var deg = randomNum(-30, 30);
+                    /**设置旋转角度和坐标原点**/
+                    ctx.translate(x, y);
+                    ctx.rotate(deg * Math.PI / 180);
+                    ctx.fillText(txt, 0, 0);
+                    /**恢复旋转角度和坐标原点**/
+                    ctx.rotate(-deg * Math.PI / 180);
+                    ctx.translate(-x, -y);
+                }
+                /**绘制干扰线**/
+                for(var i = 0; i < 4; i++) {
+                    ctx.strokeStyle = randomColor(40, 180);
+                    ctx.beginPath();
+                    ctx.moveTo(randomNum(0, this.options.width), randomNum(0, this.options.height));
+                    ctx.lineTo(randomNum(0, this.options.width), randomNum(0, this.options.height));
+                    ctx.stroke();
+                }
+                /**绘制干扰点**/
+                for(var i = 0; i < this.options.width/4; i++) {
+                    ctx.fillStyle = randomColor(0, 255);
+                    ctx.beginPath();
+                    ctx.arc(randomNum(0, this.options.width), randomNum(0, this.options.height), 1, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            },
+
+            /**验证验证码**/
+            validate: function(code){
+                var code = code.toLowerCase();
+                var v_code = this.options.code.toLowerCase();
+                if(code == v_code){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        }
+        /**生成字母数组**/
+        function getAllLetter() {
+            var letterStr = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z";
+            return letterStr.split(",");
+        }
+        /**生成一个随机数**/
+        function randomNum(min, max) {
+            return Math.floor(Math.random() * (max - min) + min);
+        }
+        /**生成一个随机色**/
+        function randomColor(min, max) {
+            var r = randomNum(min, max);
+            var g = randomNum(min, max);
+            var b = randomNum(min, max);
+            return "rgb(" + r + "," + g + "," + b + ")";
+        }
+        window.GVerify = GVerify;
+    })(window, document);
+</script>

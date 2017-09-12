@@ -1,0 +1,514 @@
+html, body {
+    height: 100%;
+}
+
+#header {
+    padding: 0 20px;
+    position: fixed;
+    width:100%;
+    z-index: 1;
+    height: 50px;
+    background-color: #b9df8b;
+    line-height: 50px;
+    font-size: 24px;
+    text-align: center;
+    color: #742402;
+}
+
+#header .manage,
+#header .cancel {
+    position: absolute;
+    font-size: 16px;
+}
+
+#header .manage {
+    padding-right: 30px;
+    top: 0;
+    right: 100px;
+    border-right: 1px solid #D2F8A2;
+}
+
+#header .manage .manage-name {
+    color: #ffcc01;
+}
+
+#header .cancel {
+    top: 0;
+    right: 20px;
+    width: 80px;
+}
+
+#nav {
+    position: fixed;
+    padding-top:50px;
+    top: 0;
+    bottom: 0;
+    background-color: #c1e98c;
+    width: 220px;
+    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    vertical-align: middle;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#nav .sidebar-title span {
+    display: inline-block;
+    width: 12.25px;
+    height: 12px;
+    margin: 0 8px 0 20px;
+    vertical-align: middle;
+    background: url(../images/arrow.png) no-repeat 0 0/100%;
+}
+
+#nav span.current {
+    transform: rotate(90deg);
+}
+
+#nav .sidebar-title {
+    height: 40px;
+    color: #742402;
+    line-height: 40px;
+    letter-spacing: 0.02em;
+}
+
+#nav .sidebar-title:hover {
+    background-color: #ffe551;
+}
+
+#nav .sidebar-content {
+    display: none;
+    background-color: #b9df8b;
+}
+
+#nav .sidebar-content li {
+    height: 40px;
+    line-height: 40px;
+    color: #742402;
+}
+
+#nav .sidebar-content li:hover {
+    background-color: #c5eb97;
+}
+
+#nav .sidebar-content li.current {
+    background-color: #ffe551;
+}
+
+#nav .sidebar-content li a {
+    color: #742402;
+    display: block;
+}
+
+#nav .sidebar-content li span {
+    float: left;
+    margin-top: 8px;
+    margin-left: 14px;
+    margin-right: 10px;
+    width: 24px;
+    height: 24px;
+    background: no-repeat 0 0/100%;
+}
+
+#nav .index li:nth-of-type(-n+3) span,
+#nav .agent li:nth-of-type(1) span {
+    background-image: url(../images/statistics.png);
+}
+
+#nav .index li:nth-of-type(n+4) span,
+#nav .agent li:nth-of-type(n+2) span {
+    background-image: url(../images/manage.png);
+}
+
+#nav .monitor li:nth-of-type(1) span {
+    background-image: url(../images/video.png);
+}
+
+#nav .monitor li:nth-of-type(2) span {
+    background-image: url(../images/money.png);
+}
+
+#nav .inform li:nth-of-type(1) span {
+    background-image: url(../images/remind.png);
+}
+
+#nav .inform li:nth-of-type(2) span {
+    background-image: url(../images/push_inform.png);
+}
+
+#nav .controller li:nth-of-type(1) span {
+    background-image: url(../images/addpeople.png);
+}
+
+#nav .controller li:nth-of-type(2) span {
+    background-image: url(../images/key.png);
+}
+
+#nav .controller li:nth-of-type(3) span {
+    background-image: url(../images/account.png);
+}
+
+#nav .controller li:nth-of-type(4) span {
+    background-image: url(../images/package.png);
+}
+
+#nav .indent li:nth-of-type(1) span {
+    background-image: url(../images/indent.png);
+}
+
+/*内容部分*/
+#content {
+    position: absolute;
+    top: 50px;
+    bottom: 0;
+    left: 220px;
+    right: 0;
+    padding: 4px 4px 0 4px;
+    font-size: 16px;
+    line-height: 150%;
+}
+
+#content .address3,
+#content .date{
+    display: inline-block;
+}
+#content .inlineBlock{
+        display: inline-block;
+    }
+/*所有select样式*/
+#content select {
+    padding-bottom: 4px;
+    margin-right: 10px;
+    background-color: #c5eb97;
+    color: #742402;
+    font-size: 14px;
+    border-radius: 5px;
+}
+/*所有表格组件默认样式*/
+#content table {
+    width:100%;
+    margin: 0 auto;
+    margin-top: 4px;
+    collapse: collapse;
+    border-spacing: 0;
+    min-width: 680px;
+}
+
+#content table th,
+#content table td {
+    border: 1px solid #c5eb97;
+    line-height: 150%;
+    font-size: 16px;
+    text-align: center;
+    min-width: 80px;
+    padding: 0 6px;
+    height: 26px;
+}
+
+#content table th {
+    background-color: #fbff96;
+}
+
+#content table tr:nth-of-type(2n) td {
+    background-color: #edffca;
+}
+
+#content table tr:nth-of-type(2n-1) td {
+    background-color: #dfffbc;
+}
+
+#content table th + th,
+#content table td + td {
+    border-left: none;
+}
+#content td .monitor{
+    width:16px;
+    height:16px;
+}
+#content td.operation {
+    text-align: center
+}
+#content table span {
+    color: #006105;
+    cursor: pointer;
+}
+#content table span+span{
+    margin-left:10px;
+}
+
+/*所有分页样式 跟随表格*/
+#content .paging {
+    line-height: 150%;
+    font-size: 16px;
+    background-color: #edffca;
+    padding: 0 20px;
+}
+
+#content .paging .first,
+#content .paging .last,
+#content .paging .prev,
+#content .paging .next {
+    text-align: center;
+    font-size: 16px;
+    line-height: 150%;
+    background-color: #c0dfa9;
+    margin-right: 20px;
+    padding: 0 20px;
+    cursor: pointer;
+}
+
+#content .paging span {
+    color: #742402;
+}
+
+#content .paging .input-go {
+    font-size: 16px;
+    line-height: 120%;
+    width: 60px;
+    margin-left: 20px;
+}
+
+#content .paging .go {
+    text-align: center;
+    font-size: 16px;
+    line-height: 150%;
+    background-color: #c0dfa9;
+    width: 30px;
+    margin-left: 5px;
+}
+
+inputNameAndPhone {
+    display: inline-block;
+}
+/*所有 导航条 查找 筛选 样式*/
+#content .nav {
+    border-bottom: 1px solid #D8FFA4;
+    color: #742402;
+}
+
+#content .nav  div {
+    font-size: 16px;
+    display: inline-block;
+    line-height: 30px;
+    padding: 0 6px;
+    cursor: pointer;
+    background-color: #fbff96;
+    border: 1px solid #D8FFA4;
+    margin-bottom: -1px;
+    border-bottom: 1px solid #edffca;
+}
+
+#content .nav div + div {
+    margin-left: 8px;
+}
+
+#content .nav div:hover,
+#content .nav .current {
+    background-color: #edffca;
+    border-bottom:1px solid #edffca;
+}
+#content  .filter{
+    min-width: 800px;
+    background-color: #dfffbc;
+    color: #3c763d;
+    line-height:150%;
+    padding:4px 0 4px 10px;
+}
+#content  .filter input[class="name"]{
+    width:80px;
+}
+ #content  .filter input[class="identityCard"]{
+     width:180px;
+ }
+
+#content  input[type="text"],
+#content  input[type="password"]{
+    font-size:14px;
+    line-height:140%;
+    padding-left:5px;
+    width:120px;
+    margin-right:10px;
+}
+#content .filter select {
+    margin-top:-3px;
+    font-size: 14px;
+    height: 22px;
+    color: #000;
+    padding-bottom: 0;
+}
+/*所有添加幼儿园、家长、老师、宝宝数据样式*/
+#content .add-Newdata {
+    border: 1px solid #D8FFA4;
+    padding: 10px 15px;
+}
+
+#content .add-Newdata h3,
+#content .add-Newdata div {
+    color: #006105;
+    line-height: 150%;
+}
+#content .add-Newdata div {
+    margin-top: 5px;
+    color: #742402;
+}
+
+#content .add-Newdata select {
+    background-color: #fff;
+    margin-bottom: 0;
+}
+
+#content .add-Newdata .postData,
+#content .look-Detaildata .look {
+    text-align: left;
+}
+
+#content .add-Newdata .mark {
+    padding-left: 15px;
+    font-size: 14px;
+    color: #ccc;
+}
+
+#content .add-Newdata .remark {
+    width: 600px;
+    height: 100px;
+    resize: none;
+    font-size: 16px;
+    padding: 5px;
+}
+#content .add-Newdata input[name="birth"]{
+    width:50px;
+}
+#content .add-Newdata input[name="birth"] + input[name="birth"]{
+    margin-left:10px;
+}
+
+/*所有查看幼儿园、家长、老师、宝宝详细信息样式*/
+#content .btn,
+#content .save,
+#content .clear {
+    padding: 0 14px;
+    height: 20px;
+    line-height: 22px;
+    background-color: #DEEFD3;
+    cursor: pointer;
+}
+#content .save + .clear {
+    margin-left: 20px;
+}
+
+#content .look-Detaildata {
+    position: absolute;
+    top: 4px;
+    min-width: 680px;
+    left: 4px;
+    right: 4px;
+    padding:10px 15px;
+    background-color: #fff;
+    color: #742402;
+    border: 1px solid #D8FFA4;
+}
+
+#content .look-Detaildata h3,
+#content .look-Detaildata div {
+    line-height: 150%;
+}
+
+#content .look-Detaildata h3 {
+    color: #006105;
+}
+
+#content .look-Detaildata div {
+    margin-top: 5px;
+}
+
+#content .look-Detaildata input[type="text"] {
+    padding-left: 5px;
+    line-height: 150%;
+}
+#content .look-Detaildata select {
+    background-color: #fff;
+    color: #000;
+}
+#content .look-Detaildata textarea {
+    width:400px;
+    height:100px;
+    resize:none;
+}
+#content .look-Detaildata table {
+    color: #000;
+}
+/*信息管理界面*/
+#content .infoManage table th:nth-last-child(2),
+#content .attendanceManage table th:nth-last-child(2){
+    display: none;
+}
+#content .infoManage table td:nth-last-child(2),
+#content .attendanceManage table td:nth-last-child(2){
+    display: none;
+}
+
+/*推送消息界面*/
+/*#content .pushInfo .pushInfo-info{*/
+    /*margin-top:4px;*/
+    /*width: 860px;*/
+    /*height: 300px;*/
+    /*padding: 4px;*/
+    /*box-shadow: 0 0px 0px 1px #e2e2e2, 0 1px 1px #e2e2e2;*/
+/*}*/
+/*#content .pushInfo .pushInfo-info textarea{*/
+    /*display: block;*/
+    /*width: 100%;*/
+    /*height: 244px;*/
+    /*margin: 0 auto;*/
+    /*resize: none;*/
+    /*border: none;*/
+    /*text-indent: 2em;*/
+    /*color: #742402;*/
+    /*background-color: #f7f7f7;*/
+    /*padding: 10px 16px;*/
+    /*font-size: 18px;*/
+/*}*/
+/*#content .pushInfo .pushInfo-info input {*/
+    /*display: block;*/
+    /*margin: 0 auto;*/
+    /*margin-top:8px;*/
+    /*width:120px;*/
+    /*height:34px;*/
+    /*border: 1px solid #8ba868;*/
+    /*border-radius: 10px;*/
+    /*color: #8ba868;*/
+    /*text-align: center;*/
+    /*background-color: #fff;*/
+
+/*}*/
+#content .pushInfo .pushInfo-info{
+    width:100%;
+    padding:8px 60px;
+    margin: 0 auto;
+    background-color: #f4ffe8
+}
+#content .pushInfo .pushInfo-info-title{
+    width:100%;
+    min-width: 600px;
+}
+#content .pushInfo .main {
+    margin-top:10px;
+}
+#content .pushInfo div span{
+    position: absolute;
+    vertical-align: top;
+    margin-left:-50px;
+}
+#content .pushInfo div.pushInfo-info-main{
+    margin-top:5px;
+}
+#content .pushInfo div textarea{
+    width:100%;
+    min-width: 600px;
+    height:316px;
+    margin-top:5px;
+    font-size:16px;
+    padding:6px;
+    resize: none;
+}
