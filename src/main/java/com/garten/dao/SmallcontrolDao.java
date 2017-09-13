@@ -187,4 +187,36 @@ public interface SmallcontrolDao {
 
 	List<WorkerLeaveLogPrin> findLeaveLogByToken(Map<String, Object> putMapParams);
 	List<BabyLeaveLogAll> findLeaveLogByTokenSmall(Map<String, Object> putMapParams);
+
+	BabyInfo findBabyByIdCard(String cardId);
+
+	void deleteActivity(Integer babyId);
+
+	void deleteBabyLeaveLog(Integer babyId);
+
+	void deleteBabyPerformanceLog(Integer babyId);
+
+	void deleteDaijieInfo(Integer babyId);
+
+	void deleteDakaLog(Integer jobId);
+
+	void deleteGartenPhotos(Integer babyId);
+
+	void deleteUnusual(Integer jobId);
+
+	void deleteWorkerFlower(Integer workerId);
+
+	void deleteWorkerCheckLog(Integer workerId);
+
+	void deletePhotoDianzan(String job, Integer jobId);
+
+	void deleteInfoLog(String job, Integer jobId);
+
+	void deleteFeedback(String job, Integer jobId);
+
+	void deleteComment(String job, Integer jobId);
+
+	BabyInfo findBabyByParentId(Integer parentId);
+
+	void deleteParentFlower(Integer parentId);
 }

@@ -32,6 +32,7 @@ import com.garten.Thread.BigControlSendNotify;
 import com.garten.Thread.GartenRegisteNotify;
 import com.garten.Thread.HuanXinThread;
 import com.garten.dao.AgentDao;
+import com.garten.dao.AttendanceDao;
 import com.garten.dao.BigcontrolDao;
 import com.garten.dao.ParentDao;
 import com.garten.dao.PrincipalDao;
@@ -59,6 +60,7 @@ import com.garten.util.myutil.MyUtil;
 import com.garten.util.page.DividePage;
 import com.garten.util.page.MyPage;
 import com.garten.vo.agent.AgentAuditMessage;
+import com.garten.vo.attendance.TeacherAndBabyInfo;
 import com.garten.vo.bigcontrol.AddDetail;
 import com.garten.vo.bigcontrol.BabyMessage;
 import com.garten.vo.bigcontrol.ClassManageBig;
@@ -103,7 +105,10 @@ public class BigcontrolService {
 	private SmallcontrolDao smallcontrolDao;
 	@Autowired
 	private AgentDao agentDao;
-	
+	@Autowired
+	private AttendanceDao attendanceDao;
+	@Autowired
+	private SmallcontrolService smallcontrolService;
 	public Map<String, Object> login(String phoneNumber, String pwd) {
 		Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
 		WorkerInfo worker=bigcontrolDao.findWorkerByPwd(param);
@@ -529,6 +534,24 @@ public class BigcontrolService {
 			
 		}
 		
+		
+		public  Map<String,Object> deleteGarten(String token,Integer gartenId){
+			WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+				if(null!=workerInfo){
+					List<TeacherAndBabyInfo> babys = attendanceDao.findBabys(gartenId);
+					for(TeacherAndBabyInfo baby : babys){		//删除这个幼儿园所有宝宝
+						smallcontrolService.deleteBabyById(baby.getBabyId());
+					}
+					List<TeacherAndBabyInfo> teachers = attendanceDao.findTeachers(gartenId);
+					for(TeacherAndBabyInfo teacher : teachers){	//删除这个幼儿园所有老师
+						smallcontrolService.deleteTeacherById(teacher.getBabyId());
+					}
+					
+				}
+				return result;
+			
+		}
 		
 		public void ignore(Integer gartenId) throws ParseException {
 			MyUtil.addIgnoreYear(gartenId);

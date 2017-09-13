@@ -176,6 +176,13 @@ public class BigcontrolController {
 					return "success";
 				}
 		
+		//删除幼儿园
+		@RequestMapping("deleteGarten")
+		@ResponseBody
+		public synchronized Map<String,Object> deleteGarten(String token,Integer gartenId){
+			Map<String, Object> map = bigcontrolService.deleteGarten(token, gartenId);
+			return map;
+		}
 //代理商管理-代理商管理
 		@RequestMapping("agentMessge")//
 		public  @ResponseBody Map<String,Object> agentMessge(String token,String province,String city,String countries,String agentId ,Integer pageNo) throws ParseException {

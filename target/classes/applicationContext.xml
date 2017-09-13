@@ -19,14 +19,16 @@
 		
 		<!-- 定时任务的注解驱动 -->
 	<task:annotation-driven /> <!-- 定时器开关-->  
-     <bean id="flower" class="com.garten.util.TimeTask"></bean>  
+     <bean id="timeTask" class="com.garten.util.TimeTask"></bean>  
      <task:scheduled-tasks>  
  		<!-- 每天添加红花 -->
-         <task:scheduled ref="flower" method="updateHonghua" cron="0 0 0 1/1 * ? " />  
+         <task:scheduled ref="timeTask" method="updateHonghua" cron="0 0 0 1/1 * ? " />  
          <!-- 宝宝生日提醒 -->
-         <task:scheduled ref="flower" method="babyBirthday" cron="0 0 0 1/1 * ? "/>
+         <task:scheduled ref="timeTask" method="babyBirthday" cron="0 0 0 1/1 * ? "/>
          <!-- 每年一月一号添加忽略时间 -->
-         <task:scheduled ref="flower" method="addIgnoreEveryYear" cron="0 0 0 1 1 ? "/>
+         <task:scheduled ref="timeTask" method="addIgnoreEveryYear" cron="0 0 0 1 1 ? "/>
+         <!-- 每天删除未支付订单 -->
+         <task:scheduled ref="timeTask" method="deleteOrderNoPay" cron="0 0 0 1/1 * ? "/>
     </task:scheduled-tasks>  	
 	<!-- 配置数据源 -->
 	<bean id="dataSource"

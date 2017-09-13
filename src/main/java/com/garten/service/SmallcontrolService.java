@@ -31,6 +31,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.garten.Thread.AddRecipeNotify;
+import com.garten.Thread.DeleteBabyThread;
+import com.garten.Thread.DeleteParentThread;
+import com.garten.Thread.DeleteTeacherThread;
 import com.garten.Thread.HuanXinThread;
 import com.garten.Thread.InsertCheckThread;
 import com.garten.dao.AttendanceDao;
@@ -39,6 +42,7 @@ import com.garten.dao.ParentDao;
 import com.garten.dao.PrincipalDao;
 import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
+import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
@@ -821,7 +825,10 @@ public class SmallcontrolService {
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
-				
+				BabyInfo babyInfo = smallcontrolDao.findBabyByIdCard(cardId);
+				if(null!=babyInfo){
+					return MyUtil.putMapParams(result, "state",3);		//该宝宝已经存在
+				}
 				ParentInfo parentInfo = smallcontrolDao.findParentByPhone(phoneNumber);
 				
 				Integer[] teacher = smallcontrolDao.getTeacherByClassId(classId);
@@ -942,7 +949,12 @@ public class SmallcontrolService {
 				smallcontrolDao.deleteTeacher(workerId);
 				teachers = smallcontrolDao.getTeacherByClassId(classId);
 				smallcontrolDao.updateBaByTeacher(LyUtils.intChangeToStr(teachers), classId);
-				smallcontrolDao.deleteAttendanceNo(workerId);
+				
+				//开启删除老师相关信息线程
+				DeleteTeacherThread deleteTeacherThread = new DeleteTeacherThread(workerId);
+				Thread thread = new Thread(deleteTeacherThread);
+				thread.start();
+				
 				smallcontrolDao.updateRebootFlag(workerInfo.getGartenId());	//重启标识
 				MyUtil.putMapParams(result, "state",1);
 			}
@@ -955,7 +967,7 @@ public class SmallcontrolService {
 		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
 				List<ParentInfo> parents = smallcontrolDao.findParentByBabyId(babyId);
-				for(ParentInfo p : parents){
+				for(ParentInfo p : parents){			//该宝宝对应的家长清除该宝宝的记录
 					Integer index = Arrays.binarySearch(p.getBabyId(),babyId.toString());
 					String[] newBabyId = LyUtils.ArrayRemoveIndex(p.getBabyId(), index);
 					String[] newIdentity = LyUtils.ArrayRemoveIndex(p.getIdentity(), index);
@@ -965,13 +977,40 @@ public class SmallcontrolService {
 					smallcontrolDao.updateParentIsExist(p.getParentId(), LyUtils.StrChangeToStr(newBabyId), LyUtils.StrChangeToStr(newGarten), 
 							LyUtils.StrChangeToStr(newIdentity), LyUtils.StrChangeToStr(newMonitorTime), LyUtils.StrChangeToStr(newAttendanceTime));
 				}
-				smallcontrolDao.deleteBaby(babyId);
-				smallcontrolDao.deleteAttendanceNo(babyId);
+				
+				//开启删除宝宝相关信息线程
+				DeleteBabyThread babyThread = new DeleteBabyThread(babyId);
+				Thread thread = new Thread(babyThread);
+				thread.start();
+				
 				smallcontrolDao.updateRebootFlag(workerInfo.getGartenId());	//重启标识
 				MyUtil.putMapParams(result, "state",1);
 			}
 			return result;
 	}
+	
+	//删除家长
+	public synchronized Map<String,Object> deleteParent(String token,Integer parentId){
+		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			if(null!=workerInfo){
+				BabyInfo babyInfo = smallcontrolDao.findBabyByParentId(parentId);
+				if(null!=babyInfo){
+					MyUtil.putMapParams(result,  "state",2);			//该家长为某位宝宝的主监护人  无法删除
+				}else{
+					//不是主监护人   开始删除这位家长的信息  isValid=1
+					//开启删除家长线程
+					DeleteParentThread deleteParentThread = new DeleteParentThread(parentId);
+					Thread thread = new Thread(deleteParentThread);
+					thread.start();
+					MyUtil.putMapParams(result,  "state",1);	
+				}
+				
+			}
+			return result;
+	}
+	
+	
 	//该幼儿园资料
 	public Map<String ,Object > getGartenMessage(String token){
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
@@ -1445,5 +1484,40 @@ public class SmallcontrolService {
 		for(ParentInfoCharge p:parentInfoCharge){
 			MyUtil.pushOne(MyParamAll.JIGUANG_PARENT_APP, MyParamAll.JIGUANG_PARENT_MASTER,MyParamAll.JIGUANG_RECIPE_MESSAGE,p.getPhoneNumber());
 		}
+	}
+	
+	public void deleteBabyById(Integer babyId){
+		smallcontrolDao.deleteBaby(babyId);						//删除该宝宝
+		smallcontrolDao.deleteActivity(babyId);					//删除该宝宝活动记录
+		smallcontrolDao.deleteBabyLeaveLog(babyId);				//删除宝宝考勤记录
+		smallcontrolDao.deleteBabyPerformanceLog(babyId);		//删除宝宝表现
+		smallcontrolDao.deleteAttendanceNo(babyId);				//删除宝宝attendanceNo
+		smallcontrolDao.deleteDaijieInfo(babyId);				//删除代接
+		smallcontrolDao.deleteDakaLog(babyId);					//删除宝宝打卡记录
+		smallcontrolDao.deleteGartenPhotos(babyId);				//删除朋友圈照片
+		smallcontrolDao.deleteUnusual(babyId);					//删除宝宝考勤异常记录
+	}
+	
+	public void deleteTeacherById(Integer workerId){
+		smallcontrolDao.deleteAttendanceNo(workerId);			//删除attendancenNo
+		smallcontrolDao.deleteComment("老师",workerId);			//删除comment
+		smallcontrolDao.deleteDakaLog(workerId);				//删除打卡记录
+		smallcontrolDao.deleteFeedback("老师",workerId);			//删除反馈
+		smallcontrolDao.deleteInfoLog("老师",workerId);			//删除老师通知记录
+		smallcontrolDao.deletePhotoDianzan("老师",workerId);		//删除朋友圈点赞记录
+		smallcontrolDao.deleteWorkerCheckLog(workerId); 		//删除老师考勤记录
+		smallcontrolDao.deleteWorkerFlower(workerId);			//删除老师红花数
+		smallcontrolDao.deleteUnusual(workerId);				//删除老师异常考勤记录
+		
+	}
+	
+	public void deleteParentById(Integer parentId){
+		smallcontrolDao.deleteComment("家长", parentId);		//删除家长comment
+		smallcontrolDao.deleteDaijieInfo(parentId);			//删除家长代接记录
+		smallcontrolDao.deleteFeedback("家长", parentId);		//删除家长反馈
+		smallcontrolDao.deleteGartenPhotos(parentId);		//删除家长朋友圈图片
+		smallcontrolDao.deleteInfoLog("家长", parentId);		//删除家长信息通知
+		smallcontrolDao.deletePhotoDianzan("家长", parentId);	//删除家长点赞记录
+		smallcontrolDao.deleteParentFlower(parentId);		//删除该家长红花记录
 	}
 }

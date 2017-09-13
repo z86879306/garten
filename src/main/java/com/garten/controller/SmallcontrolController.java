@@ -348,6 +348,15 @@ public class SmallcontrolController {
 			Map<String, Object> map = smallcontrolService.deleteBaby(token, babyId);
 			return map;
 		}
+		
+		//删除家长
+		@RequestMapping("deleteParent")
+		@ResponseBody
+		public synchronized Map<String,Object> deleteParent(String token,Integer parentId){
+			Map<String, Object> map = smallcontrolService.deleteParent(token, parentId);
+			return map;
+		}
+		
 		//年级、班级管理（班级列表）
 		//@RequestMapping("")
 		

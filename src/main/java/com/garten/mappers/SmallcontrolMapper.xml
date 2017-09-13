@@ -539,4 +539,70 @@ gartenId=1
 			and (UNIX_TIMESTAMP(r.leaveTime) &lt;= #{endTime} and #{startTime}   &lt;= UNIX_TIMESTAMP(r.endTime))
 		    AND b.isValid = 0  	AND r.isValid = 0
 	</select>
+	
+	<select id="findBabyByIdCard" resultType="BabyInfo">
+		select * from baby_info where
+		cardId=#{cardId} and isValid=0
+	</select>
+	<update id="deleteActivity">
+		update 	activity_log set
+		isValid=1 where babyId=#{babyId}
+	</update>
+	<update id="deleteBabyLeaveLog">
+		update baby_leave_log set
+		isValid=1 where babyId=#{babyId}
+	</update>
+	<update id="deleteBabyPerformanceLog">
+		update baby_performance_log set
+		isValid=1 where babyId=#{babyId}
+	</update>
+	<update id="deleteDaijieInfo">
+		update daijie_info set
+		isValid=1 where babyId=#{babyId}
+	</update>
+	<update id="deleteDakaLog">
+		update daka_log set
+		isValid=1 where jobId=#{jobId}
+	</update>
+	<update id="deleteGartenPhotos">
+		update garten_photos set
+		isValid=1 where babyId=#{babyId}
+	</update>
+	<update id="deleteUnusual">
+		update unusual set
+		isValid=1 where jobId=#{jobId}
+	</update>
+	<update id="deleteWorkerFlower">
+		update worker_flower set
+		isValid=1 where workerId=#{workerId}
+	</update>
+	<update id="deleteWorkerCheckLog">
+		update worker_check_log set
+		isValid=1 where workerId=#{workerId}
+	</update>
+	<update id="deletePhotoDianzan">
+		update worker_check_log set
+		isValid=1 where jobId=#{jobId} and job=#{job}
+	</update>
+	<update id="deleteInfoLog">
+		update info_log set
+		isValid=1 where jobId=#{jobId} and job=#{job}
+	</update>
+	<update id="deleteFeedback">
+		update feedback set
+		isValid=1 where jobId=#{jobId} and job=#{job}
+	</update>
+	<update id="deleteComment">
+		update comment set
+		isValid=1 where jobId=#{jobId} and job=#{job}
+	</update>
+	<select id="findBabyByParentId" resultType="BabyInfo">
+		select * from baby_info 
+		where parentId=#{parentId} and
+		isValid=0
+	</select>
+	<update id="deleteParentFlower">
+		update worker_flower set
+		isValid=1 where parentId=#{parentId}
+	</update>
 </mapper> 
