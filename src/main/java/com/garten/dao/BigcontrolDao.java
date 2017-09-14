@@ -242,4 +242,32 @@ public interface BigcontrolDao {
 
 	void deleterelation(Integer relationId);
 
+	void deleteIsvalid();
+
+	void deleteGartenActivityDetail(Integer gartenId);
+
+	void deleteGartenAllCharge(Integer gartenId);
+
+	void deleteGartenAllClass(Integer gartenId);
+
+	void deleteGartenInfo(Integer gartenId);
+
+	void deleteGartenAllLesson(Integer gartenId);
+
+	void deleteGartenAllPhoto(Integer gartenId);
+
+	void deleteGartenAllRecipe(Integer gartenId);
+
+	void deleteGartenAllVideo(Integer gartenId);
+
+	void deleteGartenAllIgnoreTime(Integer gartenId);
+
+	void deleteGartenAllInfoLog(Integer gartenId);
+
+	void deleteGartenAllUnusual(Integer gartenId);
+
+	void deleteGartenAllMachine(Integer gartenId);
+
+	void deleteGartenAllEquipment(Integer gartenId);
+
 }

@@ -259,6 +259,6 @@ public interface ParentDao {
 
 	void updateHonghua();
 
-	
+	List<ParentInfo> getminorParent(Map<String, Object> param);
 
 }

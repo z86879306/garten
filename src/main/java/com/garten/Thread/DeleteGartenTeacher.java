@@ -6,18 +6,24 @@ import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.garten.service.BigcontrolService;
-import com.garten.service.WorkerService;
+import com.garten.vo.attendance.TeacherAndBabyInfo;
 
-public class XxxThread implements Runnable {
+public class DeleteGartenTeacher implements Runnable{
+
+	private List<TeacherAndBabyInfo> teachers;
 	
+	
+	public DeleteGartenTeacher(List<TeacherAndBabyInfo> teachers) {
+		this.teachers = teachers;
+	}
+
 
 	@Override
-    public void run() {//删除所有isvalid =1
+	public void run() {
 		WebApplicationContext context= ContextLoader.getCurrentWebApplicationContext();
 		BigcontrolService  bigcontrolService = (BigcontrolService)context.getBean("bigcontrolService");
-		bigcontrolService.deleteIsvalid();
-    }
-
-	
+		bigcontrolService.deleteGartenTeacher(teachers);
+		
+	}
 
 }

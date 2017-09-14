@@ -270,7 +270,7 @@ public class MyUtilAll {
 		         parameters.put("fee_type", "CNY");  
 		         parameters.put("total_fee", price);  
 		         parameters.put("spbill_create_ip","127.0.0.1");
-		         parameters.put("notify_url", "http://a.yiyunwangl.com:8082/parent/wxpayyz.do"); 
+		         parameters.put("notify_url", "http://cms.ahczjy.cc/parent/wxpayyz.do"); 
 		         parameters.put("trade_type", "APP");  
 		        //设置签名
 		         String sign = MyPayCommonUtil.createSign("UTF-8",parameters);

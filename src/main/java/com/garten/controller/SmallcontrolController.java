@@ -399,7 +399,23 @@ public class SmallcontrolController {
 			return map;
 		}
 	   	
-	   	
+	  //修改主监护人
+	  	@RequestMapping("updateMainParent")
+	  	@ResponseBody
+	  	public Map<String, Object> updateMainParent(Integer babyId,Integer parentId) throws ParseException{
+	  		Map<String,Object> result=smallcontrolService.updateMainParent( babyId,parentId );
+	  		return result;
+	  	}
+	  	
+		//所有次要监护人(除了主要监护人)
+	  	@RequestMapping("getminorParent")
+	  	@ResponseBody
+	  	public Map<String, Object> getminorParent(Integer babyId) throws ParseException{
+	  		Map<String,Object> result=smallcontrolService.getminorParent( babyId);
+	  		return result;
+	  	}
+
+
 	   	
 	   	//支付test
 	   	@RequestMapping("alipayTest")

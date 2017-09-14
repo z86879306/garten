@@ -732,37 +732,87 @@ public class SmallcontrolService {
 		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
 				smallcontrolDao.updateParentMessage(parentId,parentName,address);
+				
 				if(babyId!=null){		//有新增的宝宝
+					String newBabyId="";
+					String newGarten="";
+					String newIdentity="";
+					String newMonitorTime="";
+					String newAttendanceTime="";
 					ParentInfo parentInfo = parentDao.findParentById(parentId);
-					//拼接新的宝宝id
-					String[] oldBabyId = parentInfo.getBabyId();
-					String newBabyId = LyUtils.StrChangeToStr(oldBabyId);
-					for(int i=0;i<babyId.length;i++){
-						newBabyId=newBabyId+","+babyId[i];
+					if("".equals(LyUtils.StrChangeToStr(parentInfo.getBabyId()))){	//第一个宝宝为空字符串  即实际没有宝宝
+						//拼接新的宝宝id
+						for(int i=0;i<babyId.length;i++){
+							if(i==0){
+								newBabyId=newBabyId+babyId[i];
+							}else{
+								newBabyId=newBabyId+","+babyId[i];
+							}
+						}
+							//拼接新幼儿园id
+						for(int i=0;i<babyId.length;i++){
+							if(i==0){
+								newGarten=newGarten+workerInfo.getGartenId();
+							}else{
+								newGarten=newGarten+","+workerInfo.getGartenId();
+							}
+						}
+							//拼接新身份
+						for(int i=0;i<babyId.length;i++){
+							if(i==0){
+							newIdentity=newIdentity+identity[i];
+							}else{
+								newIdentity=newIdentity+","+identity[i];
+							}
+						}
+							//拼接新的监控直播时间
+						for(int i=0;i<babyId.length;i++){
+							if(i==0){
+								newMonitorTime = newMonitorTime+"2000-01-01";
+							}else{
+								newMonitorTime = newMonitorTime+",2000-01-01";
+							}
+						}
+							//拼接新的考勤时间
+						for(int i=0;i<babyId.length;i++){
+							if(i==0){
+								newAttendanceTime = newAttendanceTime+"2000-01-01";
+							}else{
+								newAttendanceTime = newAttendanceTime+",2000-01-01";
+							}
+						}
+					}else{										//第一个宝宝不等于字符串
+						//拼接新的宝宝id
+						String[] oldBabyId = parentInfo.getBabyId();
+						newBabyId = LyUtils.StrChangeToStr(oldBabyId);
+						for(int i=0;i<babyId.length;i++){
+							newBabyId=newBabyId+","+babyId[i];
+						}
+							//拼接新幼儿园id
+						newGarten = parentInfo.getGartenId();
+						for(int i=0;i<babyId.length;i++){
+							newGarten=newGarten+","+workerInfo.getGartenId();
+						}
+							//拼接新身份
+						String[] oldIdentity = parentInfo.getIdentity();
+						newIdentity = LyUtils.StrChangeToStr(oldIdentity);
+						for(int i=0;i<babyId.length;i++){
+							newIdentity=newIdentity+","+identity[i];
+						}
+							//拼接新的监控直播时间
+						String[] oldMonitorTime = parentInfo.getMonitorTime();
+						newMonitorTime = LyUtils.StrChangeToStr(oldMonitorTime);
+						for(int i=0;i<babyId.length;i++){
+							newMonitorTime = newMonitorTime+",2000-01-01";
+						}
+							//拼接新的考勤时间
+						String[] oldAttendanceTime = parentInfo.getAttendanceTime();
+						newAttendanceTime = LyUtils.StrChangeToStr(oldAttendanceTime);
+						for(int i=0;i<babyId.length;i++){
+							newAttendanceTime = newAttendanceTime+",2000-01-01";
+						}
 					}
-						//拼接新幼儿园id
-					String newGarten = parentInfo.getGartenId();
-					for(int i=0;i<babyId.length;i++){
-						newGarten=newGarten+","+workerInfo.getGartenId();
-					}
-						//拼接新身份
-					String[] oldIdentity = parentInfo.getIdentity();
-					String newIdentity = LyUtils.StrChangeToStr(oldIdentity);
-					for(int i=0;i<babyId.length;i++){
-						newIdentity=newIdentity+","+identity[i];
-					}
-						//拼接新的监控直播时间
-					String[] oldMonitorTime = parentInfo.getMonitorTime();
-					String newMonitorTime = LyUtils.StrChangeToStr(oldMonitorTime);
-					for(int i=0;i<babyId.length;i++){
-						newMonitorTime = newMonitorTime+",2000-01-01";
-					}
-						//拼接新的考勤时间
-					String[] oldAttendanceTime = parentInfo.getAttendanceTime();
-					String newAttendanceTime = LyUtils.StrChangeToStr(oldAttendanceTime);
-					for(int i=0;i<babyId.length;i++){
-						newAttendanceTime = newAttendanceTime+",2000-01-01";
-					}
+					
 					smallcontrolDao.updateParentIsExist(parentInfo.getParentId(),newBabyId,newGarten,newIdentity,newMonitorTime,newAttendanceTime);
 				}
 				MyUtil.putMapParams(result, "state",1);
@@ -825,10 +875,10 @@ public class SmallcontrolService {
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
-				BabyInfo babyInfo = smallcontrolDao.findBabyByIdCard(cardId);
+				/*BabyInfo babyInfo = smallcontrolDao.findBabyByIdCard(cardId);
 				if(null!=babyInfo){
 					return MyUtil.putMapParams(result, "state",3);		//该宝宝已经存在
-				}
+				}*/
 				ParentInfo parentInfo = smallcontrolDao.findParentByPhone(phoneNumber);
 				
 				Integer[] teacher = smallcontrolDao.getTeacherByClassId(classId);
@@ -842,15 +892,11 @@ public class SmallcontrolService {
 				AttendanceNo an = new AttendanceNo("宝宝",workerInfo.getGartenId());
 				smallcontrolDao.addAttendanceNo(an);
 				if(null==parentInfo){			//不存在这个家长时  生成新家长
-					//String[] babyId = new String[]{an.getJobId().toString()};
-					//String[] relation = new String[]{identity};
-					//String[] gartenIdArray = new String[]{gartenId.toString()};
 					String monitorTime = "2000-01-01";
 					String attendanceTime = "2000-01-01";
 					smallcontrolDao.addParent(an.getJobId().toString(),identity,parentName,phoneNumber,address,workerInfo.getGartenId().toString(),CryptographyUtil.md5("123456", "lxc"),monitorTime,attendanceTime);
 					ParentInfo parent = smallcontrolDao.findParentByPhone(phoneNumber);
 					smallcontrolDao.addBaby(workerInfo.getGartenId(),babyName,birthday,height,health,hobby,specialty,teachers,allergy,identity,weight,sex,an.getJobId(),parent.getParentId(),cardId);
-					
 					//注册家长环信
 					//HuanXinThread huanXinThread = new HuanXinThread(1, parent.getParentId());
 					//Thread thread = new Thread(huanXinThread);
@@ -861,24 +907,43 @@ public class SmallcontrolService {
 					//根据已有的家长id 添加宝宝
 					smallcontrolDao.addBaby(workerInfo.getGartenId(),babyName,birthday,height,health,hobby,specialty,teachers,allergy,identity,weight,sex,an.getJobId(),parentInfo.getParentId(),cardId);
 					//更新已存在家长的信息
+					String newBabyId;
+					String newGarten;
+					String newIdentity;
+					String newMonitorTime;
+					String newAttendanceTime;
+					if("".equals(LyUtils.StrChangeToStr(parentInfo.getBabyId()))){
 						//拼接新宝宝id
-					String[] babyId = parentInfo.getBabyId();
-					String newBabyId = LyUtils.StrChangeToStr(babyId);
-					newBabyId=newBabyId+","+an.getJobId();
-						//拼接新幼儿园id
-					String newGarten=parentInfo.getGartenId()+","+workerInfo.getGartenId();
-						//拼接新身份
-					String[] oldIdentity = parentInfo.getIdentity();
-					String newIdentity = LyUtils.StrChangeToStr(oldIdentity);
-					newIdentity=newIdentity+","+identity;
-						//拼接新的监控直播时间
-					String[] oldMonitorTime = parentInfo.getMonitorTime();
-					String newMonitorTime = LyUtils.StrChangeToStr(oldMonitorTime);
-					newMonitorTime = newMonitorTime+",2000-01-01";
-						//拼接新的考勤时间
-					String[] oldAttendanceTime = parentInfo.getAttendanceTime();
-					String newAttendanceTime = LyUtils.StrChangeToStr(oldAttendanceTime);
-					newAttendanceTime = newAttendanceTime+",2000-01-01";
+						newBabyId=""+an.getJobId();
+							//拼接新幼儿园id
+						newGarten=""+workerInfo.getGartenId();
+							//拼接新身份
+						newIdentity=identity;
+							//拼接新的监控直播时间
+						newMonitorTime ="2000-01-01";
+							//拼接新的考勤时间
+						newAttendanceTime ="2000-01-01";
+					}else{
+						//拼接新宝宝id
+						String[] babyId = parentInfo.getBabyId();
+						newBabyId = LyUtils.StrChangeToStr(babyId);
+						newBabyId=newBabyId+","+an.getJobId();
+							//拼接新幼儿园id
+						newGarten=parentInfo.getGartenId()+","+workerInfo.getGartenId();
+							//拼接新身份
+						String[] oldIdentity = parentInfo.getIdentity();
+						newIdentity = LyUtils.StrChangeToStr(oldIdentity);
+						newIdentity=newIdentity+","+identity;
+							//拼接新的监控直播时间
+						String[] oldMonitorTime = parentInfo.getMonitorTime();
+						newMonitorTime = LyUtils.StrChangeToStr(oldMonitorTime);
+						newMonitorTime = newMonitorTime+",2000-01-01";
+							//拼接新的考勤时间
+						String[] oldAttendanceTime = parentInfo.getAttendanceTime();
+						newAttendanceTime = LyUtils.StrChangeToStr(oldAttendanceTime);
+						newAttendanceTime = newAttendanceTime+",2000-01-01";
+					}
+					
 					smallcontrolDao.updateParentIsExist(parentInfo.getParentId(),newBabyId,newGarten,newIdentity,newMonitorTime,newAttendanceTime);
 				}
 					InsertCheckThread insertCheckThread = new InsertCheckThread(an.getJobId(), workerInfo.getGartenId(), 1);
@@ -1519,5 +1584,34 @@ public class SmallcontrolService {
 		smallcontrolDao.deleteInfoLog("家长", parentId);		//删除家长信息通知
 		smallcontrolDao.deletePhotoDianzan("家长", parentId);	//删除家长点赞记录
 		smallcontrolDao.deleteParentFlower(parentId);		//删除该家长红花记录
+	}
+	
+	/**
+	 * 1 获取宝宝信息 获取家长信息
+	 * 2 获取宝宝的主监护人 获取到原监护人信息
+	 * 3 替换主监护人 
+	 */
+	public Map<String, Object> updateMainParent(Integer babyId, Integer parentId) {
+		Map<String,Object> result=MyUtil.putMapParams("state",0);
+		if(null!=babyId&&null!=parentId){
+			Map<String,Object> param=MyUtil.putMapParams("babyId",babyId,"newparentId",parentId);
+			smallcontrolDao.updateMainParent(param);//3
+			MyUtil.putMapParams(result,"state",1);
+		}
+		
+		return result;
+	}
+	public Map<String, Object> getminorParent(Integer babyId) {
+		
+		Map<String,Object> result=MyUtil.putMapParams("state",0,"info",null);
+		if(null!=babyId&&0!=babyId){
+			BabyInfo baby=parentDao.findBabyShortByBabyId(babyId);
+			Map<String,Object>param =MyUtil.putMapParams("babyId",babyId,"parentId",baby.getParentId());
+			List<ParentInfo> parent=parentDao.getminorParent(param);
+			MyUtil.putMapParams(result,"state",1,"info",parent);
+		}
+		
+		
+		return result;
 	}
 }

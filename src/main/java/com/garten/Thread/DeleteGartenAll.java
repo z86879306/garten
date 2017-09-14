@@ -1,23 +1,25 @@
 package com.garten.Thread;
 
-import java.util.List;
-
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.garten.service.BigcontrolService;
-import com.garten.service.WorkerService;
 
-public class XxxThread implements Runnable {
+public class DeleteGartenAll implements Runnable{
+
 	
+	private Integer gartenId;
+	
+	public DeleteGartenAll(Integer gartenId) {
+		super();
+		this.gartenId = gartenId;
+	}
 
 	@Override
-    public void run() {//删除所有isvalid =1
+	public void run() {
 		WebApplicationContext context= ContextLoader.getCurrentWebApplicationContext();
 		BigcontrolService  bigcontrolService = (BigcontrolService)context.getBean("bigcontrolService");
-		bigcontrolService.deleteIsvalid();
-    }
-
-	
+		bigcontrolService.deleteGartenAll(gartenId);
+	}
 
 }

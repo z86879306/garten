@@ -447,4 +447,11 @@ public class BigcontrolController {
   			Map<String, Object> map = bigcontrolService.deleterelation(relationId);
   			return map;
   		}
+  		
+  	//删除所有isvalid =1
+	   	@RequestMapping(value="deleteAll")
+		public  @ResponseBody Map<String, Object> deleteAll(String token) {
+	   		Map<String, Object> map = bigcontrolService.deleteAll(token);
+			return map;
+		}
 }

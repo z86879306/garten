@@ -208,15 +208,19 @@ public interface SmallcontrolDao {
 
 	void deleteWorkerCheckLog(Integer workerId);
 
-	void deletePhotoDianzan(String job, Integer jobId);
+	void deletePhotoDianzan(@Param("job")String job,@Param("jobId") Integer jobId);
 
-	void deleteInfoLog(String job, Integer jobId);
+	void deleteInfoLog(@Param("job")String job,@Param("jobId") Integer jobId);
 
-	void deleteFeedback(String job, Integer jobId);
+	void deleteFeedback(@Param("job")String job,@Param("jobId") Integer jobId);
 
-	void deleteComment(String job, Integer jobId);
+	void deleteComment(@Param("job")String job,@Param("jobId") Integer jobId);
 
 	BabyInfo findBabyByParentId(Integer parentId);
 
 	void deleteParentFlower(Integer parentId);
+
+	WorkerInfo findPrincipalByGartenId(Integer gartenId);
+	
+	void updateMainParent(Map<String, Object> param);
 }

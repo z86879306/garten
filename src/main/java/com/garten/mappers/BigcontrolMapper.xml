@@ -1085,4 +1085,96 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<delete id="deleterelation"  >
 		delete  FROM parent_relation  where relationId=#{relationId}
 	</delete>
+	
+	<update id="deleteGartenActivityDetail">
+		update activity_detail set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenAllCharge">
+		update garten_charge set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenAllClass">
+		update garten_class set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenInfo">
+		update garten_info set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenAllLesson">
+		update garten_lesson set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenAllPhoto">
+		update garten_photos set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenAllRecipe">
+		update garten_recipe set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenAllVideo">
+		update garten_video set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenAllIgnoreTime">
+		update ignore_time set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenAllInfoLog">
+		update info_log set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenAllUnusual">
+		update unusual set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenAllMachine">
+		update attendance_machine set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<update id="deleteGartenAllEquipment">
+		update equipment set 
+		isValid=1 where gartenId=#{gartenId}
+	</update>
+	<delete id="deleteIsvalid"  >
+		delete  from  activity_detail  where isvalid=1;
+		delete  from  activity_log  where isvalid=1;
+		delete  from  agent_audit  where isvalid=1;
+		delete  from  agent_info  where isvalid=1;
+		delete  from  agent_visit  where isvalid=1;
+		delete  from  attendance_machine  where isvalid=1;
+		delete  from  attendance_no  where isvalid=1;
+		delete  from  baby_check_log  where isvalid=1;
+		delete  from  baby_info  where isvalid=1;
+		delete  from   baby_leave_log   where isvalid=1;
+		delete  from  baby_performance_log  where isvalid=1;
+		
+		delete  from  comment   where isvalid=1;
+		delete  from  daijie_info  where isvalid=1;
+		delete  from  daka_log  where isvalid=1;
+		
+		
+		delete  from  feedback   where isvalid=1;
+		delete  from   garten_charge  where isvalid=1;
+		delete  from  garten_class  where isValid=1;
+		delete  from  garten_photos  where isvalid=1;
+		delete  from  garten_recipe  where isvalid=1;
+		delete  from   garten_video  where isvalid=1;
+		delete  from  ignore_time  where isvalid=1;
+		delete  from   info_log  where isvalid=1;
+		delete  from  parent_info  where isvalid=1;
+		
+		delete  from   photo_dianzan  where isvalid=1;
+		delete  from  slideshow  where isvalid=1;
+		delete  from  torder  where isvalid=1;
+		delete  from  unusual  where isvalid=1;
+		delete  from  version  where isvalid=1;
+		delete  from   worker_check_log  where isvalid=1;
+		delete  from  worker_flower  where isvalid=1;
+		delete  from  worker＿info  where isvalid=1;
+		delete  from  worker_leave_log  where isvalid=1;
+	</delete>
+	
 </mapper> 

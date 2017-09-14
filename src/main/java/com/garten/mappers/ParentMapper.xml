@@ -20,7 +20,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="findParentByGartenId"  resultType="ParentInfo">
 		SELECT * FROM parent_info  p
 		where 
-		substring_index(p.gartenId,',', 1)=#{gartenId}
+		FIND_IN_SET(#{gartenId}, p.gartenId)
 		and p.isValid=0
 	</select>
 	
@@ -601,5 +601,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	set flower=1
 	</update>
 	
+	<select id="getminorParent"  resultType="ParentInfo">
+	SELECT * FROM parent_info  p
+		where 
+		FIND_IN_SET(#{babyId}, p.babyId)
+		and p.parentId!=#{parentId}
+		and p.isValid=0
+	</select>
 	
 </mapper> 

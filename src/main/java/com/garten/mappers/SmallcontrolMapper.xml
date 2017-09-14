@@ -581,12 +581,12 @@ gartenId=1
 		isValid=1 where workerId=#{workerId}
 	</update>
 	<update id="deletePhotoDianzan">
-		update worker_check_log set
+		update photo_dianzan set
 		isValid=1 where jobId=#{jobId} and job=#{job}
 	</update>
 	<update id="deleteInfoLog">
 		update info_log set
-		isValid=1 where jobId=#{jobId} and job=#{job}
+		isValid=1 where Id=#{jobId} and job=#{job}
 	</update>
 	<update id="deleteFeedback">
 		update feedback set
@@ -605,4 +605,16 @@ gartenId=1
 		update worker_flower set
 		isValid=1 where parentId=#{parentId}
 	</update>
+	<select id="findPrincipalByGartenId" resultType="WorkerInfo">
+		select * from worker＿info where gartenId=#{gartenId} 
+		and job='园长'
+	</select>
+	
+<update id="updateMainParent"  >
+		update   baby_info b
+		set parentId=#{newparentId}
+		where babyId=#{babyId} 
+		and w.isValid=0
+	</update>
+	
 </mapper> 

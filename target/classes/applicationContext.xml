@@ -34,7 +34,7 @@
 	<bean id="dataSource"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-		 <property name="url" value="jdbc:mysql://127.0.0.1:3306/garten"/>
+		 <property name="url" value="jdbc:mysql://127.0.0.1:3306/garten?allowMultiQueries=true"/>
 		<!-- <property name="url" value="jdbc:mysql://139.196.102.135:3306/garten"/>  -->
 		<property name="username" value="root"/>
 		<property name="password" value="root"/>

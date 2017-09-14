@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,8 +30,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.garten.Thread.BigControlSendNotify;
+import com.garten.Thread.DeleteGartenAll;
+import com.garten.Thread.DeleteGartenBaby;
+import com.garten.Thread.DeleteGartenTeacher;
+import com.garten.Thread.DeleteTeacherThread;
 import com.garten.Thread.GartenRegisteNotify;
 import com.garten.Thread.HuanXinThread;
+import com.garten.Thread.XxxThread;
 import com.garten.dao.AgentDao;
 import com.garten.dao.AttendanceDao;
 import com.garten.dao.BigcontrolDao;
@@ -40,6 +46,7 @@ import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.baby.BabyInfo;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
@@ -540,14 +547,24 @@ public class BigcontrolService {
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 				if(null!=workerInfo){
 					List<TeacherAndBabyInfo> babys = attendanceDao.findBabys(gartenId);
-					for(TeacherAndBabyInfo baby : babys){		//删除这个幼儿园所有宝宝
-						smallcontrolService.deleteBabyById(baby.getBabyId());
-					}
-					List<TeacherAndBabyInfo> teachers = attendanceDao.findTeachers(gartenId);
-					for(TeacherAndBabyInfo teacher : teachers){	//删除这个幼儿园所有老师
-						smallcontrolService.deleteTeacherById(teacher.getBabyId());
-					}
+					//开启删除宝宝线程
+					DeleteGartenBaby deleteGartenBaby = new DeleteGartenBaby(babys);
+					Thread babyDeleteThread = new Thread(deleteGartenBaby);
+					babyDeleteThread.start();
 					
+					List<TeacherAndBabyInfo> teachers = attendanceDao.findTeachers(gartenId);
+					//开启删除老师线程
+					DeleteGartenTeacher deleteGartenTeacher = new DeleteGartenTeacher(teachers);
+					Thread teacherDeleteThread = new Thread(deleteGartenTeacher);
+					teacherDeleteThread.start();
+					WorkerInfo principal = smallcontrolDao.findPrincipalByGartenId(gartenId);
+					
+					//开启删除幼儿园相关信息线程
+					DeleteGartenAll deleteGartenAll = new DeleteGartenAll(gartenId);
+					Thread deleteGarten = new Thread(deleteGartenAll);
+					deleteGarten.start();
+					
+					MyUtil.putMapParams(result, "state", 1);
 				}
 				return result;
 			
@@ -903,6 +920,13 @@ public class BigcontrolService {
 							System.err.println("回调成功");
 							System.err.println("回调成功");
 							ParentInfo parentInfo=parentDao.findParentById(parentId);//需要parentId
+							Long orderNumber=System.currentTimeMillis();//总控制端也要生成订单
+							
+							String orderDetail=4==type?"帮家长购买视频":(5==type?"帮家长购买考勤":"帮家长购买视频和考勤");
+							BabyInfo baby=parentDao.findBabyShortByBabyId(babyId);
+							Order o=new Order(orderNumber,new Date().getTime()/1000,null,"家长",new BigDecimal(0),orderDetail,parentId,type+4,0,0,monthCount,babyId,baby.getGartenId());
+							parentDao.insertOrdr(o);//创建未支付订单
+
 							String[] babyIds=parentInfo.getBabyId();
 							 day=new Date();
 							 date=new Date();
@@ -961,6 +985,12 @@ public class BigcontrolService {
 							if(3==orderType||6==orderType){
 								changeGartenDredge(  monthCount ,  1,  gartenId);
 							}
+							WorkerInfo worker=principalDao.findPrincipalByGartenId(gartenId);
+							Long orderNumber=System.currentTimeMillis();//总控制端也要生成订单
+							String orderDetail=2==type?"帮幼儿园购买视频":(3==type?"帮幼儿园购买考勤":"帮幼儿园购买视频和考勤");
+							BabyInfo baby=parentDao.findBabyShortByBabyId(babyId);
+							Order o=new Order(orderNumber,new Date().getTime()/1000,null,"园长",new BigDecimal(0),orderDetail,worker.getWorkerId(),type+10,0,1,monthCount,null,gartenId);
+							parentDao.insertOrdr(o);//创建未支付订单
 
 							 // 1找到这个幼儿园所有的宝宝的主要监护人+附加宝宝主键
 							List<ParentInfoCharge>  parentInfoCharge=bigcontrolDao.findParentInfoCharge(gartenInfo.getGartenId());
@@ -1638,5 +1668,75 @@ public class BigcontrolService {
 				}
 				
 			}
+		}
+		
+		//删除幼儿园 循环删除老师
+		public void deleteGartenTeacher(List<TeacherAndBabyInfo> teachers){
+			for(TeacherAndBabyInfo teacher : teachers){	//删除这个幼儿园所有老师
+				smallcontrolDao.deleteTeacher(teacher.getBabyId());
+				smallcontrolService.deleteTeacherById(teacher.getBabyId());
+			}
+		}
+		
+		//删除幼儿园 循环删除宝宝  并删除宝宝对应的家长信息
+		public void deleteGartenBaby(List<TeacherAndBabyInfo> babys){
+			for(TeacherAndBabyInfo baby : babys){		
+				List<ParentInfo> parents = smallcontrolDao.findParentByBabyId(baby.getBabyId());
+				for(ParentInfo p : parents){			//该宝宝对应的家长清除该宝宝的记录
+					Integer index = Arrays.binarySearch(p.getBabyId(),baby.getBabyId().toString());
+					String[] newBabyId = LyUtils.ArrayRemoveIndex(p.getBabyId(), index);
+					String[] newIdentity = LyUtils.ArrayRemoveIndex(p.getIdentity(), index);
+					String[] newAttendanceTime = LyUtils.ArrayRemoveIndex(p.getAttendanceTime(), index);
+					String[] newMonitorTime = LyUtils.ArrayRemoveIndex(p.getMonitorTime(), index);
+					String[] newGarten = LyUtils.ArrayRemoveIndex(p.getGartenId().split(","), index);
+					smallcontrolDao.updateParentIsExist(p.getParentId(), LyUtils.StrChangeToStr(newBabyId), LyUtils.StrChangeToStr(newGarten), 
+							LyUtils.StrChangeToStr(newIdentity), LyUtils.StrChangeToStr(newMonitorTime), LyUtils.StrChangeToStr(newAttendanceTime));
+				}
+				smallcontrolService.deleteBabyById(baby.getBabyId());
+			}
+		}
+		
+		//删除关于幼儿园的所有信息
+		public void deleteGartenAll(Integer gartenId){
+			WorkerInfo principal = smallcontrolDao.findPrincipalByGartenId(gartenId);
+			
+			
+			smallcontrolDao.deleteComment("园长", principal.getWorkerId());
+			smallcontrolDao.deleteAttendanceNo(principal.getWorkerId());
+			smallcontrolDao.deleteFeedback("园长", principal.getWorkerId());
+			smallcontrolDao.deletePhotoDianzan("园长", principal.getWorkerId());
+			
+			bigcontrolDao.deleteGartenActivityDetail(gartenId);
+			bigcontrolDao.deleteGartenAllCharge(gartenId);
+			bigcontrolDao.deleteGartenAllClass(gartenId);
+			bigcontrolDao.deleteGartenInfo(gartenId);
+			bigcontrolDao.deleteGartenAllLesson(gartenId);
+			bigcontrolDao.deleteGartenAllPhoto(gartenId);
+			bigcontrolDao.deleteGartenAllRecipe(gartenId);
+			bigcontrolDao.deleteGartenAllVideo(gartenId);
+			bigcontrolDao.deleteGartenAllIgnoreTime(gartenId);
+			bigcontrolDao.deleteGartenAllInfoLog(gartenId);
+			bigcontrolDao.deleteGartenAllUnusual(gartenId);
+			bigcontrolDao.deleteGartenAllMachine(gartenId);
+			bigcontrolDao.deleteGartenAllEquipment(gartenId);
+		}
+		
+		public Map<String, Object> deleteAll(String token) {
+			 WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			  Map<String,Object> result=MyUtil.putMapParams("state", 0);
+				if(null!=workerInfo){
+					XxxThread xx=new XxxThread();
+					Thread thread=new Thread(xx);
+					thread.start();
+					MyUtil.putMapParams(result,"state", 1);
+				}
+			return result;
+		}
+
+
+
+	public void deleteIsvalid() {
+			bigcontrolDao.deleteIsvalid();
+			
 		}
 }
