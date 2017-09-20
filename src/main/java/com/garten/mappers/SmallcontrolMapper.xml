@@ -277,7 +277,7 @@ gartenId=1
 	</update>
 	<update id="updateParentMessage">
 		update parent_info set
-		parentName=#{parentName},address=#{address}
+		parentName=#{parentName},address=#{address},phoneNumber=#{phoneNumber}
 		where
 		parentId=#{parentId}
 	</update>
@@ -612,9 +612,30 @@ gartenId=1
 	
 <update id="updateMainParent"  >
 		update   baby_info b
-		set parentId=#{newparentId}
+		set parentId=#{newparentId},parentRelation=#{parentRelation}
 		where babyId=#{babyId} 
-		and w.isValid=0
+		and b.isValid=0
 	</update>
+	<insert id="insertMessageLog"  >
+		insert into  message_log set 
+		registTime=FROM_UNIXTIME(#{registTime},  '%Y-%m-%d %H:%i:%s'),
+		targetName=#{targetName},
+		message=#{message},
+		fromName=#{fromName},
+		gartenId=#{gartenId},
+		title=#{title},
+		toGartenName=#{toGartenName},
+		fromGartenName=#{fromGartenName}
+	</insert>
+	<select id="findMessageLog"  resultType="MessageLog">
+		SELECT * FROM message_log  m
+		where 
+		 m.isvalid=0
+		and unix_timestamp(m.registTime) > #{start}
+		and #{end} > unix_timestamp(m.registTime)
+		<if test="	gartenId!=null and gartenId!='' " >
+				and m.gartenId=#{gartenId} 
+			</if>
+	</select>
 	
 </mapper> 

@@ -26,9 +26,11 @@ import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
+import com.garten.model.other.EquipmentName;
 import com.garten.model.other.Feedback;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.Order;
@@ -80,6 +82,8 @@ public class AgentService {
 	private PrincipalDao principalDao;
 	@Autowired
 	private SmallcontrolDao smallcontrolDao;
+	@Autowired
+	private BigcontrolDao bigcontrolDao;
 	public Map<String, Object> login(String phoneNumber, String pwd) {
 		Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
 		AgentInfo agent=agentDao.findAgentByPwd(param);
@@ -358,4 +362,46 @@ public class AgentService {
 		 }
 		 return result;
 	}
+	
+	
+	public Map<String, Object> findWuliaoOrder(String token,Integer pageNo ,Integer state) {
+		AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
+		 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+		 if(null!=agentInfo){
+			 Map<String,Object> param=MyUtil.putMapParams("agentId",agentInfo.getAgentId(),"state",state);
+			List<WuliaoOrder> wuliaoOrder=agentDao.findWuliaoOrder(param);
+			 MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(wuliaoOrder, pageNo));
+		 }
+		 return result;
+	}
+
+	public synchronized Map<String, Object> addWuliaoOrder(String token, String equipmentAll, String address, String postalcode,
+			String fromPhoneNumber,BigDecimal totalPrice) {
+		AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
+		 Map<String,Object> result=MyUtil.putMapParams("state", 0);
+		 if(null!=agentInfo){
+			 Map<String,Object> param=MyUtil.putMapParams("agentId",agentInfo.getAgentId(),"equipmentAll",equipmentAll,"address",address,"postalcode",postalcode,"fromPhoneNumber",fromPhoneNumber,"totalPrice",totalPrice);
+			agentDao.addWuliaoOrder(param);
+			 MyUtil.putMapParams(result,"state", 1);
+		 }
+		 return result;
+	}
+
+	public synchronized Map<String, Object> deleteWuliaoOrder(String token, Integer wuliaoId) {
+		AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
+		 Map<String,Object> result=MyUtil.putMapParams("state", 0);
+		 if(null!=agentInfo){
+			agentDao.deleteWuliaoOrder(wuliaoId);
+			 MyUtil.putMapParams(result,"state", 1);
+		 }
+		 return result;
+	}
+
+	
+	/*public Map<String, Object> findEquipmentNameNoPage() {
+		Map<String,Object> result=MyUtil.putMapParams("state",1,"info",null);
+		List<EquipmentName> en=bigcontrolDao.findEquipmentName();
+		MyUtil.putMapParams(result,"info",en);
+		return result;
+	}*/
 }

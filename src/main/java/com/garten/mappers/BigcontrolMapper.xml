@@ -714,10 +714,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 				, g.contractNumber=#{contractNumber}
 			</if>
 			<if test="	contractStart!=null and contractStart!=''" >
-				, g.contractStart=#{contractStart}
+				, g.contractStart=FROM_UNIXTIME(#{contractStart},  '%Y-%m-%d %H:%i:%s')
 			</if>
 			<if test="	contractEnd!=null and contractEnd!=''" >
-				, g.contractEnd=#{contractEnd}
+				, g.contractEnd=FROM_UNIXTIME(#{contractEnd},  '%Y-%m-%d %H:%i:%s')
 			</if>
 			<if test="	organizationCode!=null and organizationCode!=''" >
 				, g.organizationCode=#{organizationCode}
@@ -1176,5 +1176,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		delete  from  worker＿info  where isvalid=1;
 		delete  from  worker_leave_log  where isvalid=1;
 	</delete>
+	<update id="deleteMessageLog">
+		update message_log set 
+		isValid=1
+		where messageId=#{messageId}
+	</update>
+	
+	<select id="findEquipmentName"  resultType="EquipmentName">
+		SELECT * FROM equipment_name  e
+	</select>
+	
+	<insert id="addEquipmentName"  >
+		insert into  equipment_name   set
+		equipmentName=#{equipmentName},   price=#{price}
+	</insert>
+	<delete id="deleteEquipmentName"  >
+		delete from   equipment_name   where 
+		equipmentId=#{equipmentId}
+	</delete>
+	<update id="resolveWuliaoOrder"  >
+		update   wuliao_order  
+		set state=#{state},toPhonenumber=#{toPhoneNunmber},remark=#{remark}
+		where   wuliaoId=#{wuliaoId}  and isvalid=0
+	</update>
+	<update id="updateBalance"  >
+		update  agent_info  
+		set  creditMoney=#{balance}
+		where agentId=#{agentId} and isvalid=0
+	</update>
 	
 </mapper> 

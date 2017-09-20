@@ -292,16 +292,16 @@ public class SmallcontrolController {
 		//修改宝宝信息
 		@RequestMapping("updateBaby")
 		@ResponseBody
-		public synchronized Map<String, Object> updateBaby(String token,Integer babyId,String babyName,Integer sex,Long birthday,Integer classId,Double height,String health,String hobby,String specialty,String allergy,Double weight){
-			Map<String, Object> map = smallcontrolService.updateBaby(token, babyId, babyName, sex, birthday,  classId,height,health,hobby,specialty,allergy,weight);
+		public synchronized Map<String, Object> updateBaby(String token,Integer babyId,String babyName,Integer sex,Long birthday,Integer classId,Double height,String health,String hobby,String specialty,String allergy,Double weight,Integer parentId){
+			Map<String, Object> map = smallcontrolService.updateBaby(token, babyId, babyName, sex, birthday,  classId,height,health,hobby,specialty,allergy,weight,parentId);
 			return map;
 			
 		}
 		//修改家长信息
 		@RequestMapping("updateParent")
 		@ResponseBody
-		public synchronized Map<String,Object> updateParent(String token,Integer parentId,String parentName,String address,String[] identity,Integer[] babyId){
-			Map<String, Object> map = smallcontrolService.updateParent(token, parentId, parentName, address,identity,babyId);
+		public synchronized Map<String,Object> updateParent(String token,Integer parentId,String parentName,String address,String[] identity,Integer[] babyId,String phoneNumber){
+			Map<String, Object> map = smallcontrolService.updateParent(token, parentId, parentName, address,identity,babyId,phoneNumber);
 			return map;
 		}
 		
@@ -407,7 +407,7 @@ public class SmallcontrolController {
 	  		return result;
 	  	}
 	  	
-		//所有次要监护人(除了主要监护人)
+		//所有监护人
 	  	@RequestMapping("getminorParent")
 	  	@ResponseBody
 	  	public Map<String, Object> getminorParent(Integer babyId) throws ParseException{
@@ -432,4 +432,11 @@ public class SmallcontrolController {
 	   		MyUtil.addIgnoreYear(100);
 	   		return null;
 	   	}
+	   	
+	   	@RequestMapping("messagelog")//消息历史
+		public  @ResponseBody Map<String,Object> messagelog(String token,Long start,Long end,Integer pageNo) throws ParseException, APIConnectionException, APIRequestException {
+			Map<String,Object> map=smallcontrolService.messagelog(  token,start,end,pageNo);
+			return map;
+		}
+
 }

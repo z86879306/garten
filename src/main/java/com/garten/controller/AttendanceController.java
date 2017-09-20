@@ -27,7 +27,7 @@ public class AttendanceController {
 	@Autowired
 	private AttendanceService attendanceService;
 	
-	//获取身份令牌token
+	//获取身份令牌token 
 	@RequestMapping(value="/getPartnerToken",method=RequestMethod.POST )
 	@ResponseBody
 	public Map<String,Object> getPartnerToken(@RequestBody JSONObject info /*String partnerId,Long tms, String md5tms*/){

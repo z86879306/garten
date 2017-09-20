@@ -1013,7 +1013,7 @@ public class WorkerService{
  		}
  		workerDao.deleteActivityDetail(activityId);
  		workerDao.deleteActivityLog(activityId);
- 		return null;
+ 		return MyUtil.putMapParams( "state", 1);
  	}
  	
  	public  Map<String, Object>  htmlIntroduce(String webStr,String token){  

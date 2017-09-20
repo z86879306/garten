@@ -76,6 +76,8 @@ public class AttendanceService {
 				result.put("respCode", 600002);
 				result.put("respDesc", "获取身份令牌token失败");
 			}
+		}else{
+			MyUtil.putMapParams(result, "respCode", 600002, "respDesc", "获取身份令牌token失败" );
 		}
 		return result;
 	}
@@ -543,6 +545,13 @@ public class AttendanceService {
 		}
 		//身份、参数正常
 		Map<String, Object> map = attendanceDao.findPlayTimeByGartenToken(schoolToken);
+		String arriveStartTime = (String)map.get("arriveStartTime");
+		String arriveEndTime = (String)map.get("arriveEndTime");
+		String leaveStartTime = (String)map.get("leaveStartTime");
+		String leaveEndTime = (String)map.get("leaveEndTime");
+		if(null==arriveStartTime||null==arriveEndTime||null==leaveStartTime||null==leaveEndTime){
+			return MyUtil.putMapParams(result, "respCode", 600010, "respDesc","未设置考勤时间及是否允许出入园");
+		}
 		result.put("arriveStartTime", map.get("arriveStartTime"));
 		result.put("arriveEndTime", map.get("arriveEndTime"));
 		result.put("leaveStartTime", map.get("leaveStartTime"));

@@ -10,6 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.plaf.basic.BasicGraphicsUtils;
 
+import org.codehaus.jackson.map.util.Comparators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -46,14 +49,17 @@ import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.garten.GartenVideo;
 import com.garten.model.other.Equipment;
+import com.garten.model.other.EquipmentName;
 import com.garten.model.other.Feedback;
 import com.garten.model.other.InfoLog;
+import com.garten.model.other.MessageLog;
 import com.garten.model.other.Order;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.parent.Relation;
@@ -235,7 +241,15 @@ public class BigcontrolService {
 						addDetails.addAll(workerCount);
 						addDetails.addAll(parentCount);
 					}
-					
+					Collections.sort( addDetails,new Comparator<Object>() {
+
+						@Override
+						public int compare(Object o1, Object o2) {
+							AddDetail m1= (AddDetail)o1;
+							AddDetail m2= (AddDetail)o2;
+							return m1.getRegistTime().compareTo(m2.getRegistTime());	
+						}
+					});
 					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(addDetails, pageNo));
 				}
 				//验证码错误返回  验证错误信息
@@ -266,6 +280,15 @@ public class BigcontrolService {
 						addDetails.addAll(workerCount);
 						addDetails.addAll(parentCount);
 					}
+					Collections.sort( addDetails,new Comparator<Object>() {
+
+						@Override
+						public int compare(Object o1, Object o2) {
+							AddDetail m1= (AddDetail)o1;
+							AddDetail m2= (AddDetail)o2;
+							return m1.getRegistTime().compareTo(m2.getRegistTime());	
+						}
+					});
 					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(addDetails, pageNo));
 				}
 				//验证码错误返回  验证错误信息
@@ -416,6 +439,16 @@ public class BigcontrolService {
 					MyUtil.putMapParams( param, "organizationCode", organizationCode, "province", province, "city", city,"countries",countries,"address",address);
 					MyUtil.putMapParams( param, "charge", charge, "attendanceTime", attendanceTime, "monitorTime", monitorTime,"contractEnd",contractEnd,"accountState",accountState);
 					MyUtil.putMapParams( param,"contractStart",contractStart);
+					WorkerInfo principal = smallcontrolDao.findPrincipalByGartenId(gartenId);
+					if(!principal.getPhoneNumber().equals(phoneNumber)){
+						WorkerInfo worker = smallcontrolDao.findWorkerByPhoneNumber(phoneNumber);
+						if(null!=worker){
+							return MyUtil.putMapParams(result, "state", 2);			//手机号码已经存在
+						}
+						Map<String, Object> params = MyUtil.putMapParams("workerId", principal.getWorkerId(),"phoneNumber", phoneNumber);
+						workerDao.updateWorkerPhoneNumber(params);
+						
+					}
 					bigcontrolDao.updateGarten(param);
 					MyUtil.putMapParams(result,"state", 1);
 				}
@@ -762,7 +795,7 @@ public class BigcontrolService {
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0);
 				if(null!=workerInfo){
 					try {
-						BigControlSendNotify bs = new BigControlSendNotify(gartenIds, type, title, info);
+						BigControlSendNotify bs = new BigControlSendNotify(gartenIds, type, title, info,workerInfo);
 						Thread thread = new Thread(bs);
 						thread.start();
 					} catch (Exception e) {
@@ -924,7 +957,7 @@ public class BigcontrolService {
 							
 							String orderDetail=4==type?"帮家长购买视频":(5==type?"帮家长购买考勤":"帮家长购买视频和考勤");
 							BabyInfo baby=parentDao.findBabyShortByBabyId(babyId);
-							Order o=new Order(orderNumber,new Date().getTime()/1000,null,"家长",new BigDecimal(0),orderDetail,parentId,type+4,0,0,monthCount,babyId,baby.getGartenId());
+							Order o=new Order(orderNumber,new Date().getTime()/1000,null,"家长",new BigDecimal(0),orderDetail,parentId,type+4,0,1,monthCount,babyId,baby.getGartenId());
 							parentDao.insertOrdr(o);//创建未支付订单
 
 							String[] babyIds=parentInfo.getBabyId();
@@ -1619,8 +1652,15 @@ public class BigcontrolService {
 			bigcontrolDao.deleteOrderNoPay();
 		}
 		
-		public void bigControlSendNotify(Integer[] gartenIds,Integer type,String title,String info){
+		public void bigControlSendNotify(Integer[] gartenIds,Integer type,String title,String info,WorkerInfo workerInfo){
+			String toGartenName="";//发给哪些幼儿园
+
 			for(int i=0;i<gartenIds.length;i++){
+				GartenInfo g=workerDao.findGartenInfoById(gartenIds[i]);
+				if(null!=g){
+					toGartenName+=","+g.getGartenName();
+				}
+
 				WorkerInfo principal=new WorkerInfo();//准备好给谁发通知
 				List<WorkerInfo> workers=new ArrayList<WorkerInfo>();
 				List<ParentInfo> parents=new ArrayList<ParentInfo>();
@@ -1629,6 +1669,8 @@ public class BigcontrolService {
 					 principal=principalDao.findPrincipalByGartenId(gartenIds[i]);
 				}
 				if(2==type||0==type){//2给家长发
+					System.err.println("测试"+i);
+
 					parents=parentDao.findParentByGartenId(gartenIds[i]);
 				}
 				if(3==type||0==type){//3给老师发
@@ -1668,6 +1710,12 @@ public class BigcontrolService {
 				}
 				
 			}
+			toGartenName=toGartenName.substring(1,toGartenName.length());
+			//----------------------------------新增发送历史记录---------------
+			String targetName="";//拼接目标人群
+			targetName+=0==type?"老师和家长和园长":(1==type?"园长":(2==type?"家长":"老师"));
+			MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,info,null,workerInfo.getWorkerName(),null,title,toGartenName,null);
+			smallcontrolDao.insertMessageLog(ml);
 		}
 		
 		//删除幼儿园 循环删除老师
@@ -1739,4 +1787,81 @@ public class BigcontrolService {
 			bigcontrolDao.deleteIsvalid();
 			
 		}
+	
+	//type 0给老师家长发 2给家长发 3给老师发
+			public Map<String, Object> messagelog(String token,Long start,Long end,Integer gartenId, Integer pageNo)  {
+				WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+				  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+					if(null!=workerInfo){
+						Map<String,Object> param=MyUtil.putMapParams("gartenId",gartenId,"start",start,"end",end);
+						List<MessageLog> messagelog=smallcontrolDao.findMessageLog(param);
+						Collections.sort( messagelog,new Comparator<Object>() {
+
+							@Override
+							public int compare(Object o1, Object o2) {
+								MessageLog m1= (MessageLog)o1;
+								MessageLog m2= (MessageLog)o2;
+								return m1.getRegistTime().compareTo(m2.getRegistTime());	
+							}
+						});
+						MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(messagelog, pageNo));
+					}
+					return result;
+			}
+
+		public synchronized Map<String,Object> deleteMessage(Integer messageId){
+	   		bigcontrolDao.deleteMessageLog(messageId);
+	   		Map<String, Object> result = MyUtil.putMapParams("state", 1);
+	   		return result;
+	   	}
+		
+		public Map<String, Object> findEquipmentName(Integer pageNo) {
+			Map<String,Object> result=MyUtil.putMapParams("state",1,"info",null);
+			List<EquipmentName> en=bigcontrolDao.findEquipmentName();
+			MyUtil.putMapParams(result,"info",MyPage.listPage16(en, pageNo));
+			return result;
+		}
+
+		public Map<String, Object> addEquipmentName(String equipmentName, BigDecimal price) {
+			Map<String,Object> result=MyUtil.putMapParams("state",1);
+			bigcontrolDao.addEquipmentName(MyUtil.putMapParams("equipmentName",equipmentName,"price",price));
+			return result;
+		}
+
+		public Map<String, Object> deleteEquipmentName(Integer equipmentId) {
+			Map<String,Object> result=MyUtil.putMapParams("state",1);
+			bigcontrolDao.deleteEquipmentName(equipmentId);
+			return result;
+		}
+
+		
+		public synchronized Map<String, Object> resolveWuliaoOrder(Integer wuliaoId, Integer state, String toPhoneNunmber,String remark) {
+			Map<String,Object> result=MyUtil.putMapParams("state",2);//订单编号错误
+			List<WuliaoOrder> wo=agentDao.findWuliaoOrder(MyUtil.putMapParams("wuliaoId",wuliaoId));
+			if(1==wo.size()){
+				AgentInfo ai=agentDao.findAgentById(wo.get(0).getAgentId());
+				if(1!=wo.get(0).getState()){
+					MyUtil.putMapParams(result,"state",4);//改订单已处理
+					return result;
+				}
+				Integer big=ai.getCreditMoney().compareTo(wo.get(0).getTotalPrice());
+				MyUtil.putMapParams(result,"state",3);//余额不足
+				if((1==big||0==big)&&2==state){//余额足够
+					BigDecimal balance=ai.getCreditMoney().subtract(wo.get(0).getTotalPrice());
+					Map<String,Object> param=MyUtil.putMapParams("wuliaoId",wuliaoId,"state",state,"toPhoneNunmber",toPhoneNunmber,"remark",remark,"balance",balance,"agentId",wo.get(0).getAgentId());
+					bigcontrolDao.updateBalance(param);
+					bigcontrolDao.resolveWuliaoOrder(param);
+					MyUtil.putMapParams(result,"state",1);
+				}
+				if(3==state){//判断是否拒收
+					Map<String,Object> param=MyUtil.putMapParams("wuliaoId",wuliaoId,"state",state,"toPhoneNunmber",toPhoneNunmber,"remark",remark,"agentId",wo.get(0).getAgentId());
+					bigcontrolDao.resolveWuliaoOrder(param);
+					MyUtil.putMapParams(result,"state",1);
+				}
+				
+			}
+			
+			return result;
+		}
+
 }

@@ -160,5 +160,39 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT * FROM agent_info  a
 		where agentId=#{agent}
 	</select>
+	<select id="findWuliaoOrder"  resultType="WuliaoOrder">
+		SELECT * FROM wuliao_order  w
+		where w.isvalid=0
+		
+		<if test="	agentId!=null and agentId!=''" >
+				and agentId=#{agentId}
+			</if>
+			<if test="	state!=null and state!=''" >
+				and w.state=#{state}
+			</if>
+			<if test="	wuliaoId!=null and wuliaoId!=''" >
+				and w.wuliaoId=#{wuliaoId}
+			</if>
+			 
+	</select>
+	
+	<insert id="addWuliaoOrder"  >
+		insert into  wuliao_order  
+		set 
+		equipmentAll=#{equipmentAll},
+		address=#{address},
+		postalcode=#{postalcode},
+		agentId=#{agentId},
+		fromPhonenumber=#{fromPhoneNumber},
+		totalPrice=#{totalPrice}
+	</insert>
+	
+	<update id="deleteWuliaoOrder"  >
+		update   wuliao_order  
+		set 
+		isvalid=1
+		where wuliaoId=#{wuliaoId}
+		
+	</update>
 	
 </mapper> 

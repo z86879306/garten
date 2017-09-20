@@ -66,9 +66,9 @@ public class MyParamAll {
 	public static final String MYALIPAY_NOTIFYURL_MANAGE = "http://cms.ahczjy.cc/smallcontrol/manage.html#/payQuery";
 	
 	//Wxin 微信appid
-	public static final String MYWXIN_APPID = "wx894834a882b93d05";
+	public static final String MYWXIN_APPID = "wx5016949865cc41f1";
 	//Wxin mch_id微信商户ID					   
-	public static final String MYALIPAY_MCHID = "1486945932";
+	public static final String MYALIPAY_MCHID = "1487640302";
 	//Wxin 统一下单地址
 	public static final String MYALIPAY_UNIFIEDORDERURL = "https://api.mch.weixin.qq.com/pay/unifiedorder";
 	/**
@@ -103,7 +103,7 @@ public class MyParamAll {
 	//云通讯 取消订单
 	public static final String YTX_DUANXIN_QXDD="200941";
 	//云通讯 用户注册成功
-	public static final String YTX_DUANXIN_ZC="105862";
+	public static final String YTX_DUANXIN_ZC="205495";
 	//云通讯 8种订单
 	public static final String YTX_DUANXIN_DD="202270";
 	

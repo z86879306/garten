@@ -136,4 +136,5 @@ public interface WorkerDao {
 	public List<ActivityDetailAll> findIntroduceActivityByToken(Integer gartenId);
 	public void insertActivity(Map<String, Object> param);
 	public void updateIntroduce(Map<String, Object> param);
+	public void updateWorkerPhoneNumber(Map<String, Object> params);
 }

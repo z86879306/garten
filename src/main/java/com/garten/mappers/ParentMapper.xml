@@ -605,7 +605,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	SELECT * FROM parent_info  p
 		where 
 		FIND_IN_SET(#{babyId}, p.babyId)
-		and p.parentId!=#{parentId}
 		and p.isValid=0
 	</select>
 	

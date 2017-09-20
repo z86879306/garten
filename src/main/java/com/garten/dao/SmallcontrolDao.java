@@ -23,6 +23,7 @@ import com.garten.model.other.AttendanceNo;
 import com.garten.model.other.CheckNumber;
 import com.garten.model.other.Comment;
 import com.garten.model.other.InfoLog;
+import com.garten.model.other.MessageLog;
 import com.garten.model.other.Version;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerCheckLog;
@@ -155,7 +156,7 @@ public interface SmallcontrolDao {
 
 	void insertTeacherCheck(ArrayList<BabyCheckSimple> list);
 
-	void updateParentMessage(@Param("parentId")Integer parentId, @Param("parentName")String parentName, @Param("address")String address);
+	void updateParentMessage(@Param("parentId")Integer parentId, @Param("parentName")String parentName, @Param("address")String address, @Param("phoneNumber")String phoneNumber);
 
 	WorkerInfo findWorkerByPhoneNumber(String phoneNumber);
 
@@ -223,4 +224,9 @@ public interface SmallcontrolDao {
 	WorkerInfo findPrincipalByGartenId(Integer gartenId);
 	
 	void updateMainParent(Map<String, Object> param);
+	
+	void insertMessageLog(MessageLog ml);
+	
+	List<MessageLog> findMessageLog(Map<String, Object> param);
+
 }

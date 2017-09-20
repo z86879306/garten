@@ -10,6 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,6 +38,7 @@ import com.garten.Thread.DeleteParentThread;
 import com.garten.Thread.DeleteTeacherThread;
 import com.garten.Thread.HuanXinThread;
 import com.garten.Thread.InsertCheckThread;
+import com.garten.Thread.SmallcontrolSendNotify;
 import com.garten.dao.AttendanceDao;
 import com.garten.dao.BigcontrolDao;
 import com.garten.dao.ParentDao;
@@ -52,6 +55,7 @@ import com.garten.model.garten.GartenRecipe;
 import com.garten.model.garten.IgnoreTime;
 import com.garten.model.other.AttendanceNo;
 import com.garten.model.other.InfoLog;
+import com.garten.model.other.MessageLog;
 import com.garten.model.other.Order;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerInfo;
@@ -141,38 +145,14 @@ public class SmallcontrolService {
 		  Map<String,Object> result=MyUtil.putMapParams("state", 0);
 			if(null!=workerInfo){
 				
-					List<WorkerInfo> workers=new ArrayList<WorkerInfo>();//需要发的老师
-					List<ParentInfoCharge> parents=new ArrayList<ParentInfoCharge>();//需要发的家长
-					List<InfoLog> infoLogs=new ArrayList<InfoLog>();
-					Map<String,Object> param=MyUtil.putMapParams("leadClass", leadClass, "leadGrade", leadGrade);
-					if(2==type||0==type){//2给家长发  找个某个班级的宝宝的主要监护人
-						parents=smallcontrolDao.findParentInfoCharge(param);
-					}
-					if(3==type||0==type){//3给老师发
-						workers=workerDao.findWorkerInfoNotified(param);
-					}//建立通知记录  并发送通知
-
-				System.err.println("老师开始发");	
-				for(WorkerInfo w:workers){
-						infoLogs.add(new InfoLog(w.getGartenId(),content,null,"老师",w.getWorkerId(),null,null,title,0));
-						try {
-							bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,w.getPhoneNumber());
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				System.err.println("家长开始发");	
-					for(ParentInfo p:parents){
-						infoLogs.add(new InfoLog(Integer.valueOf(p.getGartenId().split(",")[0]),content,null,"家长",p.getParentId(),null,null,title,0));
-						try {
-							bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,p.getPhoneNumber());
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-					for(InfoLog infoLog:infoLogs){//建立通知记录
-						bigcontrolDao.insertInfoLog(infoLog);
-					}
+				try {
+					SmallcontrolSendNotify notify = new SmallcontrolSendNotify(leadClass, leadGrade, type, title, content, workerInfo);
+					Thread thread = new Thread(notify);
+					thread.start();
+				} catch (Exception e) {
+					e.printStackTrace();
+					return result;
+				}
 				MyUtil.putMapParams(result,"state", 1);
 			}
 			return result;
@@ -588,6 +568,15 @@ public class SmallcontrolService {
 				Map<String,Object> param=MyUtil.putMapParams("gartenId", workerInfo.getGartenId(), "startTime", startTime,"endTime",endTime);
 				List<OrderAll> order=smallcontrolDao.findOrder(param);
 				order=MyUtil.appendOrderName(order,name,phoneNumber);
+				Collections.sort(order,new Comparator<Object>() {
+
+					@Override
+					public int compare(Object o1, Object o2) {
+						OrderAll a1 = (OrderAll)o1;
+						OrderAll a2 = (OrderAll)o2;
+						return a1.getOrderTime().compareTo(a2.getOrderTime());
+					}
+				});
 				MyUtil.putMapParams(result, "state",1,"info",MyPage.listPage16(order, pageNo));
 			}
 	return result;
@@ -727,11 +716,16 @@ public class SmallcontrolService {
 			return result;
 	}
 	
-	public Map<String,Object> updateParent(String token,Integer parentId,String parentName,String address, String[] identity, Integer[] babyId){
+	public Map<String,Object> updateParent(String token,Integer parentId,String parentName,String address, String[] identity, Integer[] babyId, String phoneNumber){
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
-				smallcontrolDao.updateParentMessage(parentId,parentName,address);
+				
+				ParentInfo parent = smallcontrolDao.findParentByPhone(phoneNumber);
+				if(null!=parent){
+					return MyUtil.putMapParams(result, "state",2);			//该手机号码已经被注册
+				}
+				smallcontrolDao.updateParentMessage(parentId,parentName,address,phoneNumber);
 				
 				if(babyId!=null){		//有新增的宝宝
 					String newBabyId="";
@@ -820,13 +814,26 @@ public class SmallcontrolService {
 			return result;
 	}
 	
-	public Map<String, Object> updateBaby(String token,Integer babyId,String babyName,Integer sex,Long birthday,Integer classId, Double height, String health, String hobby, String specialty, String allergy,Double weight){
+	public Map<String, Object> updateBaby(String token,Integer babyId,String babyName,Integer sex,Long birthday,Integer classId, Double height, String health, String hobby, String specialty, String allergy,Double weight, Integer parentId){
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
 				Integer[] teachers = smallcontrolDao.getTeacherByClassId(classId);
 				if(teachers.length==0){
 					return MyUtil.putMapParams(result, "state",2);		//该班级没有老师
+				}
+				BabyInfo baby=parentDao.findBabyShortByBabyId(babyId);
+				if(!baby.getParentId().equals(parentId)){			//修改了主监护人信息
+					String newParentRelation = null;
+					ParentInfo parentInfo = parentDao.findParentById(parentId);
+					for(int i=0;i<parentInfo.getBabyId().length;i++){
+						if(parentInfo.getBabyId()[i].equals(babyId)){
+							newParentRelation=parentInfo.getIdentity()[i];
+						}
+					}
+					Map<String,Object> param=MyUtil.putMapParams("babyId",babyId,"newparentId",parentId,"newParentRelation",newParentRelation);
+					
+					smallcontrolDao.updateMainParent(param);//3
 				}
 				String newTeacher = LyUtils.intChangeToStr(teachers);
 				smallcontrolDao.updateBaby( babyId, babyName, sex, birthday, newTeacher,height,health,hobby,specialty,allergy,weight);
@@ -1614,4 +1621,74 @@ public class SmallcontrolService {
 		
 		return result;
 	}
+	
+	public void sendNotifySmall(String leadClass,String leadGrade ,Integer type ,String title,String content,WorkerInfo workerInfo){
+		//----------------------------------新增发送历史记录---------------
+		String targetName="";//拼接目标人群
+		targetName+=null==leadGrade?"":leadGrade;
+		targetName+=null==leadClass?"":leadClass;
+		targetName+=0==type?"老师和家长":(2==type?"家长":"老师");
+		GartenInfo g=workerDao.findGartenInfoById(workerInfo.getGartenId());
+		String gartenName="";
+		if(null!=g){
+			gartenName+=g.getGartenName();
+		}
+		MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,content,null,workerInfo.getWorkerName(),workerInfo.getGartenId(),title,gartenName,gartenName);
+		smallcontrolDao.insertMessageLog(ml);
+			List<WorkerInfo> workers=new ArrayList<WorkerInfo>();//需要发的老师
+			List<ParentInfoCharge> parents=new ArrayList<ParentInfoCharge>();//需要发的家长
+			List<InfoLog> infoLogs=new ArrayList<InfoLog>();
+			Map<String,Object> param=MyUtil.putMapParams("leadClass", leadClass, "leadGrade", leadGrade);
+			if(2==type||0==type){//2给家长发  找个某个班级的宝宝的主要监护人
+				parents=smallcontrolDao.findParentInfoCharge(param);
+			}
+			if(3==type||0==type){//3给老师发
+				workers=workerDao.findWorkerInfoNotified(param);
+			}//建立通知记录  并发送通知
+
+		System.err.println("老师开始发");	
+		for(WorkerInfo w:workers){
+				infoLogs.add(new InfoLog(w.getGartenId(),content,null,"老师",w.getWorkerId(),null,null,title,0));
+				try {
+					bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,w.getPhoneNumber());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		System.err.println("家长开始发");	
+			for(ParentInfo p:parents){
+				infoLogs.add(new InfoLog(Integer.valueOf(p.getGartenId().split(",")[0]),content,null,"家长",p.getParentId(),null,null,title,0));
+				try {
+					bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,p.getPhoneNumber());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			for(InfoLog infoLog:infoLogs){//建立通知记录
+				bigcontrolDao.insertInfoLog(infoLog);
+			}
+	}
+	
+	
+	//type 0给老师家长发 2给家长发 3给老师发
+			public Map<String, Object> messagelog(String token,Long start,Long end, Integer pageNo)  {
+				 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+				  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+					if(null!=workerInfo){
+						Map<String,Object> param=MyUtil.putMapParams("gartenId",workerInfo.getGartenId(),"start",start,"end",end);
+						List<MessageLog> messagelog=smallcontrolDao.findMessageLog(param);
+						Collections.sort( messagelog,new Comparator<Object>() {
+
+							@Override
+							public int compare(Object o1, Object o2) {
+								MessageLog m1= (MessageLog)o1;
+								MessageLog m2= (MessageLog)o2;
+								return m1.getRegistTime().compareTo(m2.getRegistTime());	
+							}
+						});
+						MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(messagelog, pageNo));
+					}
+					return result;
+			}
+
 }

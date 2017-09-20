@@ -182,4 +182,36 @@ public class AgentController {
 		Map<String, Object> map = agentService.deleteVisit(token, visitId);
 		return map;
 	}
+	
+	/*[{equipmentName: '小明',price: 20,count:1},{equipmentName: '小明',price: 20,count:1}]*/
+	//查询自己的物料订单
+	@RequestMapping("findWuliaoOrder")
+	@ResponseBody
+	public synchronized Map<String,Object> findWuliaoOrder(String token,Integer pageNo ,Integer state){
+		Map<String, Object> map = agentService.findWuliaoOrder(token,pageNo,state);
+		return map;
+	}
+	//生成物料订单
+	@RequestMapping("addWuliaoOrder")
+	@ResponseBody
+	public synchronized Map<String,Object> addWuliaoOrder(String token,String equipmentAll,String address,String postalcode,String fromPhoneNumber,BigDecimal totalPrice){
+		Map<String, Object> map = agentService.addWuliaoOrder( token, equipmentAll, address, postalcode, fromPhoneNumber,totalPrice);
+		return map;
+	}
+	
+	//删除物料订单 
+	@RequestMapping("deleteWuliaoOrder")
+	@ResponseBody
+	public synchronized Map<String,Object> deleteWuliaoOrder(String token,Integer wuliaoId ){
+		Map<String, Object> map = agentService.deleteWuliaoOrder( token, wuliaoId);
+		return map;
+	}
+
+	
+	//获取设备及价格(不分页）
+	/*@RequestMapping("findEquipmentNameNoPage")
+	public  @ResponseBody Map<String,Object> findEquipmentNameNoPage() throws ParseException {
+		Map<String, Object> map = agentService.findEquipmentNameNoPage();
+		return map;
+	}*/
 }

@@ -25,6 +25,7 @@ import com.garten.model.garten.PhotoDianZan;
 import com.garten.model.other.CheckNumber;
 import com.garten.model.other.Comment;
 import com.garten.model.other.Equipment;
+import com.garten.model.other.EquipmentName;
 import com.garten.model.other.Feedback;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.Order;
@@ -269,5 +270,17 @@ public interface BigcontrolDao {
 	void deleteGartenAllMachine(Integer gartenId);
 
 	void deleteGartenAllEquipment(Integer gartenId);
+
+	void deleteMessageLog(Integer messageId);
+
+	List<EquipmentName> findEquipmentName();
+
+	void addEquipmentName(Map<String, Object> putMapParams);
+
+	void deleteEquipmentName(Integer equipmentId);
+
+	void resolveWuliaoOrder(Map<String, Object> param);
+
+	void updateBalance(Map<String, Object> param);
 
 }

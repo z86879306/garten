@@ -262,13 +262,14 @@ public class MyUtilAll {
 			  Map<String, Object> resultMap = new HashMap<String, Object>();
 		         SortedMap<Object,Object> parameters = new TreeMap<Object,Object>();
 		 	/*	String price="1";*///表示1分钱
+		         System.err.println(price.substring(0, price.length()-3));
 		         parameters.put("appid", MyParamAll.MYWXIN_APPID);  
 		         parameters.put("mch_id", MyParamAll.MYALIPAY_MCHID); 
 		         parameters.put("nonce_str",MyPayCommonUtil.CreateNoncestr().substring(0, 9)+price);  
 		         parameters.put("body",type);  
 		         parameters.put("out_trade_no", orderNumber); //订单id
 		         parameters.put("fee_type", "CNY");  
-		         parameters.put("total_fee", price);  
+		         parameters.put("total_fee", price.substring(0, price.length()-3));  
 		         parameters.put("spbill_create_ip","127.0.0.1");
 		         parameters.put("notify_url", "http://cms.ahczjy.cc/parent/wxpayyz.do"); 
 		         parameters.put("trade_type", "APP");  
@@ -279,6 +280,7 @@ public class MyUtilAll {
 		         String requestXML = MyPayCommonUtil.getRequestXml(parameters);  
 		        //调用统一下单接口
 		         String result = MyPayCommonUtil.httpsRequest(MyParamAll.MYALIPAY_UNIFIEDORDERURL, "POST", requestXML);
+		         System.err.println("~~~~~~~~~~");
 		         System.out.println("\n"+result);
 		         try {
 		         /**统一下单接口返回正常的prepay_id，再按签名规范重新生成签名后，将数据传输给APP。参与签名的字段名为appId，partnerId，prepayId，nonceStr，timeStamp，package。注意：package的值格式为Sign=WXPay**/

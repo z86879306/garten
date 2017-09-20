@@ -454,4 +454,48 @@ public class BigcontrolController {
 	   		Map<String, Object> map = bigcontrolService.deleteAll(token);
 			return map;
 		}
+	   	
+	   	@RequestMapping("messagelog")//消息历史
+		public  @ResponseBody Map<String,Object> messagelog(String token,Long start,Long end,Integer gartenId,Integer pageNo) throws ParseException, APIConnectionException, APIRequestException {
+			Map<String,Object> map=bigcontrolService.messagelog(  token,start,end,gartenId,pageNo);
+			return map;
+		}
+	   	
+	   	//删除消息历史
+	   	@RequestMapping("deleteMessage")
+	   	@ResponseBody
+	   	public synchronized Map<String,Object> deleteMessage(Integer messageId){
+	   		Map<String, Object> map = bigcontrolService.deleteMessage(messageId);
+	   		return map;
+	   	}
+	   	
+	   	
+	  //获取设备及价格
+		@RequestMapping("findEquipmentName")
+		public  @ResponseBody Map<String,Object> findEquipmentName(Integer pageNo) throws ParseException {
+			Map<String, Object> map = bigcontrolService.findEquipmentName(pageNo);
+			return map;
+		}
+		
+		 //新增设备及价格
+		@RequestMapping("addEquipmentName")
+		public  @ResponseBody Map<String,Object> addEquipmentName(String equipmentName,BigDecimal  price ) throws ParseException {
+			Map<String, Object> map = bigcontrolService.addEquipmentName(equipmentName,price);
+			return map;
+		}
+		  
+		 //删除设备及价格
+		@RequestMapping("deleteEquipmentName")
+		public  @ResponseBody Map<String,Object> deleteEquipmentName(Integer equipmentId) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteEquipmentName(equipmentId);
+			return map;
+		}
+
+		//处理代理商的物料订单
+		@RequestMapping("resolveWuliaoOrder")//1待发送 2已发送 3拒发送
+		public  @ResponseBody Map<String,Object> resolveWuliaoOrder(Integer wuliaoId,Integer state,String toPhoneNunmber,String remark) throws ParseException {
+			Map<String, Object> map = bigcontrolService.resolveWuliaoOrder(wuliaoId,state,toPhoneNunmber,remark);
+			return map;
+		}
+
 }

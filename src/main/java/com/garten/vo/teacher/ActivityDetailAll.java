@@ -132,10 +132,10 @@ public class ActivityDetailAll {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public Integer getCount() {
+	public Integer getcount() {
 		return count;
 	}
-	public void setCount(Integer count) {
+	public void setcount(Integer count) {
 		this.count = count;
 	}
 	public Integer getApplyState() {

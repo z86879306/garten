@@ -227,11 +227,12 @@ and l.activityId=#{activityId}
 	</select>
 	
 	<select id="findActivityDetailById"  resultType="ActivityDetailAll">
-			SELECT d.activityId activityId, d.imgs  imgs,
-			d.contents contents, d.timeStart timeStart, d.timeEnd timeEnd, d.isValid isValid,
-				count(1) number
+			SELECT d.activityId activityId, d.img  img,
+			d.content content, d.timeStart timeStart, d.timeEnd timeEnd, d.isValid isValid
+			,d.htmlImgs htmlImgs,d.contentHtml contentHtml,count(1) count
 			FROM
-				activity_detail d join activity_log a on d.activityId=a.activityId
+				activity_detail d 
+			left join activity_log a on d.activityId=a.activityId
 			WHERE
 				d.activityId =#{activityId} and a.isValid=0 and  d.isValid=0
 		</select>
@@ -855,4 +856,9 @@ l.gartenId gartenId,l.time time,l.ampm ampm,l.lessonName lessonName,l.classId cl
      <delete id="deleteActivityLog" >
         delete from activity_log where  activityId=#{activityId}
     </delete>
+    <update id="updateWorkerPhoneNumber">
+    	update worker＿info set
+    	phoneNumber=#{phoneNumber}
+    	where workerId=#{workerId}
+    </update>
 </mapper> 

@@ -817,6 +817,7 @@ public class ParentService {
 				System.err.println("成功创建==微信");
 				System.err.println("成功创建==微信");
 				System.err.println("成功创建==微信");
+				big = big.multiply(new BigDecimal(100));
 				Map<String,Object> payResult=MyUtilAll.myWxinpay(orderNumber+"", orderDetail,big.toString());
 				MyUtil.putMapParams(result,"state", 1,"info",payResult.get("msg"));
 			}
@@ -870,7 +871,7 @@ public class ParentService {
 	                 String total_fee = (String)packageParams.get("total_fee");  
 	                 String transaction_id = (String)packageParams.get("transaction_id"); //微信支付订单号
 	                 String noncestr = (String)packageParams.get("nonce_str"); //微信支付订单号
-
+	                 System.err.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	                 //查询订单 
 	                 Map<String,Object> param=new HashMap<String,Object>(); 
 	                 param.put("orderNumber", out_trade_no);

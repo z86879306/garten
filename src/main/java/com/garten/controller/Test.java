@@ -4,10 +4,13 @@ import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,13 +38,14 @@ public class Test {
 	private static BigcontrolService bigcontrolService;
 	
 	public static void main(String[] args) throws ParseException, UnsupportedEncodingException, APIConnectionException, APIRequestException {
-		/*String a=null;
-		System.err.println(a);*/
-//		test7();
-//		DateFormat df = new SimpleDateFormat("yyyy-M-d");
-//        Date date = df.parse(df.format(new Date()));
-//        System.out.println(date);
-		MyUtil.addIgnoreYear(1);
+
+		/*List<List<String>> fatherList = new LinkedList<>();
+		List<String> childList = new ArrayList<>();
+		childList.add("before add child List");
+		fatherList.add(childList);
+		System.out.println(fatherList.toString());
+		childList.add("after add child List");
+		System.out.println(fatherList.toString());*/
 	}
 	public static String test1(){
 		Long lon=57600l;

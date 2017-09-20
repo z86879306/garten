@@ -18,6 +18,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1310,6 +1312,15 @@ public  class MyUtil implements ApplicationContextAware{
 			}
 		}
 		babyYichang.addAll(workerYichang);
+		Collections.sort(babyYichang,new Comparator<Object>() {
+
+			@Override
+			public int compare(Object o1, Object o2) {
+				UnusualAll u1 = (UnusualAll)o1;
+				UnusualAll u2 = (UnusualAll)o2;
+				return u1.getUnusualTime().compareTo(u2.getUnusualTime());
+			}
+		});
 		return MyPage.listPage16(babyYichang, pageNo);
 		
 		

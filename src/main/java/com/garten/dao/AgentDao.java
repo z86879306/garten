@@ -11,6 +11,7 @@ import com.garten.model.activity.ActivityDetail;
 import com.garten.model.activity.ActivityLog;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
@@ -100,5 +101,12 @@ public interface AgentDao {
 	void deleteVisit(Integer visitId);
 
 	AgentInfo findAgentById(Integer agent);
+	
+	List<WuliaoOrder> findWuliaoOrder(Map<String, Object> param);
+
+	void addWuliaoOrder(Map<String, Object> param);
+
+	void deleteWuliaoOrder(Integer wuliaoId);
+
 	
 }
