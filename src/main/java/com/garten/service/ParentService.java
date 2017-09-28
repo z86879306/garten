@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -53,6 +54,7 @@ import com.garten.model.other.Feedback;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.Order;
 import com.garten.model.other.Version;
+import com.garten.model.other.VisitCount;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.model.worker.WorkerLeaveLog;
@@ -177,6 +179,18 @@ public class ParentService {
 		if(null!=parentInfo){//验证用户
 			List<BabyCheckLogAll> babyCheckLogs= parentDao.findBabyCheckByToken(MyUtil.putMapParams("babyId", babyId,"time",time));//获取所有宝宝的晨检 考勤信息
 			System.err.println(babyCheckLogs.size());
+			
+			//请求一次接口 访问次数加一
+			long current = System.currentTimeMillis();
+            long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
+			Map<String, Object> params = MyUtil.putMapParams("gartenId",babyCheckLogs.get(0).getGartenId(),"type",1,"time",zero/1000);
+            VisitCount visitCount = parentDao.findVisitCount(params);
+			if(null==visitCount){
+				parentDao.addVisitCount(params);
+			}else{
+				parentDao.updateVisitCount(params);
+			}
+			
 			MyUtil.putMapParams(result, "state",1,"info",MyUtil.paixuBabyCheckLog(babyCheckLogs),"attendanceState",MyUtil.getParentAttendance(parentInfo,babyId)/*这个家长有没有这个宝宝的考勤权限*/);//排序 体温0的在前面 总的按id排序
 		}
 		return result;
@@ -473,8 +487,9 @@ public class ParentService {
 			ParentInfo parentInfo= parentDao.findParentInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",parentInfo);
 			if(null!=parentInfo){//验证用户
-				List<GartenPhotos> parentPhoto= parentDao.findParentPhotoByToken(babyId);
-				List<GartenPhotos> workerPhoto= parentDao.findWorkerPhotoByToken(babyId);
+				ClassManage baby = parentDao.findBabyById(babyId);
+				List<GartenPhotos> parentPhoto= parentDao.findParentPhotoByToken(babyId,baby.getGartenId());
+				List<GartenPhotos> workerPhoto= parentDao.findWorkerPhotoByToken(babyId,baby.getGartenId());
 				parentPhoto.addAll(workerPhoto);
 				MyUtil.putMapParams(result, "state",1,"info",MyPage.listPage(MyUtil.getPhotoFinal(parentPhoto,token,1), pageNo));
 			}
@@ -572,6 +587,18 @@ public class ParentService {
 			ClassManage baby=findBaby(babyId);
 			Integer monitor=MyUtil.findMonitor(babyId,parentInfo);
 			List<Video> videos=parentDao.findVideos(MyUtil.putMapParams("babyId", babyId,"classId",baby.getClassId()));
+			
+			//请求一次接口 访问次数加一
+			long current = System.currentTimeMillis();
+            long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
+			Map<String, Object> params = MyUtil.putMapParams("gartenId",baby.getGartenId(),"type",2,"time",zero);
+            VisitCount visitCount = parentDao.findVisitCount(params);
+			if(null==visitCount){
+				parentDao.addVisitCount(params);
+			}else{
+				parentDao.updateVisitCount(params);
+			}
+			
 			MyUtil.putMapParams(result,"state",1,"info",videos,"monitor",monitor);
 		}
 		return result;

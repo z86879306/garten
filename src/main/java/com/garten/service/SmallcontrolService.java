@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,6 +41,7 @@ import com.garten.Thread.HuanXinThread;
 import com.garten.Thread.InsertCheckThread;
 import com.garten.Thread.SmallcontrolSendNotify;
 import com.garten.dao.AttendanceDao;
+import com.garten.dao.BigWorkerDao;
 import com.garten.dao.BigcontrolDao;
 import com.garten.dao.ParentDao;
 import com.garten.dao.PrincipalDao;
@@ -57,8 +59,11 @@ import com.garten.model.other.AttendanceNo;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.MessageLog;
 import com.garten.model.other.Order;
+import com.garten.model.other.TPermission;
+import com.garten.model.other.VisitCount;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerInfo;
+import com.garten.model.worker.WorkerMessageLog;
 import com.garten.util.LyUtils;
 import com.garten.util.lxcutil.MyParamAll;
 import com.garten.util.lxcutil.MyUtilAll;
@@ -84,6 +89,7 @@ import com.garten.vo.smallcontrol.MachineDetail;
 import com.garten.vo.smallcontrol.OrderAll;
 import com.garten.vo.teacher.BabyCheckLogAll;
 import com.garten.vo.teacher.WorkerLeaveLogPrin;
+import com.garten.vo.teacher.WorkerNameMessage;
 
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
@@ -109,6 +115,8 @@ public class SmallcontrolService {
 	private WorkerService workerService;
 	@Autowired
 	private AttendanceDao attendanceDao;
+	@Autowired
+	private BigWorkerDao bigWorkerDao;
 	public Map<String, Object> login(String phoneNumber, String pwd) {
 		Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
 		WorkerInfo worker=smallcontrolDao.findWorkerByPwd(param);
@@ -474,7 +482,7 @@ public class SmallcontrolService {
 	//type 0宝宝请假1 老师请假
 	public Map<String, Object> leave(String token, Long startTime, Long endTime, Integer type, Integer state, Integer pageNo) throws ParseException {
 		startTime=MyUtil.getYMDLong(startTime);
-		endTime=MyUtil.getYMDLong(endTime);;
+		endTime=MyUtil.getYMDLong(endTime);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
@@ -509,6 +517,24 @@ public class SmallcontrolService {
 				MyUtil.putMapParams(result, "state",1);
 				}
 	return result;
+	}
+	
+	public synchronized Map<String, Object> addWeekLesson(String token,Long time,Integer[] ampm,String[] lessonName,Integer classId,String[] startTime,String[] endTime){
+		Map<String,Object> result=MyUtil.putMapParams("state", 0);
+		 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			if(null!=workerInfo){
+				for(int i=0;i<5;i++){
+
+					for(int j=0;j<lessonName.length;j++){
+						Map<String, Object> params = MyUtil.putMapParams("gartenId", workerInfo.getGartenId(),"time",time,"ampm",ampm[j],"lessonName",lessonName[j],"classId",classId,"startTime",startTime[j],"endTime",endTime[j]);
+						smallcontrolDao.insertLesson(params);
+					}
+					time+=86400;
+				}
+				MyUtil.putMapParams(result, "state",1);
+			}
+			
+			return result;
 	}
 	
 	
@@ -678,17 +704,21 @@ public class SmallcontrolService {
 		 return result;
 	}
 	
+	public Map<String,Object> teacherPermission(){
+		List<TPermission> list = smallcontrolDao.findTeacherPermisson();
+		return MyUtil.putMapParams("state", 1, "info",list);
+	}
 	
 	public Map<String, Object> updateTeacher(String token,Integer sex,Integer age,String education,String certificate,String chinese,
-			Integer classId,String phoneNumber,String workerName,Integer workerId,String jobcall){
+			Integer classId,String phoneNumber,String workerName,Integer workerId,String jobcall, String permission){
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
+				WorkerInfo teacher = smallcontrolDao.findworkerById(workerId);
 				WorkerInfo worker = smallcontrolDao.findWorkerByPhoneNumber(phoneNumber);
-				if(null!=worker){
+				if(!teacher.getPhoneNumber().equals(phoneNumber)&&null!=worker){
 					return MyUtil.putMapParams(result, "state",3);
 				}
-				WorkerInfo teacher = smallcontrolDao.findworkerById(workerId);
 				Integer oldClassId = teacher.getClassId();
 				if(!oldClassId.equals(classId)){
 					//原先改班级拥有的老师数组
@@ -697,7 +727,7 @@ public class SmallcontrolService {
 						return MyUtil.putMapParams(result, "state",2);		//不能为改班级最后一个老师
 					}
 					//修改老师基本信息
-					smallcontrolDao.updateTeacher( sex, age, education, certificate, chinese,classId, phoneNumber,workerName,workerId,jobcall);
+					smallcontrolDao.updateTeacher( sex, age, education, certificate, chinese,classId, phoneNumber,workerName,workerId,jobcall,permission);
 					//从原老师数组删除该老师
 					teachers = LyUtils.IntArrayRemove(teachers, workerId);
 					String newTeacher = LyUtils.intChangeToStr(teachers);
@@ -709,7 +739,6 @@ public class SmallcontrolService {
 					//修改信息后 考勤机重启
 					//smallcontrolDao.updateRebootFlag(workerInfo.getGartenId());
 				}
-				smallcontrolDao.updateTeacher( sex, age, education, certificate, chinese,classId, phoneNumber,workerName,workerId,jobcall);
 				MyUtil.putMapParams(result, "state",1);
 			}
 			
@@ -831,7 +860,7 @@ public class SmallcontrolService {
 							newParentRelation=parentInfo.getIdentity()[i];
 						}
 					}
-					Map<String,Object> param=MyUtil.putMapParams("babyId",babyId,"newparentId",parentId,"newParentRelation",newParentRelation);
+					Map<String,Object> param=MyUtil.putMapParams("babyId",babyId,"newparentId",parentId,"parentRelation",newParentRelation);
 					
 					smallcontrolDao.updateMainParent(param);//3
 				}
@@ -846,7 +875,7 @@ public class SmallcontrolService {
 	
 	//添加老师
 	public Map<String,Object> addTeacher(String token,String teacherName,Integer sex,Integer age,String phoneNumber,Integer classId,String education,
-			String certificate,String chinese, String jobCall) throws ParseException, IOException{
+			String certificate,String chinese, String jobCall,String permission) throws ParseException, IOException{
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
@@ -856,7 +885,7 @@ public class SmallcontrolService {
 				}
 				AttendanceNo an = new AttendanceNo("老师",workerInfo.getGartenId());
 				smallcontrolDao.addAttendanceNo(an);
-				smallcontrolDao.addWorkerTeacher(workerInfo.getGartenId(),an.getJobId(),CryptographyUtil.md5("123456", "lxc"),teacherName,phoneNumber,sex,age,education,certificate,chinese,"老师",jobCall,classId);
+				smallcontrolDao.addWorkerTeacher(workerInfo.getGartenId(),an.getJobId(),CryptographyUtil.md5("123456", "lxc"),teacherName,phoneNumber,sex,age,education,certificate,chinese,"老师",jobCall,classId,permission);
 				Integer[] teacher = smallcontrolDao.getTeacherByClassId(classId);
 				String teachers = LyUtils.intChangeToStr(teacher);
 				smallcontrolDao.updateBaByTeacher(teachers,classId);
@@ -894,7 +923,10 @@ public class SmallcontrolService {
 				}
 				String teachers = LyUtils.intChangeToStr(teacher);
 				//根据宝宝身份证获取生日
-				Long birthday = LyUtils.getBirthByIdCard(cardId);
+				Long birthday = null;
+				if(cardId!=null){
+					birthday = LyUtils.getBirthByIdCard(cardId);
+				}
 				//在attendance 生成一个宝宝  获取宝宝id
 				AttendanceNo an = new AttendanceNo("宝宝",workerInfo.getGartenId());
 				smallcontrolDao.addAttendanceNo(an);
@@ -985,7 +1017,7 @@ public class SmallcontrolService {
 						time+=",2000-01-01";
 					}
 					smallcontrolDao.addParent(babyIdArray, identityArray, parentName, phoneNumber, address, gartenIdArray, CryptographyUtil.md5("123456", "lxc"),time,time);
-					Integer parentId = smallcontrolDao.findParentByPhone(phoneNumber).getParentId();
+//					Integer parentId = smallcontrolDao.findParentByPhone(phoneNumber).getParentId();
 					//注册家长环信
 					//workerService.regist(MyParamAll.ACCESS_TOKEN, 1, parentId);
 					//workerService.addFriend(MyParamAll.ACCESS_TOKEN, 1, parentId);
@@ -1095,7 +1127,7 @@ public class SmallcontrolService {
 	}
 	
 	//消息历史
-	public Map<String,Object> notifyHistory(String token,String job,Long startTime,Long endTime, Integer pageNo){
+	/*public Map<String,Object> notifyHistory(String token,String job,Long startTime,Long endTime, Integer pageNo){
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
@@ -1103,7 +1135,7 @@ public class SmallcontrolService {
 				MyUtil.putMapParams(result, "state",1,"info",MyPage.listPage16(infoLog, pageNo));
 			}
 			return result;
-	}
+	}*/
 	
 	//删除食谱
 	public Map<String ,Object> deleteRecipe(String token, Integer recipeId){
@@ -1625,15 +1657,16 @@ public class SmallcontrolService {
 	public void sendNotifySmall(String leadClass,String leadGrade ,Integer type ,String title,String content,WorkerInfo workerInfo){
 		//----------------------------------新增发送历史记录---------------
 		String targetName="";//拼接目标人群
-		targetName+=null==leadGrade?"":leadGrade;
-		targetName+=null==leadClass?"":leadClass;
+		String toclass="";
+		toclass+=null==leadGrade?"":leadGrade;
+		toclass+=null==leadClass?"":leadClass;
 		targetName+=0==type?"老师和家长":(2==type?"家长":"老师");
 		GartenInfo g=workerDao.findGartenInfoById(workerInfo.getGartenId());
 		String gartenName="";
 		if(null!=g){
 			gartenName+=g.getGartenName();
 		}
-		MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,content,null,workerInfo.getWorkerName(),workerInfo.getGartenId(),title,gartenName,gartenName);
+		MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,content,null,workerInfo.getWorkerName(),workerInfo.getGartenId(),title,gartenName,gartenName,workerInfo.getWorkerId(),"园长",toclass);
 		smallcontrolDao.insertMessageLog(ml);
 			List<WorkerInfo> workers=new ArrayList<WorkerInfo>();//需要发的老师
 			List<ParentInfoCharge> parents=new ArrayList<ParentInfoCharge>();//需要发的家长
@@ -1671,24 +1704,65 @@ public class SmallcontrolService {
 	
 	
 	//type 0给老师家长发 2给家长发 3给老师发
-			public Map<String, Object> messagelog(String token,Long start,Long end, Integer pageNo)  {
-				 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
-				  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-					if(null!=workerInfo){
-						Map<String,Object> param=MyUtil.putMapParams("gartenId",workerInfo.getGartenId(),"start",start,"end",end);
-						List<MessageLog> messagelog=smallcontrolDao.findMessageLog(param);
-						Collections.sort( messagelog,new Comparator<Object>() {
+		public Map<String, Object> messagelog(String token,Long start,Long end, Integer pageNo)  {
+			 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+				if(null!=workerInfo){
+					Map<String,Object> param=MyUtil.putMapParams("gartenId",workerInfo.getGartenId(),"start",start,"end",end);
+					List<MessageLog> messagelog=smallcontrolDao.findMessageLog(param);
+					Collections.sort( messagelog,new Comparator<Object>() {
 
-							@Override
-							public int compare(Object o1, Object o2) {
-								MessageLog m1= (MessageLog)o1;
-								MessageLog m2= (MessageLog)o2;
-								return m1.getRegistTime().compareTo(m2.getRegistTime());	
-							}
-						});
-						MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(messagelog, pageNo));
-					}
-					return result;
-			}
+						@Override
+						public int compare(Object o1, Object o2) {
+							MessageLog m1= (MessageLog)o1;
+							MessageLog m2= (MessageLog)o2;
+							return m1.getRegistTime().compareTo(m2.getRegistTime());	
+						}
+					});
+					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(messagelog, pageNo));
+				}
+				return result;
+		}
 
+		public Map<String,Object> teacherMessage(String token,Long startTime , Long endTime,Integer pageNo, Integer state){
+			WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+				if(null!=workerInfo){
+					Map<String, Object> params = MyUtil.putMapParams("gartenId",workerInfo.getGartenId(), "startTime", startTime, "endTime", endTime,"state",state);
+					List<WorkerNameMessage> list = smallcontrolDao.findWorkerApplyMessage(params);
+					MyUtil.putMapParams(result, "state", 1, "info",MyPage.listPage16(list, pageNo));
+					
+				}
+				return result;
+	   	}
+		
+		public Map<String,Object> agreeMessage(String token,Integer messageId){
+			WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+				if(null!=workerInfo){
+					WorkerMessageLog messageLog = bigWorkerDao.findMessageById(messageId);
+					GartenClass gartenClass = smallcontrolDao.findClassByTeacher(messageLog.getWorkerId());
+					
+					SmallcontrolSendNotify notify = new SmallcontrolSendNotify(gartenClass.getLeadClass(), gartenClass.getLeadGrade(), 2, messageLog.getTitle(), messageLog.getInfo(), workerInfo);
+					Thread thread = new Thread(notify);
+					thread.start();
+					
+					smallcontrolDao.updateTeacherMessageState(messageId);
+					MyUtil.putMapParams(result, "state", 1 );
+				}
+				return result;
+	   	}
+			
+		public  Map<String,Object> VisitCount(String token){
+			 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+				if(null!=workerInfo){
+					long current = System.currentTimeMillis();
+		            long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
+					Map<String, Object> params = MyUtil.putMapParams("gartenId",workerInfo.getGartenId(),"time",zero/1000);
+		            List<VisitCount> visitCount = smallcontrolDao.findVisitCount(params);
+		            MyUtil.putMapParams(result,"state", 1,"info",visitCount);
+				}
+				return result;
+	   	}
 }

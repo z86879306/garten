@@ -20,12 +20,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.plaf.basic.BasicGraphicsUtils;
 
 import org.codehaus.jackson.map.util.Comparators;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.server.ServletServerHttpAsyncRequestControl;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -66,6 +68,7 @@ import com.garten.model.parent.Relation;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.util.LyParam;
 import com.garten.util.LyUtils;
+import com.garten.util.excel.ExcelUtil;
 import com.garten.util.lxcutil.MyParamAll;
 import com.garten.util.lxcutil.MyUtilAll;
 import com.garten.util.md5.CryptographyUtil;
@@ -96,6 +99,7 @@ import cn.jpush.api.push.model.Platform;
 import cn.jpush.api.push.model.PushPayload;
 import cn.jpush.api.push.model.audience.Audience;
 import cn.jpush.api.push.model.notification.Notification;
+import io.netty.handler.codec.http.HttpResponse;
 
 
 
@@ -868,6 +872,26 @@ public class BigcontrolService {
 				return result;
 		}
 
+		public Map<String,Object> exporeOrder(String token,String province,String city,String countries
+				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,HttpServletResponse response){
+			WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+				if(null!=workerInfo){
+					List<OrderAll> order=bigcontrolDao.findOrder(state,type, province, city, countries, gartenId);
+					order=MyUtil.appendOrderName(order,name,phoneNumber);
+					
+					try {
+						response.setContentType("application/x-execl");
+						response.setHeader("Content-Disposition", "attachment;filename=" + new String("订单列表.xls".getBytes(), "ISO-8859-1"));
+						ServletOutputStream outputStream = response.getOutputStream();
+						ExcelUtil.exportOrderExcel(order, outputStream);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			return null;
+		}
+		
 		public Map<String, Object> feedback(String token, Integer pageNo) {
 			 WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
@@ -1714,7 +1738,7 @@ public class BigcontrolService {
 			//----------------------------------新增发送历史记录---------------
 			String targetName="";//拼接目标人群
 			targetName+=0==type?"老师和家长和园长":(1==type?"园长":(2==type?"家长":"老师"));
-			MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,info,null,workerInfo.getWorkerName(),null,title,toGartenName,null);
+			MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,info,null,workerInfo.getWorkerName(),null,title,toGartenName,null,workerInfo.getWorkerId(),"总管理员",null);
 			smallcontrolDao.insertMessageLog(ml);
 		}
 		

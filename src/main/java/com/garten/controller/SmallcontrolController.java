@@ -206,12 +206,19 @@ public class SmallcontrolController {
 	  		return result;
 	  	}
 		
+		@RequestMapping("addWeekLesson")
+		@ResponseBody
+		public synchronized Map<String, Object> addWeekLesson(String token,Long time,Integer[] ampm,String[] lessonName,Integer classId,String[] startTime,String[] endTime){
+			Map<String, Object> map = smallcontrolService.addWeekLesson(token, time, ampm, lessonName, classId, startTime, endTime);
+			return map;
+		}
 		@RequestMapping("deletelesson")
 	  	@ResponseBody
 	  	public synchronized Map<String, Object> deletelesson(String token,Integer lessonId ) throws ParseException{
 	  		Map<String,Object> result=smallcontrolService.deletelesson( token,lessonId );
 	  		return result;
 	  	}
+		
 		
 		
 		@RequestMapping("recipe")
@@ -278,13 +285,19 @@ public class SmallcontrolController {
 			return map;
 		}
 		
-		//
+		//获取老师权限列表
+		@RequestMapping("teacherPermission")
+		@ResponseBody
+		public Map<String,Object> teacherPermission(){
+			Map<String, Object> map = smallcontrolService.teacherPermission();
+			return map;
+		}
 		//修改老师信息
 		@RequestMapping("updateTeacher")
 		@ResponseBody
 		public synchronized Map<String, Object> updateTeacher(String token,Integer sex,Integer age,String education,String certificate,String chinese,
-				Integer classId,String phoneNumber,String workerName,Integer workerId,String jobcall){
-			Map<String, Object> map = smallcontrolService.updateTeacher(token, sex, age, education, certificate, chinese, classId, phoneNumber, workerName, workerId,jobcall);
+				Integer classId,String phoneNumber,String workerName,Integer workerId,String jobcall,String permission){
+			Map<String, Object> map = smallcontrolService.updateTeacher(token, sex, age, education, certificate, chinese, classId, phoneNumber, workerName, workerId,jobcall,permission);
 			return map;
 			
 		}
@@ -309,8 +322,8 @@ public class SmallcontrolController {
 		@RequestMapping("addTeacher")
 		@ResponseBody
 		public synchronized Map<String,Object> addTeacher(String token,String teacherName,Integer sex,Integer age,String phoneNumber,Integer classId,String education,
-				String certificate,String chinese,String jobCall) throws ParseException, IOException{
-			Map<String, Object> map = smallcontrolService.addTeacher(token, teacherName, sex, age, phoneNumber, classId, education, certificate, chinese, jobCall);
+				String certificate,String chinese,String jobCall,String permission) throws ParseException, IOException{
+			Map<String, Object> map = smallcontrolService.addTeacher(token, teacherName, sex, age, phoneNumber, classId, education, certificate, chinese, jobCall,permission);
 			return map;
 			
 		}
@@ -368,13 +381,13 @@ public class SmallcontrolController {
 			return map;
 		}
 		
-		//消息历史
+		/*//消息历史
 		@RequestMapping("notifyHistory")
 		@ResponseBody
 		public Map<String,Object> notifyHistory(String token,String job,Long startTime,Long endTime,Integer pageNo){
 			Map<String, Object> map = smallcontrolService.notifyHistory(token, job, startTime, endTime,pageNo);
 			return map;
-		}
+		}*/
 		
 		//删除食谱
 		@RequestMapping("deleteRecipe")
@@ -425,13 +438,13 @@ public class SmallcontrolController {
 	   		return null;
 	   	}
 	   	
-	   	//test
+	   	/*//test
 	   	@RequestMapping("strTest")
 	   	@ResponseBody
 	   	public Map<String,Object> strTest(String str) throws ParseException{
 	   		MyUtil.addIgnoreYear(100);
 	   		return null;
-	   	}
+	   	}*/
 	   	
 	   	@RequestMapping("messagelog")//消息历史
 		public  @ResponseBody Map<String,Object> messagelog(String token,Long start,Long end,Integer pageNo) throws ParseException, APIConnectionException, APIRequestException {
@@ -439,4 +452,27 @@ public class SmallcontrolController {
 			return map;
 		}
 
+	   	//老师短信申请列表
+	   	@RequestMapping("teacherMessage")
+	   	@ResponseBody
+	   	public synchronized Map<String,Object> teacherMessage(String token,Long startTime , Long endTime,Integer pageNo,Integer state){
+	   		Map<String, Object> map = smallcontrolService.teacherMessage(token, startTime, endTime, pageNo,state);
+	   		return map;
+	   	}
+	   	
+	   	//同意老师短信群发申请
+	   	@RequestMapping("agreeMessage")
+	   	@ResponseBody
+	   	public synchronized Map<String,Object> agreeMessage(String token,Integer messageId){
+	   		Map<String, Object> map = smallcontrolService.agreeMessage(token, messageId);
+	   		return map;
+	   	}
+	   	
+	   	//访问视频，考勤次数统计
+	   	@RequestMapping("VisitCount")
+	   	@ResponseBody
+	   	public synchronized Map<String,Object> VisitCount(String token){
+	   		Map<String, Object> map = smallcontrolService.VisitCount(token);
+	   		return map;
+	   	}
 }

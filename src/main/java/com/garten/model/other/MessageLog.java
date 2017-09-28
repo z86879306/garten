@@ -13,8 +13,9 @@ public class MessageLog {
 	private String title;
 	private String toGartenName;
 	private String fromGartenName;
-	
-	
+	private Integer fromId;
+	private String fromJob;
+	private String toclass;
 	
 	public String getFromGartenName() {
 		return fromGartenName;
@@ -30,8 +31,16 @@ public class MessageLog {
 	}
 	
 	
+	public String getToclass() {
+		return toclass;
+	}
+	public void setToclass(String toclass) {
+		this.toclass = toclass;
+	}
+	
 	public MessageLog(Long registTime, String targetName, String message, Integer messageId, String fromName,
-			Integer gartenId, String title, String toGartenName, String fromGartenName) {
+			Integer gartenId, String title, String toGartenName, String fromGartenName, Integer fromId, String fromJob,
+			String toclass) {
 		super();
 		this.registTime = registTime;
 		this.targetName = targetName;
@@ -42,30 +51,26 @@ public class MessageLog {
 		this.title = title;
 		this.toGartenName = toGartenName;
 		this.fromGartenName = fromGartenName;
+		this.fromId = fromId;
+		this.fromJob = fromJob;
+		this.toclass = toclass;
 	}
-	public MessageLog(Long registTime, String targetName, String message, Integer messageId, String fromName,
-			Integer gartenId, String title, String toGartenName) {
-		super();
-		this.registTime = registTime;
-		this.targetName = targetName;
-		this.message = message;
-		this.messageId = messageId;
-		this.fromName = fromName;
-		this.gartenId = gartenId;
-		this.title = title;
-		this.toGartenName = toGartenName;
+	
+	public Integer getFromId() {
+		return fromId;
 	}
-	public MessageLog(Long registTime, String targetName, String message, Integer messageId, String fromName,
-			Integer gartenId, String title) {
-		super();
-		this.registTime = registTime;
-		this.targetName = targetName;
-		this.message = message;
-		this.messageId = messageId;
-		this.fromName = fromName;
-		this.gartenId = gartenId;
-		this.title = title;
+	public void setFromId(Integer fromId) {
+		this.fromId = fromId;
 	}
+	public String getFromJob() {
+		return fromJob;
+	}
+	public void setFromJob(String fromJob) {
+		this.fromJob = fromJob;
+	}
+	
+	
+	
 	public String getTitle() {
 		return title;
 	}

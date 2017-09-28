@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,13 +40,9 @@ public class Test {
 	
 	public static void main(String[] args) throws ParseException, UnsupportedEncodingException, APIConnectionException, APIRequestException {
 
-		/*List<List<String>> fatherList = new LinkedList<>();
-		List<String> childList = new ArrayList<>();
-		childList.add("before add child List");
-		fatherList.add(childList);
-		System.out.println(fatherList.toString());
-		childList.add("after add child List");
-		System.out.println(fatherList.toString());*/
+		t11111(null, null);
+		
+		
 	}
 	public static String test1(){
 		Long lon=57600l;
@@ -63,7 +60,9 @@ public class Test {
 
 		
 	}
-	
+	public static void t11111(String str1 ,String str2){
+		System.out.println(str1+str2);
+	}
 
 	private static int test3(String chineseNumber){
         int result = 0;

@@ -13,6 +13,7 @@ import com.garten.model.activity.ActivityLog;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
+import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.garten.GartenLesson;
 import com.garten.model.garten.GartenPhotos;
@@ -24,11 +25,14 @@ import com.garten.model.other.CheckNumber;
 import com.garten.model.other.Comment;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.MessageLog;
+import com.garten.model.other.TPermission;
 import com.garten.model.other.Version;
+import com.garten.model.other.VisitCount;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerCheckLog;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.model.worker.WorkerLeaveLog;
+import com.garten.model.worker.WorkerMessageLog;
 import com.garten.vo.baby.BabyLeaveLogAll;
 import com.garten.vo.baby.BabyMessageAndParent;
 import com.garten.vo.baby.UnusualAll;
@@ -51,6 +55,7 @@ import com.garten.vo.teacher.GartenStartEnd;
 import com.garten.vo.teacher.Shouye;
 import com.garten.vo.teacher.WorkerInfoShort;
 import com.garten.vo.teacher.WorkerLeaveLogPrin;
+import com.garten.vo.teacher.WorkerNameMessage;
 
 public interface SmallcontrolDao {
 
@@ -104,7 +109,7 @@ public interface SmallcontrolDao {
 	 * 8.19 交接
 	 */
 	void updateTeacher(@Param("sex")Integer sex, @Param("age")Integer age,@Param("education") String education, @Param("certificate")String certificate,@Param("chinese") String chinese,@Param("classId") Integer classId,
-			@Param("phoneNumber")String phoneNumber, @Param("workerName")String workerName,@Param("workerId") Integer workerId,@Param("jobcall")String jobcall);
+			@Param("phoneNumber")String phoneNumber, @Param("workerName")String workerName,@Param("workerId") Integer workerId,@Param("jobcall")String jobcall,@Param("permission")String permission);
 
 	void updateRebootFlag(Integer gartenId);
 
@@ -134,7 +139,7 @@ public interface SmallcontrolDao {
 
 	void addWorkerTeacher(@Param("gartenId")Integer gartenId,@Param("jobId") Integer jobId,@Param("pwd") String pwd, @Param("workerName")String workerName,@Param("phoneNumber") String phoneNumber,
 			@Param("sex")Integer sex, @Param("age")Integer age, @Param("education")String education, @Param("certificate")String certificate, @Param("chinese")String chinese,@Param("job") String job,
-			@Param("jobCall")String jobCall, @Param("classId")Integer classId);
+			@Param("jobCall")String jobCall, @Param("classId")Integer classId,@Param("permission")String permission);
 
 	Integer[] getTeacherByClassId(Integer classId);
 
@@ -228,5 +233,15 @@ public interface SmallcontrolDao {
 	void insertMessageLog(MessageLog ml);
 	
 	List<MessageLog> findMessageLog(Map<String, Object> param);
+
+	List<VisitCount> findVisitCount(Map<String, Object> params);
+
+	List<TPermission> findTeacherPermisson();
+
+	List<WorkerNameMessage> findWorkerApplyMessage(Map<String, Object> params);
+
+	GartenClass findClassByTeacher(Integer workerId);
+
+	void updateTeacherMessageState(Integer messageId);
 
 }

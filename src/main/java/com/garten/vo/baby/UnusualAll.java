@@ -15,7 +15,7 @@ public class UnusualAll {
 	private Integer jobId;
 	private Integer gartenId;
 	private Integer state;
-	private Integer fileId;
+	private String fileId;
 	private String cardNo;
 	private Integer unusualId;
 	private Long time;
@@ -35,7 +35,7 @@ public class UnusualAll {
 		// TODO Auto-generated constructor stub
 	}
 	public UnusualAll(Long unusualTime, Integer unusualType, String unusualImg, Integer jobId, Integer gartenId,
-			Integer state, Integer fileId, String cardNo, Integer unusualId, Long time, String job, String jobName,
+			Integer state, String fileId, String cardNo, Integer unusualId, Long time, String job, String jobName,
 			String jobHead) {
 		super();
 		this.unusualTime = unusualTime;
@@ -88,10 +88,10 @@ public class UnusualAll {
 	public void setState(Integer state) {
 		this.state = state;
 	}
-	public Integer getFileId() {
+	public String getFileId() {
 		return fileId;
 	}
-	public void setFileId(Integer fileId) {
+	public void setFileId(String fileId) {
 		this.fileId = fileId;
 	}
 	public String getCardNo() {

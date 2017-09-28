@@ -22,36 +22,21 @@ public class WorkerInfo {
 	private String headImg;
 	private Long registTime;
 	private String jobcall;
+	private String permission;
 	
+	public String getPermission() {
+		return permission;
+	}
+	public void setPermission(String permission) {
+		this.permission = permission;
+	}
 	public String getJobcall() {
 		return jobcall;
 	}
 	public void setJobcall(String jobcall) {
 		this.jobcall = jobcall;
 	}
-	public WorkerInfo(Integer gartenId, Integer workerId, String pwd, String workerName, String phoneNumber,
-			Integer sex, Integer age, Integer classId, String education, String certificate, String chinese, String job,
-			Integer flowers, String token, Long tokenTime, String headImg, Long registTime, String jobcall) {
-		super();
-		this.gartenId = gartenId;
-		this.workerId = workerId;
-		this.pwd = pwd;
-		this.workerName = workerName;
-		this.phoneNumber = phoneNumber;
-		this.sex = sex;
-		this.age = age;
-		this.classId = classId;
-		this.education = education;
-		this.certificate = certificate;
-		this.chinese = chinese;
-		this.job = job;
-		this.flowers = flowers;
-		this.token = token;
-		this.tokenTime = tokenTime;
-		this.headImg = headImg;
-		this.registTime = registTime;
-		this.jobcall = jobcall;
-	}
+	
 	@Override
 	public String toString() {
 		return "WorkerInfo [gartenId=" + gartenId + ", workerId=" + workerId + ", pwd=" + pwd + ", workerName="
@@ -64,9 +49,11 @@ public class WorkerInfo {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
 	public WorkerInfo(Integer gartenId, Integer workerId, String pwd, String workerName, String phoneNumber,
 			Integer sex, Integer age, Integer classId, String education, String certificate, String chinese, String job,
-			Integer flowers, String token, Long tokenTime, String headImg, Long registTime) {
+			Integer flowers, String token, Long tokenTime, String headImg, Long registTime, String jobcall,
+			String permission) {
 		super();
 		this.gartenId = gartenId;
 		this.workerId = workerId;
@@ -85,6 +72,8 @@ public class WorkerInfo {
 		this.tokenTime = tokenTime;
 		this.headImg = headImg;
 		this.registTime = registTime;
+		this.jobcall = jobcall;
+		this.permission = permission;
 	}
 	public Integer getGartenId() {
 		return gartenId;

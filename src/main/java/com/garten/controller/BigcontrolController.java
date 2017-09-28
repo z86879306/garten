@@ -8,6 +8,8 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,6 +24,7 @@ import com.garten.service.BigcontrolService;
 
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
+import io.netty.handler.codec.http.HttpResponse;
 
 @Controller
 @RequestMapping("bigcontrol")
@@ -285,6 +288,13 @@ public class BigcontrolController {
 				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type) throws ParseException, APIConnectionException, APIRequestException {
 			Map<String,Object> map=bigcontrolService.order(  token,pageNo, province, city, countries, gartenId, state, name, phoneNumber, type);
 			return map;
+		}
+		@RequestMapping("exporeOrder")
+		@ResponseBody
+		public synchronized Map<String,Object> exporeOrder(String token,String province,String city,String countries
+				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,HttpServletResponse response){
+			bigcontrolService.exporeOrder(token, province, city, countries, gartenId, state, name, phoneNumber, type, response);
+			return null;
 		}
 		
 		@RequestMapping("feedback")//查看反馈

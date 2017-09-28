@@ -137,4 +137,5 @@ public interface WorkerDao {
 	public void insertActivity(Map<String, Object> param);
 	public void updateIntroduce(Map<String, Object> param);
 	public void updateWorkerPhoneNumber(Map<String, Object> params);
+	
 }

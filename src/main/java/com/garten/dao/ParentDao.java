@@ -25,6 +25,7 @@ import com.garten.model.other.Feedback;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.Order;
 import com.garten.model.other.Version;
+import com.garten.model.other.VisitCount;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerCheckLog;
 import com.garten.model.worker.WorkerInfo;
@@ -170,10 +171,10 @@ public interface ParentDao {
 	void createFeadbackByToken(Map<String, Object> param);
 
 
-	List<GartenPhotos> findParentPhotoByToken(Integer babyId);
+	List<GartenPhotos> findParentPhotoByToken(@Param("babyId")Integer babyId, @Param("gartenId")Integer gartenId);
 
 
-	List<GartenPhotos> findWorkerPhotoByToken(Integer babyId);
+	List<GartenPhotos> findWorkerPhotoByToken(@Param("babyId")Integer babyId, @Param("gartenId")Integer gartenId);
 
 
 	void createPhoto(Map<String, Object> param);
@@ -260,5 +261,14 @@ public interface ParentDao {
 	void updateHonghua();
 
 	List<ParentInfo> getminorParent(Map<String, Object> param);
+
+
+	VisitCount findVisitCount(Map<String, Object> param);
+
+
+	void addVisitCount(Map<String, Object> params);
+
+
+	void updateVisitCount(Map<String, Object> params);
 
 }

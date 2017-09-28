@@ -266,6 +266,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			gp.job = '家长'
 			and b.babyId=#{babyId}
 			AND FIND_IN_SET(b.babyId, p.babyId)
+			and gp.gartenId=#{gartenId}
 			and gp.isValid=0 and  b.isValid=0 and p.isValid=0
 			group by gp.infoId 
 	</select>
@@ -274,7 +275,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	select * from garten_photos p
 		join worker＿info w on w.gartenId=p.gartenId join baby_info b on  FIND_IN_SET(w.workerId,b.teacherId)
 		where p.job in('老师','园长','职工') and b.babyId=#{babyId}
-		and p.isValid=0 and w.isValid=0
+		and p.isValid=0 and w.isValid=0 and w.gartenId=#{gartenId}
 		GROUP BY p.infoId 
 	</select>
 	
@@ -607,5 +608,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		FIND_IN_SET(#{babyId}, p.babyId)
 		and p.isValid=0
 	</select>
-	
+	<select id="findVisitCount" resultType="VisitCount">
+		select * from visit_count
+		where gartenId=#{gartenId}
+		and type=#{type} 
+		and gmt_create=FROM_UNIXTIME(#{time},  '%Y-%m-%d %H:%i:%s')
+	</select>
+	<insert id="addVisitCount">
+		insert into visit_count(gmt_create,gmt_modified,count,type,gartenId)
+		values(FROM_UNIXTIME(#{time},  '%Y-%m-%d %H:%i:%s'),now(),1,#{type},#{gartenId})
+	</insert>
+	<update id="updateVisitCount">
+		update visit_count
+		set
+		gmt_modified=now(),count=count+1
+		where type=#{type}
+		and gartenId=gartenId
+		and gmt_create=FROM_UNIXTIME(#{time},  '%Y-%m-%d %H:%i:%s')
+	</update>
 </mapper> 

@@ -26,21 +26,24 @@ public class WorkerMessage   extends WorkerInfo{
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public WorkerMessage(Integer gartenId, Integer workerId, String pwd, String workerName, String phoneNumber,
+	/*public WorkerMessage(Integer gartenId, Integer workerId, String pwd, String workerName, String phoneNumber,
 			Integer sex, Integer age, Integer classId, String education, String certificate, String chinese, String job,
 			Integer flowers, String token, Long tokenTime, String headImg, Long registTime, String jobcall) {
 		super(gartenId, workerId, pwd, workerName, phoneNumber, sex, age, classId, education, certificate, chinese, job,
 				flowers, token, tokenTime, headImg, registTime, jobcall);
 		// TODO Auto-generated constructor stub
-	}
+	}*/
+	
+	
 	public WorkerMessage(Integer gartenId, Integer workerId, String pwd, String workerName, String phoneNumber,
 			Integer sex, Integer age, Integer classId, String education, String certificate, String chinese, String job,
-			Integer flowers, String token, Long tokenTime, String headImg, Long registTime) {
+			Integer flowers, String token, Long tokenTime, String headImg, Long registTime, String jobcall,
+			String permission) {
 		super(gartenId, workerId, pwd, workerName, phoneNumber, sex, age, classId, education, certificate, chinese, job,
-				flowers, token, tokenTime, headImg, registTime);
+				flowers, token, tokenTime, headImg, registTime, jobcall, permission);
 		// TODO Auto-generated constructor stub
 	}
-	public WorkerMessage(Integer gartenId, Integer workerId, String pwd, String workerName, String phoneNumber,
+	/*public WorkerMessage(Integer gartenId, Integer workerId, String pwd, String workerName, String phoneNumber,
 			Integer sex, Integer age, Integer classId, String education, String certificate, String chinese, String job,
 			Integer flowers, String token, Long tokenTime, String headImg, Long registTime, String jobcall,
 			String leadClass, String leadGrade, String education2, String province, String city, String countries,
@@ -54,7 +57,7 @@ public class WorkerMessage   extends WorkerInfo{
 		this.city = city;
 		this.countries = countries;
 		this.gartenName = gartenName;
-	}
+	}*/
 	public String getLeadClass() {
 		return leadClass;
 	}

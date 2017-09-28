@@ -82,14 +82,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="findLesson"  resultType="GartenLessonDetail">
 		select * from garten_lesson l 
 		left join garten_class gc on gc.classId=l.classId
-		where gc.classId=#{classId}
-		and l.isValid=0 and gc.isValid=0
+		where 
+		l.isValid=0 and gc.isValid=0
 		and #{time} =UNIX_TIMESTAMP(time) 
+		<if test=" classId!=null and classId!='' ">
+			and gc.classId=#{classId}
+		</if>
 		group by lessonId
 		ORDER BY startTime
 	</select>
 	
-	
+
 	
 	<select id="findParentInfoCharge"  resultType="ParentInfoCharge">
 		SELECT
@@ -253,7 +256,8 @@ gartenId=1
 		update worker＿info set
 		sex=#{sex}, age=#{age}, education=#{education}, 
 		certificate=#{certificate},chinese=#{chinese},
-		classId=#{classId}, phoneNumber=#{phoneNumber},workerName=#{workerName},jobcall=#{jobcall}
+		classId=#{classId}, phoneNumber=#{phoneNumber},workerName=#{workerName},
+		jobcall=#{jobcall},permission=#{permission}
 		where
 		workerId=#{workerId}
 		and isValid=0
@@ -374,32 +378,71 @@ gartenId=1
 		insert into attendance_no(job,registTime,gartenId) 
 		values(#{job},now(),#{gartenId})
 	</insert>
-	<insert id="addWorkerTeacher">
+<!-- 	<insert id="addWorkerTeacher">
 		insert into worker＿info(gartenId,workerId,pwd,workerName,
 			phoneNumber,sex,age,education,certificate,
 			chinese,job,jobCall,registTime,classId)
 		values(#{gartenId},#{jobId},#{pwd},#{workerName},#{phoneNumber},
 			#{sex},#{age},#{education},#{certificate},#{chinese},#{job},#{jobCall},now(),#{classId})
+	</insert> -->
+	<insert id="addWorkerTeacher">
+		insert into worker＿info 
+		<set>
+			<if test=" sex!=null and sex!='' ">sex=#{sex},</if>
+			<if test=" age!=null and age!='' ">age=#{age},</if>
+			<if test=" education!=null and education!='' ">education=#{education},</if>
+			<if test=" certificate!=null and certificate!='' ">certificate=#{certificate},</if>
+			<if test=" chinese!=null and chinese!='' ">chinese=#{chinese},</if>
+			<if test=" jobCall!=null and jobCall!='' ">jobCall=#{jobCall},</if>
+			<if test=" permission!=null and permission!='' ">permission=#{permission},</if>
+			gartenId=#{gartenId},workerId=#{jobId},pwd=#{pwd},workerName=#{workerName},
+			phoneNumber=#{phoneNumber},job=#{job},registTime=now(),classId=#{classId}
+		</set>
 	</insert>
+	
 	<select id="getTeacherByClassId" resultType="Integer">
 		select workerId from worker＿info 
 		where classId=#{classId}
 		and isValid=0 and job='老师'
 	</select>
-	<insert id="addBaby">
+<!-- 	<insert id="addBaby">
 		insert into baby_info(gartenId,babyName,birthday,height,health,
 				hobby,specialty,teacherId,allergy,parentRelation,weight,sex,babyId,registTime,parentId,cardId)
 		values(#{gartenId},#{babyName},FROM_UNIXTIME(#{birthday},'%Y-%m-%d %H:%i:%s'),#{height},#{health},#{hobby},
 				#{specialty},#{teachers},#{allergy},#{identity},#{weight},#{sex},#{babyId},now(),#{parentId},#{cardId})
+	</insert> -->
+	<insert id="addBaby">
+		insert into baby_info
+		<set>
+			<if test=" birthday!=null and birthday!='' ">birthday=FROM_UNIXTIME(#{birthday},'%Y-%m-%d %H:%i:%s'),</if>
+			<if test=" height!=null and height!='' ">height=#{height},</if>
+			<if test=" health and health'' ">health=#{health},</if>
+			<if test=" hobby!=null and hobby!='' ">hobby=#{hobby},</if>
+			<if test=" specialty!=null and specialty!='' ">specialty=#{specialty},</if>
+			<if test=" allergy!=null and allergy!='' ">allergy=#{allergy},</if>
+			<if test=" weight!=null and weight!='' ">weight=#{weight},</if>
+			<if test=" sex!=null and sex!='' ">sex=#{sex},</if>
+			<if test=" cardId!=null and cardId!='' ">cardId=#{cardId},</if>
+			gartenId=#{gartenId},babyName=#{babyName},teacherId=#{teacherId},parentRelation=#{identity},
+			babyId=#{babyId},registTime=now(),parentId=#{parentId}
+		</set>
 	</insert>
-	
-	  <insert id="addParent" >
+	<!--   <insert id="addParent" >
 		insert into parent_info(babyId,identity,parentName,
 			phoneNumber,address,pwd,registTime,gartenId,monitorTime,attendanceTime)
 		values(#{babyId},#{identity},#{parentName},#{phoneNumber},
 			#{address},#{pwd},now(),#{gartenId},#{monitorTime},#{attendanceTime})	
+	</insert> -->
+	<insert id="addParent">
+		insert into parent_info
+		set 
+		babyId=#{babyId},identity=#{identity},parentName=#{parentName},
+		phoneNumber=#{phoneNumber},pwd=#{pwd},registTime=now(),gartenId=#{gartenId},
+		monitorTime=#{monitorTime},attendanceTime=#{attendanceTime}
+		<if test="address!=null and address!='' ">
+		,address=#{address}
+		</if>
 	</insert>
-	
 	<select id="findParentByPhone" resultType="ParentInfo">
 		select * from parent_info
 		where phoneNumber=#{phoneNumber} and isValid=0
@@ -625,7 +668,9 @@ gartenId=1
 		gartenId=#{gartenId},
 		title=#{title},
 		toGartenName=#{toGartenName},
-		fromGartenName=#{fromGartenName}
+		fromGartenName=#{fromGartenName},
+		fromId=#{fromId},
+		fromJob=#{fromJob}
 	</insert>
 	<select id="findMessageLog"  resultType="MessageLog">
 		SELECT * FROM message_log  m
@@ -637,5 +682,34 @@ gartenId=1
 				and m.gartenId=#{gartenId} 
 			</if>
 	</select>
-	
+	<select id="findVisitCount" resultType="VisitCount">
+		select  * from visit_count
+		where gartenId=#{gartenId}
+		and gmt_create=FROM_UNIXTIME(#{time},  '%Y-%m-%d %H:%i:%s') 
+	</select>
+	<select id="findTeacherPermisson" resultType="TPermission">
+		select * from t_permission
+	</select>
+	<select id="findWorkerApplyMessage" resultType="WorkerNameMessage">
+		select * from worker_message_log wm, worker＿info w
+		where wm.gartenId=#{gartenId} 
+		and unix_timestamp(wm.registTime) > #{startTime}
+		and #{endTime} > unix_timestamp(wm.registTime)
+		and wm.workerId=w.workerId
+		and wm.isValid=0 and w.isValid=0
+		<if test=" state!=null and state!='' ">
+			and wm.state=#{state}
+		</if>
+	</select>
+	<select id="findClassByTeacher" resultType="GartenClass">
+		select * from garten_class gc ,worker＿info w
+		where gc.classId=w.classId
+		and w.workerId=#{workerId}
+		and w.isValid=0 and gc.isValid=0
+	</select>
+	<update id="updateTeacherMessageState">
+		update worker_message_log
+		set state=2
+		where messageId=#{messageId}
+	</update>
 </mapper> 
