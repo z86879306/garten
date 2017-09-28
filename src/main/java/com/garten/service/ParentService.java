@@ -591,7 +591,7 @@ public class ParentService {
 			//请求一次接口 访问次数加一
 			long current = System.currentTimeMillis();
             long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
-			Map<String, Object> params = MyUtil.putMapParams("gartenId",baby.getGartenId(),"type",2,"time",zero);
+			Map<String, Object> params = MyUtil.putMapParams("gartenId",baby.getGartenId(),"type",2,"time",zero/1000);
             VisitCount visitCount = parentDao.findVisitCount(params);
 			if(null==visitCount){
 				parentDao.addVisitCount(params);

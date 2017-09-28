@@ -125,6 +125,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="	leadClass!=null and leadClass!=''" >
 				and c.leadClass=#{leadClass}
 			</if>
+		and b.gartenId=#{gartenId}
 		AND b.isValid = 0
 		AND p.isValid = 0
 		AND w.isValid = 0

@@ -39,6 +39,8 @@ public class AttendanceService {
 
 	@Autowired
 	private AttendanceDao attendanceDao;
+	@Autowired
+	private BigcontrolService bigcontrolService;
 	
 	public Map<String,Object> getPartnerToken(String partnerId,String tms,String md5tms, String macId){
 		HashMap<String, Object> result = new HashMap<String,Object>();
@@ -198,14 +200,13 @@ public class AttendanceService {
 //		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH");
 		SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy-MM-dd");
 			//身份完整
-		result.put("respCode", 0);
-		result.put("respDesc", "请求成功");
 			try {
 				//获取学校 签到 签退  时间
 				Map<String, Object> map = attendanceDao.findArriveLeaveTimeByToken(schoolToken);
 				String arriveEndTime = sdf3.format(new Date())+" "+(String) map.get("arriveEndTime");
 				String leaveStartTime = sdf3.format(new Date())+" "+(String) map.get("leaveStartTime");
 				List<String> ignoreList = attendanceDao.findIgnoreTimeByGartenToken(schoolToken);
+				String content =null;
 				for(BabyAttendanceInfo bai :attendanceInfoList){
 					//遍历忽略打卡表，当天打卡在忽略时间段内  return 返回
 					for(String ignorTime : ignoreList){
@@ -215,11 +216,6 @@ public class AttendanceService {
 						}
 					}
 					String imgUrl = MyParamAll.MYOSS_ADDRESS+bai.getFileId();
-					//判断是否新增宝宝第一次打卡,不存在 更新卡号
-					/*String cardNo = attendanceDao.findCardIsExist(bai.getBabyId());
-					if(cardNo==null){
-						attendanceDao.updateCardNoById(bai.getBabyId(),bai.getCardNo());
-					}*/
 					//先全部在打卡表记录
 					String job = attendanceDao.findJobById(bai.getBabyId());
 					attendanceDao.addAttendanceLog(bai.getBabyId(),bai.getCardNo(),sdf.format(new Date(bai.getExamDate())),sdf3.format(new Date(bai.getAttendanceDate())),bai.getFileId(),bai.getMacId(),gartenInfo.getGartenId(),job,imgUrl);
@@ -240,34 +236,98 @@ public class AttendanceService {
 								Map<String, Object> param = attendanceDao.findNameAndParentAndTeachersByBabyId(bai.getBabyId());
 								//添加主监护人通知记录
 								attendanceDao.addInfoLog(gartenInfo.getGartenId(),"迟到",sdf.format(new Date(bai.getExamDate())),"家长",(Integer)param.get("parentId"),(String)param.get("babyName"));
-//								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
-//								LyUtils.pushToOne("918603c692dec8d44b755f3c", "9c339347449b568c197f1744", "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"迟到", parentPhone);
+								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
+								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"迟到";
+								try {
+									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 								//添加老师通知记录
 								String teacherIds =(String)param.get("teacherId");
 								String[] teacherId = teacherIds.split(",");
+								content = "您的学生"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"迟到";
 								for(String id:teacherId){
 									attendanceDao.addInfoLog(gartenInfo.getGartenId(),"迟到",sdf.format(new Date(bai.getExamDate())),"老师",Integer.valueOf(id),(String)param.get("babyName"));
 									//添加通知的同时推送通知
-//									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
-//									LyUtils.pushToOne("8165ed87a4759bae3c5f13b1", "e1910ba737b3b040d0678362","您的学生"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"迟到", teacherPhone);
+									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
+									try {
+										bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
 								}
+							}else{		//正常签到发送推送
+								Map<String, Object> param = attendanceDao.findNameAndParentAndTeachersByBabyId(bai.getBabyId());
+								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
+								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"入园签到";
+								try {
+									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
 								}
-						}else{
+								String teacherIds =(String)param.get("teacherId");
+								String[] teacherId = teacherIds.split(",");
+								content = "您的学生"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"入园签到";
+								for(String id:teacherId){
+									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
+									try {
+										bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}	
+							}
+						}else{	//下午
 							attendanceDao.updateBabyPmCheckLog(bai.getBabyId(),sdf.format(new Date(bai.getExamDate())),sdf3.format(new Date(bai.getAttendanceDate())),bai.getExamValue(),bai.getFileId(),bai.getMacId(),gartenInfo.getGartenId(),imgUrl);
 							if(leaveflag){
 								attendanceDao.addUnusual(bai.getBabyId(),sdf.format(new Date(bai.getExamDate())),sdf3.format(new Date(bai.getAttendanceDate())),bai.getFileId(),gartenInfo.getGartenId(),0,1,bai.getCardNo(),imgUrl,job);
 								Map<String, Object> param =attendanceDao.findNameAndParentAndTeachersByBabyId(bai.getBabyId());
 								attendanceDao.addInfoLog(gartenInfo.getGartenId(),"早退",sdf.format(new Date(bai.getExamDate())),"家长",(Integer)param.get("parentId"),(String)param.get("babyName"));
-//								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
-//								LyUtils.pushToOne("918603c692dec8d44b755f3c", "9c339347449b568c197f1744", "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"早退", parentPhone);
+								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
+								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"早退";
+								try {
+									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 								//添加老师通知记录
 								String teacherIds =(String)param.get("teacherId");
 								String[] teacherId = teacherIds.split(",");
+								content = "您的学生"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"早退";
 								for(String id:teacherId){
 									attendanceDao.addInfoLog(gartenInfo.getGartenId(),"早退",sdf.format(new Date(bai.getExamDate())),"老师",Integer.valueOf(id),(String)param.get("babyName"));
-//									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
-//									LyUtils.pushToOne("8165ed87a4759bae3c5f13b1","e1910ba737b3b040d0678362","您的学生"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"早退", teacherPhone);
+									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
+									try {
+										bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
 								}
+							}else{		//正常签到
+								Map<String, Object> param = attendanceDao.findNameAndParentAndTeachersByBabyId(bai.getBabyId());
+								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
+								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"离园签退";
+								try {
+									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								String teacherIds =(String)param.get("teacherId");
+								String[] teacherId = teacherIds.split(",");
+								content = "您的学生"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"离园签退";
+								for(String id:teacherId){
+									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
+									try {
+										bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}	
 							}
 						}
 					}else if("老师".equals(job)){	//上传的是老师的考勤信息
@@ -302,6 +362,8 @@ public class AttendanceService {
 						result.put("respDesc", "宝宝或老师卡号错误");
 					}
 				}
+				result.put("respCode", 0);
+				result.put("respDesc", "请求成功");
 			} catch (Exception e) {
 				e.printStackTrace();
 				result.put("respCode", 600004);

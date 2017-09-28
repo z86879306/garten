@@ -33,6 +33,7 @@ gartenId,babyId,arriveTime,arriveImg,leaveTime,leaveImg,temperature,remark,time
 			<if test="	leadClass!=null and leadClass!=''" >
 				and c.leadClass=#{leadClass}
 			</if>
+		and w.gartenId=#{gartenId}
 		AND w.isValid = 0
 		
 	</select>

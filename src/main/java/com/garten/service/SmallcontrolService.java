@@ -1671,7 +1671,7 @@ public class SmallcontrolService {
 			List<WorkerInfo> workers=new ArrayList<WorkerInfo>();//需要发的老师
 			List<ParentInfoCharge> parents=new ArrayList<ParentInfoCharge>();//需要发的家长
 			List<InfoLog> infoLogs=new ArrayList<InfoLog>();
-			Map<String,Object> param=MyUtil.putMapParams("leadClass", leadClass, "leadGrade", leadGrade);
+			Map<String,Object> param=MyUtil.putMapParams("leadClass", leadClass, "leadGrade", leadGrade,"gartenId",workerInfo.getGartenId());
 			if(2==type||0==type){//2给家长发  找个某个班级的宝宝的主要监护人
 				parents=smallcontrolDao.findParentInfoCharge(param);
 			}

@@ -549,7 +549,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		payType=#{payType},
 		monthCount=#{monthCount},
 		relateId=#{relateId},
-        gartenId=#{gartenId}
+        gartenId=#{gartenId},
+        state=#{state}
     </insert>
     
     
