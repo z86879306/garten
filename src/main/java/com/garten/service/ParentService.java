@@ -488,8 +488,9 @@ public class ParentService {
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",parentInfo);
 			if(null!=parentInfo){//验证用户
 				ClassManage baby = parentDao.findBabyById(babyId);
-				List<GartenPhotos> parentPhoto= parentDao.findParentPhotoByToken(babyId,baby.getGartenId());
-				List<GartenPhotos> workerPhoto= parentDao.findWorkerPhotoByToken(babyId,baby.getGartenId());
+				WorkerInfo workerInfo = workerDao.findWorkerInfoById(Integer.valueOf(baby.getTeacherId().split(",")[0]));
+				List<GartenPhotos> parentPhoto= parentDao.findParentPhotoByToken(babyId,baby.getGartenId(),workerInfo.getClassId());
+				List<GartenPhotos> workerPhoto= parentDao.findWorkerPhotoByToken(babyId,baby.getGartenId(),workerInfo.getClassId());
 				parentPhoto.addAll(workerPhoto);
 				MyUtil.putMapParams(result, "state",1,"info",MyPage.listPage(MyUtil.getPhotoFinal(parentPhoto,token,1), pageNo));
 			}

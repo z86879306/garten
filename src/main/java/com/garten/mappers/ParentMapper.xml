@@ -261,11 +261,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<select id="findParentPhotoByToken"  resultType="GartenPhotos">
 		SELECT * FROM
-			garten_photos gp,baby_info b,parent_info p
+			garten_photos gp,baby_info b,parent_info p,worker＿info w
 			WHERE
 			gp.job = '家长'
 			and b.babyId=#{babyId}
 			AND FIND_IN_SET(b.babyId, p.babyId)
+			AND FIND_IN_SET(w.workerId, b.teacherId)
+			and w.classId=#{classId}
 			and gp.gartenId=#{gartenId}
 			and gp.isValid=0 and  b.isValid=0 and p.isValid=0
 			group by gp.infoId 
@@ -275,6 +277,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	select * from garten_photos p
 		join worker＿info w on w.gartenId=p.gartenId join baby_info b on  FIND_IN_SET(w.workerId,b.teacherId)
 		where p.job in('老师','园长','职工') and b.babyId=#{babyId}
+		and w.classId=#{classId}
 		and p.isValid=0 and w.isValid=0 and w.gartenId=#{gartenId}
 		GROUP BY p.infoId 
 	</select>

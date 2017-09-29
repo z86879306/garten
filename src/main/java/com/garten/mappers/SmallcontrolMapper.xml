@@ -417,14 +417,14 @@ gartenId=1
 		<set>
 			<if test=" birthday!=null and birthday!='' ">birthday=FROM_UNIXTIME(#{birthday},'%Y-%m-%d %H:%i:%s'),</if>
 			<if test=" height!=null and height!='' ">height=#{height},</if>
-			<if test=" health and health'' ">health=#{health},</if>
+			<if test=" health!=null and health!='' ">health=#{health},</if>
 			<if test=" hobby!=null and hobby!='' ">hobby=#{hobby},</if>
 			<if test=" specialty!=null and specialty!='' ">specialty=#{specialty},</if>
 			<if test=" allergy!=null and allergy!='' ">allergy=#{allergy},</if>
 			<if test=" weight!=null and weight!='' ">weight=#{weight},</if>
 			<if test=" sex!=null and sex!='' ">sex=#{sex},</if>
 			<if test=" cardId!=null and cardId!='' ">cardId=#{cardId},</if>
-			gartenId=#{gartenId},babyName=#{babyName},teacherId=#{teacherId},parentRelation=#{identity},
+			gartenId=#{gartenId},babyName=#{babyName},teacherId=#{teachers},parentRelation=#{identity},
 			babyId=#{babyId},registTime=now(),parentId=#{parentId}
 		</set>
 	</insert>

@@ -171,10 +171,10 @@ public interface ParentDao {
 	void createFeadbackByToken(Map<String, Object> param);
 
 
-	List<GartenPhotos> findParentPhotoByToken(@Param("babyId")Integer babyId, @Param("gartenId")Integer gartenId);
+	List<GartenPhotos> findParentPhotoByToken(@Param("babyId")Integer babyId, @Param("gartenId")Integer gartenId, @Param("classId")Integer classId);
 
 
-	List<GartenPhotos> findWorkerPhotoByToken(@Param("babyId")Integer babyId, @Param("gartenId")Integer gartenId);
+	List<GartenPhotos> findWorkerPhotoByToken(@Param("babyId")Integer babyId, @Param("gartenId")Integer gartenId, @Param("classId")Integer classId);
 
 
 	void createPhoto(Map<String, Object> param);
