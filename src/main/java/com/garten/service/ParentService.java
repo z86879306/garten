@@ -492,6 +492,16 @@ public class ParentService {
 				List<GartenPhotos> parentPhoto= parentDao.findParentPhotoByToken(babyId,baby.getGartenId(),workerInfo.getClassId());
 				List<GartenPhotos> workerPhoto= parentDao.findWorkerPhotoByToken(babyId,baby.getGartenId(),workerInfo.getClassId());
 				parentPhoto.addAll(workerPhoto);
+				
+				long current = System.currentTimeMillis();
+	            long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
+				Map<String, Object> params = MyUtil.putMapParams("gartenId",baby.getGartenId(),"type",3,"time",zero/1000);
+	            VisitCount visitCount = parentDao.findVisitCount(params);
+				if(null==visitCount){
+					parentDao.addVisitCount(params);
+				}else{
+					parentDao.updateVisitCount(params);
+				}
 				MyUtil.putMapParams(result, "state",1,"info",MyPage.listPage(MyUtil.getPhotoFinal(parentPhoto,token,1), pageNo));
 			}
 			return result;

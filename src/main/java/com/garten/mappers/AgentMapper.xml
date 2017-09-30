@@ -194,5 +194,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where wuliaoId=#{wuliaoId}
 		
 	</update>
-	
+	<select id="findSaleServiceByOne"  resultType="SaleService">
+		SELECT * FROM
+		   sale_service s
+		WHERE
+		title = #{title}
+		and content = #{content}
+		and  saleServiceId > #{saleServiceId}-600000
+	</select>
+	<insert id="addSaleService"  >
+		insert into   sale_service 
+		set title=#{title},
+		agentId=#{agentId},
+		gartenId=#{gartenId},
+		content=#{content},
+		mark=#{mark},
+		saleServiceId=#{saleServiceId}
+	</insert>
 </mapper> 

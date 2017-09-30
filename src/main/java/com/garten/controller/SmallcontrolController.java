@@ -271,8 +271,8 @@ public class SmallcontrolController {
 		//绑定考勤卡
 		@RequestMapping("bindingCard")
 		@ResponseBody
-		public synchronized Map<String,Object> bindingCard(String token,Integer jobId,String cardNo){
-			Map<String, Object> map = smallcontrolService.bindingCard(token, jobId, cardNo);
+		public synchronized Map<String,Object> bindingCard(Integer jobId,String cardNo){
+			Map<String, Object> map = smallcontrolService.bindingCard( jobId, cardNo);
 			return map;
 		}
 		
@@ -280,8 +280,8 @@ public class SmallcontrolController {
 		//解除绑定
 		@RequestMapping("cancelBinding")
 		@ResponseBody
-		public synchronized Map<String,Object> cancelBinding(String token,Integer jobId, String cardNo){
-			Map<String, Object> map = smallcontrolService.cancelBinding(token, jobId, cardNo);
+		public synchronized Map<String,Object> cancelBinding(Integer jobId, String cardNo){
+			Map<String, Object> map = smallcontrolService.cancelBinding( jobId, cardNo);
 			return map;
 		}
 		

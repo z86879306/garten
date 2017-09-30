@@ -98,10 +98,11 @@ gartenId,babyId,arriveTime,arriveImg,leaveTime,leaveImg,temperature,remark,time
 		SELECT * FROM
 			garten_photos gp,worker＿info w,baby_info b,parent_info p
 			WHERE
-			 w.token=#{token}
+			w.token=#{token}
 			AND FIND_IN_SET(w.workerId, b.teacherId)
-			AND FIND_IN_SET(b.babyId, p.babyId)
+			and find_in_set(b.babyId,p.babyId)
 			and gp.job='家长'
+			and gp.gartenId=w.gartenId
 			and gp.isValid=0 and w.isValid=0 and b.isValid=0 and p.isValid=0
 			group by gp.infoId 
 	</select>

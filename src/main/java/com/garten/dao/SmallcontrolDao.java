@@ -244,4 +244,6 @@ public interface SmallcontrolDao {
 
 	void updateTeacherMessageState(Integer messageId);
 
+	AttendanceNo findAttendanceNoById(Integer jobId);
+
 }

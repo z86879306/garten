@@ -11,6 +11,7 @@ import com.garten.model.activity.ActivityDetail;
 import com.garten.model.activity.ActivityLog;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.SaleServiceAll;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
@@ -44,6 +45,7 @@ import com.garten.vo.bigcontrol.LiveCamera;
 import com.garten.vo.bigcontrol.WorkerMessage;
 import com.garten.vo.parent.ParentInfoCharge;
 import com.garten.vo.parent.ParentInfoShort;
+import com.garten.vo.smallcontrol.CardNoDetail;
 import com.garten.vo.smallcontrol.MachineDetail;
 import com.garten.vo.smallcontrol.OrderAll;
 import com.garten.vo.teacher.ActivityDetailAll;
@@ -283,4 +285,19 @@ public interface BigcontrolDao {
 
 	void updateBalance(Map<String, Object> param);
 
+	void updateAgentAuditPhone(@Param("oldPhoneNumber")String oldPhoneNumber, @Param("newPhoneNumber")String NewPhoneNumber);
+
+	List<CardNoDetail> getBabyCardNoList(Map<String, Object> params);
+
+	List<CardNoDetail> getTeacherCardNoList(Map<String, Object> params);
+
+	List<SaleServiceAll> findSaleService(Map<String, Object> param);
+	
+	SaleServiceAll findSaleServiceBySaleServiceId(Long saleServiceId);
+	
+	void replySaleService(Map<String, Object> param);
+
+	void deleteSaleService(Long saleServiceId);
+
+	EquipmentName findEquipmentByName(String equipmentName);
 }

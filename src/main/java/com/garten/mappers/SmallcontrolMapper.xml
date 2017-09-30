@@ -355,6 +355,12 @@ gartenId=1
 		where jobId=#{jobId}
 	</update>
 	
+	<select id="findAttendanceNoById" resultType="AttendanceNo">
+		select * from attendance_no 
+		where 
+		jobId=#{jobId}
+		and isValid =0
+	</select>
 	<update id="cancelBindingNo1">
 		update attendance_no set
 		cardNo1=null

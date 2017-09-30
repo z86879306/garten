@@ -507,6 +507,32 @@ public class BigcontrolController {
 			Map<String, Object> map = bigcontrolService.resolveWuliaoOrder(wuliaoId,state,toPhoneNunmber,remark);
 			return map;
 		}
-
 		
+	//查看幼儿园考勤卡情况
+		@RequestMapping("cardNoList")
+		@ResponseBody
+		public Map<String,Object> cardNoList(String token,String province,String city,String countries,Integer gartenId,Integer pageNo,String job,Integer classId){
+			Map<String, Object> map = bigcontrolService.cardNoList(token, province, city, countries, gartenId, pageNo, job, classId);
+			return map;
+		}
+		
+	//-------------------------------------售后订单--------------------------------------------
+	//查询售后订单
+		@RequestMapping("findSaleService")//state 0未回复1已回复   null全部
+		public  @ResponseBody Map<String,Object> findSaleService(Integer pageNo,Integer[] agentIds,Long start,Long end,Integer state,Integer[] gartenIds) throws ParseException {
+			Map<String, Object> map = bigcontrolService.findSaleService( pageNo, agentIds, start, end,state,gartenIds);
+			return map;
+		}  
+		//回复售后订单
+		@RequestMapping("replySaleService")
+		public  @ResponseBody Map<String,Object> replySaleService(Long saleServiceId,String reply) throws ParseException {
+			Map<String, Object> map = bigcontrolService.replySaleService(saleServiceId,reply);
+			return map;
+		}  
+		//删除售后订单 
+		@RequestMapping("deleteSaleService")
+		public  @ResponseBody Map<String,Object> deleteSaleService(Long saleServiceId) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteSaleService(saleServiceId);
+			return map;
+		}  	
 }

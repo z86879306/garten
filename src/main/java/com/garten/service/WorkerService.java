@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
@@ -45,6 +46,7 @@ import com.garten.model.other.GartenMsg;
 import com.garten.model.other.HXLog;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.Version;
+import com.garten.model.other.VisitCount;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerCheckLog;
 import com.garten.model.worker.WorkerInfo;
@@ -201,6 +203,16 @@ public class WorkerService{
 			List<GartenPhotos> parentPhoto= workerDao.findParentPhotoByToken(MyUtil.putMapParams("token", token));
 			List<GartenPhotos> workerPhoto= workerDao.findWorkerPhotoByToken(MyUtil.putMapParams("token", token));
 			parentPhoto.addAll(workerPhoto);
+			
+			long current = System.currentTimeMillis();
+            long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
+			Map<String, Object> params = MyUtil.putMapParams("gartenId",workerInfo.getGartenId(),"type",3,"time",zero/1000);
+            VisitCount visitCount = parentDao.findVisitCount(params);
+			if(null==visitCount){
+				parentDao.addVisitCount(params);
+			}else{
+				parentDao.updateVisitCount(params);
+			}
 			MyUtil.putMapParams(result, "state",1,"info",MyPage.listPage(MyUtil.getPhotoFinal(parentPhoto,token,0), pageNo),"workerId",workerInfo.getWorkerId());
 		}
 		return result;
@@ -1229,4 +1241,5 @@ public class WorkerService{
 						MyUtil.HttpRequest(MyParamAll.HUANXIN_BASE+MyParamAll.ORG_NAME+"/"+MyParamAll.APP_NAME+"/users/"+username+"/contacts/users/"+otherPerson,Json,authorization);
 					}
 				}
+		
 }

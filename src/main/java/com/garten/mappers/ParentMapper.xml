@@ -627,7 +627,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		set
 		gmt_modified=now(),count=count+1
 		where type=#{type}
-		and gartenId=gartenId
+		and gartenId=#{gartenId}
 		and gmt_create=FROM_UNIXTIME(#{time},  '%Y-%m-%d %H:%i:%s')
 	</update>
 </mapper> 

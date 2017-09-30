@@ -26,6 +26,7 @@ import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.SaleService;
 import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
@@ -84,6 +85,8 @@ public class AgentService {
 	private SmallcontrolDao smallcontrolDao;
 	@Autowired
 	private BigcontrolDao bigcontrolDao;
+	@Autowired
+	private BigcontrolService bigcontrolService;
 	public Map<String, Object> login(String phoneNumber, String pwd) {
 		Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
 		AgentInfo agent=agentDao.findAgentByPwd(param);
@@ -397,7 +400,41 @@ public class AgentService {
 		 return result;
 	}
 
+	//-------------------------------------售后服务-------------------------------------
 	
+		public synchronized Map<String, Object> addSaleService(String token,String title,
+				Integer gartenId,String content,String mark) {
+			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
+			 Map<String,Object> result=MyUtil.putMapParams("state", 0);
+			 if(null!=agentInfo){
+				 Long saleServiceId=System.currentTimeMillis();//生成的那你去按时间的订单编号
+				 MyUtil.putMapParams(result,"state", 4);//请不要重复操作
+				 Map<String,Object> param=MyUtil.putMapParams("saleServiceId",saleServiceId,"agentId",agentInfo.getAgentId(),"title",title,"gartenId",gartenId,"content",content,"mark",mark);
+				 SaleService  ss=agentDao.findSaleServiceByOne(param);//最近有没有提交过相同的订单
+				 if(null==ss){
+					 agentDao.addSaleService(param);
+					 MyUtil.putMapParams(result,"state", 1);
+				 }
+			 }
+			 return result;
+		}
+
+
+	public AgentInfo findAgentByAgentId(Integer agentId) {
+				AgentInfo a=agentDao.findAgentByAgentId(agentId);
+				return a;
+				
+			}
+
+	public Map<String, Object> findSaleService(Integer pageNo, String token, Long start, Long end, Integer state,
+				Integer[] gartenIds) {
+			AgentInfo agentInfo=agentDao.findAgentInfoByToken(token);
+			 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+			 if(null!=agentInfo){
+				 result=bigcontrolService.findSaleService(pageNo, new Integer[] {agentInfo.getAgentId()}, start, end, state, gartenIds);
+			 }
+			return result;
+		}
 	/*public Map<String, Object> findEquipmentNameNoPage() {
 		Map<String,Object> result=MyUtil.putMapParams("state",1,"info",null);
 		List<EquipmentName> en=bigcontrolDao.findEquipmentName();

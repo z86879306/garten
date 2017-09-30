@@ -113,7 +113,8 @@ public class MyParamAll {
 	public static final String YTX_DUANXIN_YZM="105825";
 	//云通讯 差价订单
 	public static final String YTX_DUANXIN_CHAJIA="201219";
-
+	//云通讯 售后回复//datas 1订单号 2 订单标题
+	public static final String YTX_DUANXIN_SHHF="208482";
 
 	/**
 	 * [0]	在MyParamAll中加入环信

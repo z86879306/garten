@@ -25,4 +25,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		select * from worker_message_log
 		where messageId=#{messageId}
 	</select>
+	<select id="findMessageMore" resultType="WorkerNameMessage">
+		select * from worker_message_log
+		where workerId=#{workerId} and isvalid=0
+	</select>
+	
+	<select id="findMostEarlyApply" resultType="Integer">
+		select MIN(messageId) from worker_message_log where isValid=0 and workerId=#{workerId} 
+	</select>
 </mapper>

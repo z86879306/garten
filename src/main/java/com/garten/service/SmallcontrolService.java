@@ -193,7 +193,7 @@ public class SmallcontrolService {
 		 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
 				List<WorkerMessage> workerMessage=bigcontrolDao.findWorkerMessage(MyUtil.putMapParams("name", name , "phoneNumber",phoneNumber,"gartenId", workerInfo.getGartenId()));
-			MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(workerMessage, pageNo));
+			MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(workerMessage, pageNo),"count",workerMessage.size());
 			}
 			
 	return result;
@@ -213,7 +213,7 @@ public class SmallcontrolService {
 		 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
 				List<BabyMessageAndParent> babyMessages=smallcontrolDao.findBabyMessage(MyUtil.putMapParams("name", name ,"gartenId",workerInfo.getGartenId(),"leadGrade",leadGrade,"leadClass",leadClass));
-				MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(babyMessages, pageNo));
+				MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(babyMessages, pageNo),"count",babyMessages.size());
 		}
 			
 	return result;
@@ -282,7 +282,7 @@ public class SmallcontrolService {
 					//添加一个完整的家长宝宝信息
 					parentMessages.add(new ParentMessage(p,classManageBigList));
 				}
-				MyUtil.putMapParams(result,"state", 1,"info",parentMessages, "pageCount",pageCount);
+				MyUtil.putMapParams(result,"state", 1,"info",parentMessages, "pageCount",pageCount,"count",parentMessages.size());
 		}
 			
 	return result;
@@ -600,7 +600,7 @@ public class SmallcontrolService {
 					public int compare(Object o1, Object o2) {
 						OrderAll a1 = (OrderAll)o1;
 						OrderAll a2 = (OrderAll)o2;
-						return a1.getOrderTime().compareTo(a2.getOrderTime());
+						return a2.getOrderTime().compareTo(a1.getOrderTime());
 					}
 				});
 				MyUtil.putMapParams(result, "state",1,"info",MyPage.listPage16(order, pageNo));
@@ -653,10 +653,9 @@ public class SmallcontrolService {
 	}
 	
 	//绑定考勤卡
-	public Map<String,Object> bindingCard(String token,Integer jobId,String cardNo){
+	public Map<String,Object> bindingCard(Integer jobId,String cardNo){
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
-		 if(null!=workerInfo){
+		
 			 CardNoDetail cnd = smallcontrolDao.findJobByCardNo(cardNo);
 			 if(null==cnd){
 				 AttendanceNo attendanceNo = smallcontrolDao.findCardNo(jobId);
@@ -673,19 +672,18 @@ public class SmallcontrolService {
 					 smallcontrolDao.bindingCardNo3(jobId,cardNo);
 					 return MyUtil.putMapParams(result, "state",1);
 				 }
-				 smallcontrolDao.updateRebootFlag(workerInfo.getGartenId());
+				 AttendanceNo no = smallcontrolDao.findAttendanceNoById(jobId);
+				 smallcontrolDao.updateRebootFlag(no.getGartenId());
 			 }else{
 				 MyUtil.putMapParams(result, "state",2);
 			 }
-			 
-		 }
+		 
 		 return result;
 	}
 	
-	public Map<String,Object> cancelBinding(String token,Integer jobId, String cardNo){
+	public Map<String,Object> cancelBinding(Integer jobId, String cardNo){
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
-		 if(null!=workerInfo){
+		
 			 AttendanceNo attendanceNo = smallcontrolDao.findCardNo(jobId);
 			 if(cardNo.equals(attendanceNo.getCardNo1())){
 				 smallcontrolDao.cancelBindingNo1(jobId);
@@ -699,8 +697,9 @@ public class SmallcontrolService {
 				 smallcontrolDao.cancelBindingNo3(jobId);
 				 return MyUtil.putMapParams(result, "state",1);
 			 }
-			 smallcontrolDao.updateRebootFlag(workerInfo.getGartenId());
-		 }
+			 AttendanceNo no = smallcontrolDao.findAttendanceNoById(jobId);
+			 smallcontrolDao.updateRebootFlag(no.getGartenId());
+		 
 		 return result;
 	}
 	
@@ -1716,7 +1715,7 @@ public class SmallcontrolService {
 						public int compare(Object o1, Object o2) {
 							MessageLog m1= (MessageLog)o1;
 							MessageLog m2= (MessageLog)o2;
-							return m1.getRegistTime().compareTo(m2.getRegistTime());	
+							return m2.getRegistTime().compareTo(m1.getRegistTime());	
 						}
 					});
 					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(messagelog, pageNo));

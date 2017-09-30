@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.garten.dao.BigWorkerDao;
+import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.model.worker.WorkerMessageLog;
 import com.garten.util.md5.CryptographyUtil;
 import com.garten.util.myutil.MyUtil;
 import com.garten.util.page.MyPage;
+import com.garten.vo.teacher.WorkerNameMessage;
 
 @Service("bigWorkerService")
 public class BigWorkerService {
@@ -21,6 +23,7 @@ public class BigWorkerService {
 	private WorkerDao workerDao;
 	@Autowired
 	private BigWorkerDao bigWorkerDao;
+	
 	
 	public Map<String,Object> login(String phoneNumber, String pwd){
 		
@@ -39,6 +42,11 @@ public class BigWorkerService {
 		if(null!=workerInfo){	
 			Map<String, Object> params = MyUtil.putMapParams("title", title,"info",info,"workerId",workerInfo.getWorkerId(),"gartenId",workerInfo.getGartenId());
 			bigWorkerDao.addWorkerMessage(params);
+			List<WorkerNameMessage> list = bigWorkerDao.findMessageMore(workerInfo.getWorkerId());
+			if(list.size()>100){		//申请大于一百条  删除最前面一条数据
+				Integer messageId = bigWorkerDao.findMostEarlyApply(workerInfo.getWorkerId());
+				bigWorkerDao.cancelApplyMessage(messageId);
+			}
 			MyUtil.putMapParams(result, "state", 1);
 		}
 		return result;

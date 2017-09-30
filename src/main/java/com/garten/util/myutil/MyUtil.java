@@ -53,6 +53,8 @@ import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.cloopen.rest.sdk.utils.encoder.BASE64Encoder;
+import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.SaleServiceAll;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
 import com.garten.model.garten.GartenCharge;
@@ -66,6 +68,7 @@ import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerCheckLog;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.model.worker.WorkerLeaveLog;
+import com.garten.service.AgentService;
 import com.garten.service.BigcontrolService;
 import com.garten.service.ParentService;
 import com.garten.service.PrincipalService;
@@ -1457,5 +1460,47 @@ public  class MyUtil implements ApplicationContextAware{
 				e.printStackTrace();
 			}
 		}
-	
+	 public static List<SaleServiceAll> setSaleServiceAll(List<SaleServiceAll> ss) {
+			AgentService agentService = (AgentService) MyUtil.getBean("agentService");
+			WorkerService workerService = (WorkerService) MyUtil.getBean("workerService");
+			if(null!=ss){
+				for(SaleServiceAll s:ss){
+					s.getAgentId();
+					AgentInfo agent=agentService.findAgentByAgentId(s.getAgentId());
+					GartenInfo garten=workerService.findGartenInfoById(s.getGartenId());
+					s.setAgent(agent);
+					s.setGarten(garten);
+				}
+			}
+			
+			return ss;
+		}
+		
+		public static SaleServiceAll setSaleServiceAll(SaleServiceAll s) {
+			AgentService agentService = (AgentService) MyUtil.getBean("agentService");
+			WorkerService workerService = (WorkerService) MyUtil.getBean("workerService");
+			if(null!=s){
+					s.getAgentId();
+					AgentInfo agent=agentService.findAgentByAgentId(s.getAgentId());
+					GartenInfo garten=workerService.findGartenInfoById(s.getGartenId());
+					s.setAgent(agent);
+					s.setGarten(garten);
+				
+			}
+			return s;
+		}
+		
+		public static String  changeArrayToString(Integer[] attendanceTime) {
+			String result=null;
+			if(null!=attendanceTime){
+				StringBuffer sb = new StringBuffer();
+				for(int i = 0; i < attendanceTime.length; i++){
+				 sb. append(","+attendanceTime[i]);
+				}
+				 result=sb.toString().substring(1,sb.toString().length());
+			}
+			
+			return result;
+		}
+
 }

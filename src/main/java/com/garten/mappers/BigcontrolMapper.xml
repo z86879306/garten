@@ -1190,6 +1190,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		insert into  equipment_name   set
 		equipmentName=#{equipmentName},   price=#{price}
 	</insert>
+	<select id="findEquipmentByName" resultType="EquipmentName">
+		select * from equipment_name
+		where equipmentName=#{equipmentName}
+	</select>
 	<delete id="deleteEquipmentName"  >
 		delete from   equipment_name   where 
 		equipmentId=#{equipmentId}
@@ -1204,5 +1208,86 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		set  creditMoney=#{balance}
 		where agentId=#{agentId} and isvalid=0
 	</update>
+	<update id="updateAgentAuditPhone">
+		update agent_audit 
+		set
+		phoneNumber=#{newPhoneNumber}
+		where phoneNumber =#{oldPhoneNumber}
+	</update>
+	<select id="getBabyCardNoList" resultType="CardNoDetail">
+		select an.cardNo1,an.cardNo2,an.cardNo3,an.job,an.jobId,b.babyName name
+		from attendance_no an,garten_info g,baby_info b,worker＿info w
+		where
+		an.isValid=0
+		and an.gartenId=g.gartenId
+		and an.job='宝宝' and b.babyId=an.jobId
+		<if test=" province!=null and province!=''">
+			and g.province=#{province}
+		</if>
+		<if test=" city!=null and city!=''">
+			and g.city=#{city}
+		</if>
+		<if test=" countries!=null and countries!=''">
+			and g.countries=#{countries}		
+		</if>
+		<if test=" gartenId!=null and gartenId!=''">
+			and an.gartenId=#{gartenId}
+		</if>
+		<if test=" classId!=null and classId!=''">
+			and w.classId=#{classId}
+			and FIND_IN_SET(w.workerId,b.teacherId)
+		</if>
+		group by an.jobId
+	</select>
+	<select id="getTeacherCardNoList" resultType="CardNoDetail">
+		select an.cardNo1,an.cardNo2,an.cardNo3,an.job,an.jobId,w.workerName name
+		from
+		attendance_no an,worker＿info w,garten_info g
+		where
+		an.gartenId=g.gartenId
+		and an.job='老师' and w.workerId=an.jobId
+		<if test=" province!=null and province!=''">
+			and g.province=#{province}
+		</if>
+		<if test=" city!=null and city!=''">
+			and g.city=#{city}
+		</if>
+		<if test=" countries!=null and countries!=''">
+			and g.countries=#{countries}		
+		</if>
+		<if test=" gartenId!=null and gartenId!=''">
+			and an.gartenId=#{gartenId}
+		</if>
+		<if test=" classId!=null and classId!=''">
+			and w.classId=#{classId}
+		</if>
+		group by an.jobId
+	</select>
+	<select id="findSaleService"  resultType="SaleServiceAll">
+		select *  from sale_service  s where s.saleServiceId>#{start}*1000 
+			and  #{end}*1000+86400000>s.saleServiceId
+			<if test="	agentId!=null and agentId!=''" >
+				and s.agentId in '('+${agentId}+')'
+			</if>
+			<if test="	state!=null and state!='' " >
+				and s.state=state
+			</if>
+			<if test="	gartenId!=null and gartenId!=''" >
+				and s.gartenId in '('+${gartenId}+')'
+			</if>
+			order by s.saleServiceId desc
+	</select>
 	
+	<select id="findSaleServiceBySaleServiceId"  resultType="SaleServiceAll">
+		select *  from sale_service   where saleServiceId=#{saleServiceId} 
+	</select>
+	
+	<update id="replySaleService"  >
+		update    sale_service  set
+		reply=#{reply},replyTime=unix_timestamp(now())*1000
+		where saleServiceId=#{saleServiceId}
+	</update>
+	<delete id="deleteSaleService"  >
+		delete from    sale_service  where saleServiceId=#{saleServiceId}
+	</delete>
 </mapper> 

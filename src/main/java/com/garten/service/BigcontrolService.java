@@ -51,6 +51,7 @@ import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.SaleServiceAll;
 import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.garten.GartenCharge;
@@ -86,6 +87,7 @@ import com.garten.vo.bigcontrol.LiveCamera;
 import com.garten.vo.bigcontrol.ParentMessage;
 import com.garten.vo.bigcontrol.WorkerMessage;
 import com.garten.vo.parent.ParentInfoCharge;
+import com.garten.vo.smallcontrol.CardNoDetail;
 import com.garten.vo.smallcontrol.MachineDetail;
 import com.garten.vo.smallcontrol.OrderAll;
 import com.garten.vo.teacher.BabyCheckLogAll;
@@ -251,7 +253,7 @@ public class BigcontrolService {
 						public int compare(Object o1, Object o2) {
 							AddDetail m1= (AddDetail)o1;
 							AddDetail m2= (AddDetail)o2;
-							return m1.getRegistTime().compareTo(m2.getRegistTime());	
+							return m2.getRegistTime().compareTo(m1.getRegistTime());	
 						}
 					});
 					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(addDetails, pageNo));
@@ -290,7 +292,7 @@ public class BigcontrolService {
 						public int compare(Object o1, Object o2) {
 							AddDetail m1= (AddDetail)o1;
 							AddDetail m2= (AddDetail)o2;
-							return m1.getRegistTime().compareTo(m2.getRegistTime());	
+							return m2.getRegistTime().compareTo(m1.getRegistTime());	
 						}
 					});
 					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(addDetails, pageNo));
@@ -351,7 +353,7 @@ public class BigcontrolService {
 						parentMessages.add(new ParentMessage(p,classManageBigList));
 						
 					}
-					MyUtil.putMapParams(result,"state", 1,"info",parentMessages,"pageCount",pageCount);
+					MyUtil.putMapParams(result,"state", 1,"info",parentMessages,"pageCount",pageCount,"count",parentMessages.size());
 					
 				}
 				//验证码错误返回  验证错误信息
@@ -365,7 +367,7 @@ public class BigcontrolService {
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 				if(null!=workerInfo){
 					List<BabyMessage> babyMessages=bigcontrolDao.findBabyMessage(MyUtil.putMapParams("name", name , "province", province, "city", city, "countries", countries,"gartenId",gartenId,"leadGrade",leadGrade,"leadClass",leadClass));
-					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(babyMessages, pageNo));
+					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(babyMessages, pageNo),"count",babyMessages.size());
 				}
 				//验证码错误返回  验证错误信息
 				return result;
@@ -384,7 +386,7 @@ public class BigcontrolService {
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 				if(null!=workerInfo){
 					List<WorkerMessage> workerMessage=bigcontrolDao.findWorkerMessage(MyUtil.putMapParams("name", name , "province", province, "city", city, "countries", countries,"phoneNumber",phoneNumber,"gartenId", gartenId));
-					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(workerMessage, pageNo));
+					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(workerMessage, pageNo),"count",workerMessage.size());
 				}
 				return result;
 		}
@@ -449,6 +451,7 @@ public class BigcontrolService {
 						if(null!=worker){
 							return MyUtil.putMapParams(result, "state", 2);			//手机号码已经存在
 						}
+						bigcontrolDao.updateAgentAuditPhone(principal.getPhoneNumber(),phoneNumber);	//合同填写号码修改
 						Map<String, Object> params = MyUtil.putMapParams("workerId", principal.getWorkerId(),"phoneNumber", phoneNumber);
 						workerDao.updateWorkerPhoneNumber(params);
 						
@@ -1825,7 +1828,7 @@ public class BigcontrolService {
 							public int compare(Object o1, Object o2) {
 								MessageLog m1= (MessageLog)o1;
 								MessageLog m2= (MessageLog)o2;
-								return m1.getRegistTime().compareTo(m2.getRegistTime());	
+								return m2.getRegistTime().compareTo(m1.getRegistTime());	
 							}
 						});
 						MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(messagelog, pageNo));
@@ -1848,6 +1851,10 @@ public class BigcontrolService {
 
 		public Map<String, Object> addEquipmentName(String equipmentName, BigDecimal price) {
 			Map<String,Object> result=MyUtil.putMapParams("state",1);
+			EquipmentName name = bigcontrolDao.findEquipmentByName(equipmentName);
+			if(null!=name){
+				return MyUtil.putMapParams(result, "state", 2);    		//设备已经添加
+			}
 			bigcontrolDao.addEquipmentName(MyUtil.putMapParams("equipmentName",equipmentName,"price",price));
 			return result;
 		}
@@ -1888,4 +1895,66 @@ public class BigcontrolService {
 			return result;
 		}
 
+		public Map<String,Object> cardNoList(String token,String province,String city,String countries,Integer gartenId,Integer pageNo,String job,Integer classId){
+			WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+			ArrayList<CardNoDetail> list = new ArrayList<CardNoDetail>();	
+			List<CardNoDetail> babyCardNoList=null;
+			List<CardNoDetail> teacherCardNoList = null;
+			if(null!=workerInfo){
+				Map<String, Object> params = MyUtil.putMapParams("province", province, "city", city, "countries", countries, "gartenId", gartenId, "job", job,"classId",classId);
+				if(null!=job){		
+					if("宝宝".equals(job)){
+						babyCardNoList = bigcontrolDao.getBabyCardNoList(params);
+						list.addAll(babyCardNoList);
+					}else if("老师".equals(job)){
+						teacherCardNoList = bigcontrolDao.getTeacherCardNoList(params);
+						list.addAll(teacherCardNoList);
+					}
+				}
+				if(null==job||"".equals(job)){			
+					babyCardNoList = bigcontrolDao.getBabyCardNoList(params);
+					teacherCardNoList = bigcontrolDao.getTeacherCardNoList(params);
+					list.addAll(teacherCardNoList);
+					list.addAll(babyCardNoList);
+					
+				}
+				MyUtil.putMapParams(result, "state", 1, "info", MyPage.listPage16(list, pageNo));
+			}
+			return result;
+		}
+		
+		//-------------------------------------售后订单--------------------------------------------			  
+
+		public Map<String, Object> findSaleService(Integer pageNo,Integer[] agentIds, Long start, Long end, Integer state,Integer[] gartenIds) {
+			String agentId=MyUtil.changeArrayToString(agentIds);
+			String gartenId=MyUtil.changeArrayToString(gartenIds);
+			Map<String,Object> param=MyUtil.putMapParams("agentId",agentId,"start",start,"end",end,"state",state,"gartenId",gartenId);//传递参数
+			List<SaleServiceAll> ss=bigcontrolDao.findSaleService(param);
+			ss=MyUtil.setSaleServiceAll(ss);
+			Map<String,Object> result=MyUtil.putMapParams("state",1,"info",MyPage.listPage16(ss, pageNo));//订单编号错误
+			return result;
+		}
+
+		public Map<String, Object> replySaleService(Long saleServiceId, String reply) {
+			Map<String,Object> result=MyUtil.putMapParams("state",10);//参数错误
+			if(null!=saleServiceId&&null!=reply){
+				SaleServiceAll ss=bigcontrolDao.findSaleServiceBySaleServiceId(saleServiceId);
+				ss=MyUtil.setSaleServiceAll(ss);
+				Map<String,Object> param=MyUtil.putMapParams("saleServiceId",saleServiceId,"reply",reply);//传递参数
+				bigcontrolDao.replySaleService(param);
+				MyUtil.putMapParams(result,"state",1);
+				MyUtil.register(ss.getAgent().getPhoneNumber(), MyParamAll.YTX_DUANXIN_SHHF, new String[] {saleServiceId+"",ss.getTitle()});//datas 1订单号 2 订单标题
+			}
+			return result;
+		}
+
+		public Map<String, Object> deleteSaleService(Long saleServiceId) {
+			Map<String,Object> result=MyUtil.putMapParams("state",10);//参数错误
+			if(null!=saleServiceId){
+				bigcontrolDao.deleteSaleService(saleServiceId);
+				MyUtil.putMapParams(result,"state",1);
+			}
+			return result;
+		}
 }

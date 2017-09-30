@@ -207,6 +207,22 @@ public class AgentController {
 		return map;
 	}
 
+	//查询售后订单
+		@RequestMapping("findSaleService")//state 0未回复1已回复   null全部
+		public  @ResponseBody Map<String,Object> findSaleService(Integer pageNo,String  token,Long start,Long end,Integer state,Integer[] gartenIds) throws ParseException {
+			Map<String, Object> map = agentService.findSaleService( pageNo, token, start, end,state,gartenIds);
+			return map;
+		}  
+
+	//添加自己的售后订单
+		@RequestMapping("addSaleService")//  0   4
+		@ResponseBody
+		public synchronized Map<String,Object> addSaleService(String token,String title,
+				Integer gartenId,String content,String mark){
+			Map<String, Object> map = agentService.addSaleService( token, title, gartenId, content, mark);
+			return map;
+		}
+
 	
 	//获取设备及价格(不分页）
 	/*@RequestMapping("findEquipmentNameNoPage")
