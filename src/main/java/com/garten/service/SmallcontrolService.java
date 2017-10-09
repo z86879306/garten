@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -65,6 +66,7 @@ import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.model.worker.WorkerMessageLog;
 import com.garten.util.LyUtils;
+import com.garten.util.excel.ExcelUtil;
 import com.garten.util.lxcutil.MyParamAll;
 import com.garten.util.lxcutil.MyUtilAll;
 import com.garten.util.md5.CryptographyUtil;
@@ -127,7 +129,7 @@ public class SmallcontrolService {
 		if(null!=worker&&!"".equals(worker)){
 			uuid=smallcontrolDao.findToken(param);
 			String gartenName = smallcontrolDao.getGartenNameById(worker.getGartenId());
-			MyUtil.putMapParams(result,"state", 1, "info", uuid,"gartenName",gartenName);
+			MyUtil.putMapParams(result,"state", 1, "info", uuid,"gartenName",gartenName,"name",worker.getWorkerName());
 		}
 		return result;
 	}
@@ -650,6 +652,41 @@ public class SmallcontrolService {
 			MyUtil.putMapParams(result, "state",1,"info",MyPage.listPage16(list, pageNo));
 		}
 		return result;
+	}
+	
+	public void exporeAttendance(String token , String job,Integer classId,HttpServletResponse response){
+		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+		ArrayList<CardNoDetail> list = new ArrayList<CardNoDetail>();	
+		List<CardNoDetail> babyCardNoList=null;
+		List<CardNoDetail> teacherCardNoList = null;
+		if(null!=workerInfo){
+			if(null!=job){		//根据
+				if("宝宝".equals(job)){
+					babyCardNoList = smallcontrolDao.getBabyCardNoList(workerInfo.getGartenId(),job,classId);
+					list.addAll(babyCardNoList);
+				}else if("老师".equals(job)){
+					teacherCardNoList = smallcontrolDao.getTeacherCardNoList(workerInfo.getGartenId(),job,classId);
+					list.addAll(teacherCardNoList);
+				}
+			}
+			if(null==job||"".equals(job)){			
+				babyCardNoList = smallcontrolDao.getBabyCardNoList(workerInfo.getGartenId(),job,classId);
+				teacherCardNoList = smallcontrolDao.getTeacherCardNoList(workerInfo.getGartenId(),job,classId);
+				list.addAll(teacherCardNoList);
+				list.addAll(babyCardNoList);
+				
+			}
+			try {
+				response.setContentType("application/x-execl");
+				response.setHeader("Content-Disposition", "attachment;filename=" + new String("考勤卡列表.xls".getBytes(), "ISO-8859-1"));
+				ServletOutputStream outputStream = response.getOutputStream();
+				ExcelUtil.exportAttendanceNoExcel(list, outputStream);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 	
 	//绑定考勤卡
@@ -1611,7 +1648,7 @@ public class SmallcontrolService {
 		smallcontrolDao.deleteWorkerCheckLog(workerId); 		//删除老师考勤记录
 		smallcontrolDao.deleteWorkerFlower(workerId);			//删除老师红花数
 		smallcontrolDao.deleteUnusual(workerId);				//删除老师异常考勤记录
-		
+		smallcontrolDao.deleteWorkerPhoto(workerId);			//删除老师朋友圈照片
 	}
 	
 	public void deleteParentById(Integer parentId){

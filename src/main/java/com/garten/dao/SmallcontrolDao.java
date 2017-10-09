@@ -209,6 +209,8 @@ public interface SmallcontrolDao {
 	void deleteGartenPhotos(Integer babyId);
 
 	void deleteUnusual(Integer jobId);
+	
+	void deleteWorkerPhoto(Integer workerId);
 
 	void deleteWorkerFlower(Integer workerId);
 

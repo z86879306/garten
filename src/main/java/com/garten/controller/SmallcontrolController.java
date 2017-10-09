@@ -268,6 +268,13 @@ public class SmallcontrolController {
 			return map;
 		}
 		
+		//导出考勤卡信息
+		@RequestMapping("exporeAttendance")
+		@ResponseBody
+		public Map<String,Object> exporeAttendance(String token , String job,Integer classId,HttpServletResponse response){
+			smallcontrolService.exporeAttendance(token, job, classId, response);
+			return null;
+		}
 		//绑定考勤卡
 		@RequestMapping("bindingCard")
 		@ResponseBody

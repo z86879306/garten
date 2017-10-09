@@ -878,7 +878,6 @@ public class BigcontrolService {
 		public Map<String,Object> exporeOrder(String token,String province,String city,String countries
 				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,HttpServletResponse response){
 			WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
-			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 				if(null!=workerInfo){
 					List<OrderAll> order=bigcontrolDao.findOrder(state,type, province, city, countries, gartenId);
 					order=MyUtil.appendOrderName(order,name,phoneNumber);
@@ -1694,6 +1693,7 @@ public class BigcontrolService {
 				List<InfoLog> infoLogs=new ArrayList<InfoLog>();
 				if(1==type||0==type){//1给园长发
 					 principal=principalDao.findPrincipalByGartenId(gartenIds[i]);
+					 infoLogs.add(new InfoLog(principal.getGartenId(),info,null,"园长",principal.getWorkerId(),null,null,title,2));
 				}
 				if(2==type||0==type){//2给家长发
 					System.err.println("测试"+i);
@@ -1704,7 +1704,7 @@ public class BigcontrolService {
 					workers=workerDao.findWorkerByGartenId(gartenIds[i]);
 				}
 				//建立通知记录  并发送通知
-				infoLogs.add(new InfoLog(principal.getGartenId(),info,null,"园长",principal.getWorkerId(),null,null,title,2));
+				
 				System.err.println("园长开始发");
 			try {
 				pushOne(MyParamAll.JIGUANG_PRINCIPAL_APP,MyParamAll.JIGUANG_PRINCIPAL_MASTER,info,principal.getPhoneNumber());
@@ -1741,7 +1741,7 @@ public class BigcontrolService {
 			//----------------------------------新增发送历史记录---------------
 			String targetName="";//拼接目标人群
 			targetName+=0==type?"老师和家长和园长":(1==type?"园长":(2==type?"家长":"老师"));
-			MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,info,null,workerInfo.getWorkerName(),null,title,toGartenName,null,workerInfo.getWorkerId(),"总管理员",null);
+			MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,info,null,workerInfo.getWorkerName(),null,title,toGartenName,"成长记忆总台",workerInfo.getWorkerId(),"总管理员",null);
 			smallcontrolDao.insertMessageLog(ml);
 		}
 		

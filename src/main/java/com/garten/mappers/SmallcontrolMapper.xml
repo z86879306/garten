@@ -618,6 +618,10 @@ gartenId=1
 		update garten_photos set
 		isValid=1 where babyId=#{babyId}
 	</update>
+	<update id="deleteWorkerPhoto">
+		update garten_photos set
+		isValid=1 where id=#{workerId}
+	</update>
 	<update id="deleteUnusual">
 		update unusual set
 		isValid=1 where jobId=#{jobId}
