@@ -244,7 +244,7 @@ public class AgentService {
 			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 			 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 			 if(null!=agentInfo){
-				 WorkerInfo worker = smallcontrolDao.findWorkerByPhoneNumber(phoneNumber);
+				 WorkerInfo worker = principalDao.findPrincipalByAccount(phoneNumber);
 				 if(null!=worker){
 					 return MyUtil.putMapParams(result,"state", 2);			//该幼儿园联系手机号码已经被注册
 				 }

@@ -72,8 +72,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		 order by o.orderTime desc
 	</select>
 	
-	<select id="findFeedback"  resultType="Feedback">
+	<select id="findFeedback"  resultType="FeedbackDetail">
 		SELECT * FROM feedback  b
+		left join garten_info g on g.gartenId=b.gartenId
 		where 
 		 b.isValid=0 order by b.time desc
 	</select>

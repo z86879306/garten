@@ -41,6 +41,7 @@ import com.garten.vo.bigcontrol.AddDetail;
 import com.garten.vo.bigcontrol.BabyMessage;
 import com.garten.vo.bigcontrol.ClassManageBig;
 import com.garten.vo.bigcontrol.DakaCamera;
+import com.garten.vo.bigcontrol.FeedbackDetail;
 import com.garten.vo.bigcontrol.LiveCamera;
 import com.garten.vo.bigcontrol.WorkerMessage;
 import com.garten.vo.parent.ParentInfoCharge;
@@ -164,7 +165,7 @@ public interface BigcontrolDao {
 
 	GartenCharge gartenChargeOne(Map<String, Object> putMapParams);
 
-	List<Feedback> findFeedback();
+	List<FeedbackDetail> findFeedback();
 
 	GartenCharge gartenChargeReal(Map<String, Object> putMapParams);
 

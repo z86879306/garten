@@ -82,6 +82,7 @@ import com.garten.vo.bigcontrol.AddDetail;
 import com.garten.vo.bigcontrol.BabyMessage;
 import com.garten.vo.bigcontrol.ClassManageBig;
 import com.garten.vo.bigcontrol.DakaCamera;
+import com.garten.vo.bigcontrol.FeedbackDetail;
 import com.garten.vo.bigcontrol.GartenClassAll;
 import com.garten.vo.bigcontrol.LiveCamera;
 import com.garten.vo.bigcontrol.ParentMessage;
@@ -514,7 +515,7 @@ public class BigcontrolService {
 			 WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0);
 				if(null!=workerInfo){
-					WorkerInfo worker = smallcontrolDao.findWorkerByPhoneNumber(phoneNumber);
+					WorkerInfo worker =principalDao.findPrincipalByAccount(phoneNumber);
 					if(null!=worker){
 						return MyUtil.putMapParams(result,"state", 2);			//该幼儿园已经注册
 					}
@@ -898,7 +899,7 @@ public class BigcontrolService {
 			 WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 				if(null!=workerInfo){
-					List<Feedback> order=bigcontrolDao.findFeedback();
+					List<FeedbackDetail> order=bigcontrolDao.findFeedback();
 						MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(order, pageNo));
 				}
 				return result;
