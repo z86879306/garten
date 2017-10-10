@@ -211,4 +211,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		mark=#{mark},
 		saleServiceId=#{saleServiceId}
 	</insert>
+	<select id="findAgentByAgentId"  resultType="AgentInfo">
+		SELECT * FROM agent_info  a
+		where a.isvalid=0
+		and agentId=#{agentId}
+	</select>
+	
 </mapper> 

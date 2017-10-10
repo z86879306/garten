@@ -1268,13 +1268,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		select *  from sale_service  s where s.saleServiceId>#{start}*1000 
 			and  #{end}*1000+86400000>s.saleServiceId
 			<if test="	agentId!=null and agentId!=''" >
-				and s.agentId in '('+${agentId}+')'
+				and s.agentId in (${agentId})
 			</if>
 			<if test="	state!=null and state!='' " >
 				and s.state=state
 			</if>
 			<if test="	gartenId!=null and gartenId!=''" >
-				and s.gartenId in '('+${gartenId}+')'
+				and s.gartenId in (${gartenId})
 			</if>
 			order by s.saleServiceId desc
 	</select>

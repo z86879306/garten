@@ -21,7 +21,7 @@ public class SaleServiceAll extends SaleService{
 		// TODO Auto-generated constructor stub
 	}
 	public SaleServiceAll(String title, Integer agentId, Integer gartenId, String content, String mark, Integer state,
-			Integer saleServiceId, String reply, Long replyTime) {
+			Long saleServiceId, String reply, Long replyTime) {
 		super(title, agentId, gartenId, content, mark, state, saleServiceId, reply, replyTime);
 		// TODO Auto-generated constructor stub
 	}

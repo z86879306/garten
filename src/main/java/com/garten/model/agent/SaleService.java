@@ -15,7 +15,7 @@ public class SaleService {
 	private String content;
 	private String mark;
 	private Integer state;
-	private Integer saleServiceId;
+	private Long saleServiceId;
 	private String  reply;
 	private Long  replyTime;
 	@Override
@@ -29,7 +29,7 @@ public class SaleService {
 		// TODO Auto-generated constructor stub
 	}
 	public SaleService(String title, Integer agentId, Integer gartenId, String content, String mark, Integer state,
-			Integer saleServiceId, String reply, Long replyTime) {
+			Long saleServiceId, String reply, Long replyTime) {
 		super();
 		this.title = title;
 		this.agentId = agentId;
@@ -77,10 +77,10 @@ public class SaleService {
 	public void setState(Integer state) {
 		this.state = state;
 	}
-	public Integer getSaleServiceId() {
+	public Long getSaleServiceId() {
 		return saleServiceId;
 	}
-	public void setSaleServiceId(Integer saleServiceId) {
+	public void setSaleServiceId(Long saleServiceId) {
 		this.saleServiceId = saleServiceId;
 	}
 	public String getReply() {
