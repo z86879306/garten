@@ -451,10 +451,8 @@ public class AttendanceService {
 			return result;
 		}
 		if(gartenInfo==null||partnerInfo==null){
-			
 			result.put("respCode", 600006);
 			result.put("respDesc", "心跳接口调用失败");
-			
 		}else{
 			result.put("respCode", 0);
 			result.put("respDesc", "请求成功");

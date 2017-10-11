@@ -1271,7 +1271,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 				and s.agentId in (${agentId})
 			</if>
 			<if test="	state!=null and state!='' " >
-				and s.state=state
+				and s.state=#{state}
 			</if>
 			<if test="	gartenId!=null and gartenId!=''" >
 				and s.gartenId in (${gartenId})
