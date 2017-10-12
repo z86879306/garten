@@ -1958,4 +1958,51 @@ public class BigcontrolService {
 			}
 			return result;
 		}
+
+		public void exporeAttendance(String token,String province,String city, String countries ,Integer gartenId, String job, Integer classId,
+				HttpServletResponse response) {
+			WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+			ArrayList<CardNoDetail> list = new ArrayList<CardNoDetail>();	
+			List<CardNoDetail> babyCardNoList=null;
+			List<CardNoDetail> teacherCardNoList = null;
+			if(null!=workerInfo){
+				Map<String, Object> params = MyUtil.putMapParams("province", province, "city", city, "countries", countries, "gartenId", gartenId, "job", job,"classId",classId);
+				if(null!=job){		
+					if("宝宝".equals(job)){
+						babyCardNoList = bigcontrolDao.getBabyCardNoList(params);
+						list.addAll(babyCardNoList);
+					}else if("老师".equals(job)){
+						teacherCardNoList = bigcontrolDao.getTeacherCardNoList(params);
+						list.addAll(teacherCardNoList);
+					}
+				}
+				if(null==job||"".equals(job)){			
+					babyCardNoList = bigcontrolDao.getBabyCardNoList(params);
+					teacherCardNoList = bigcontrolDao.getTeacherCardNoList(params);
+					list.addAll(teacherCardNoList);
+					list.addAll(babyCardNoList);
+					
+				}
+				String title =null;
+				if(gartenId!=null){
+					GartenInfo gartenInfo = smallcontrolDao.getGartenById(gartenId);
+					title = gartenInfo.getGartenName();
+					if(classId!=null){
+						GartenClass gartenClass = bigcontrolDao.findClassById(classId);
+						title=title+gartenClass.getLeadGrade()+gartenClass.getLeadClass();
+					}
+				}
+				
+				try {
+					response.setContentType("application/x-execl");
+					response.setHeader("Content-Disposition", "attachment;filename=" + new String(((title==null?"":title)+"考勤卡列表.xls").getBytes(), "ISO-8859-1"));
+					ServletOutputStream outputStream = response.getOutputStream();
+					ExcelUtil.exportAttendanceNoExcel(list, outputStream);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+		}
 }

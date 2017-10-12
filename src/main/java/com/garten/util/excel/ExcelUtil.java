@@ -81,7 +81,7 @@ public class ExcelUtil {
 		}
 	}
 	
-	//导出考勤卡
+	//导出考勤卡(幼儿园端）
 	public static  void exportAttendanceNoExcel(List<CardNoDetail> list ,ServletOutputStream outputStream){
 		try {
 			HSSFWorkbook workbook = new HSSFWorkbook();
@@ -135,6 +135,8 @@ public class ExcelUtil {
 		}
 		
 	}
+	
+	
 	
 	public static HSSFCellStyle createcellStyle(HSSFWorkbook workbook,short fontSize){
 		HSSFCellStyle style = workbook.createCellStyle();

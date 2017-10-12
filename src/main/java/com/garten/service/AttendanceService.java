@@ -202,9 +202,8 @@ public class AttendanceService {
 			//身份完整
 			try {
 				//获取学校 签到 签退  时间
-				Map<String, Object> map = attendanceDao.findArriveLeaveTimeByToken(schoolToken);
-				String arriveEndTime = sdf3.format(new Date())+" "+(String) map.get("arriveEndTime");
-				String leaveStartTime = sdf3.format(new Date())+" "+(String) map.get("leaveStartTime");
+				String arriveEndTime = sdf3.format(new Date())+" "+gartenInfo.getArriveEndTime();
+				String leaveStartTime = sdf3.format(new Date())+" "+gartenInfo.getLeaveStartTime();
 				List<String> ignoreList = attendanceDao.findIgnoreTimeByGartenToken(schoolToken);
 				String content =null;
 				for(BabyAttendanceInfo bai :attendanceInfoList){
@@ -238,12 +237,9 @@ public class AttendanceService {
 								attendanceDao.addInfoLog(gartenInfo.getGartenId(),"迟到",sdf.format(new Date(bai.getExamDate())),"家长",(Integer)param.get("parentId"),(String)param.get("babyName"));
 								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
 								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"迟到";
-								try {
+							
 									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								
 								//添加老师通知记录
 								String teacherIds =(String)param.get("teacherId");
 								String[] teacherId = teacherIds.split(",");
@@ -252,32 +248,25 @@ public class AttendanceService {
 									attendanceDao.addInfoLog(gartenInfo.getGartenId(),"迟到",sdf.format(new Date(bai.getExamDate())),"老师",Integer.valueOf(id),(String)param.get("babyName"));
 									//添加通知的同时推送通知
 									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
-									try {
+									
 										bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
+									
 								}
 							}else{		//正常签到发送推送
 								Map<String, Object> param = attendanceDao.findNameAndParentAndTeachersByBabyId(bai.getBabyId());
 								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
 								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"入园签到";
-								try {
+								
 									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								
 								String teacherIds =(String)param.get("teacherId");
 								String[] teacherId = teacherIds.split(",");
 								content = "您的学生"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"入园签到";
 								for(String id:teacherId){
 									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
-									try {
-										bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
+									
+									bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
+									
 								}	
 							}
 						}else{	//下午
@@ -288,12 +277,9 @@ public class AttendanceService {
 								attendanceDao.addInfoLog(gartenInfo.getGartenId(),"早退",sdf.format(new Date(bai.getExamDate())),"家长",(Integer)param.get("parentId"),(String)param.get("babyName"));
 								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
 								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"早退";
-								try {
+								
 									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								
 								//添加老师通知记录
 								String teacherIds =(String)param.get("teacherId");
 								String[] teacherId = teacherIds.split(",");
@@ -301,32 +287,25 @@ public class AttendanceService {
 								for(String id:teacherId){
 									attendanceDao.addInfoLog(gartenInfo.getGartenId(),"早退",sdf.format(new Date(bai.getExamDate())),"老师",Integer.valueOf(id),(String)param.get("babyName"));
 									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
-									try {
-										bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
+									
+									bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
+									
 								}
 							}else{		//正常签到
 								Map<String, Object> param = attendanceDao.findNameAndParentAndTeachersByBabyId(bai.getBabyId());
 								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
 								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"离园签退";
-								try {
+								
 									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								
 								String teacherIds =(String)param.get("teacherId");
 								String[] teacherId = teacherIds.split(",");
 								content = "您的学生"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"离园签退";
 								for(String id:teacherId){
 									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
-									try {
+									
 										bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
+									
 								}	
 							}
 						}

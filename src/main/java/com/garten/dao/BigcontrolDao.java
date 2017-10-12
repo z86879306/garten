@@ -301,4 +301,6 @@ public interface BigcontrolDao {
 	void deleteSaleService(Long saleServiceId);
 
 	EquipmentName findEquipmentByName(String equipmentName);
+
+	GartenClass findClassById(Integer classId);
 }

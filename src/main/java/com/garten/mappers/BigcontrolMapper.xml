@@ -1291,4 +1291,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<delete id="deleteSaleService"  >
 		delete from    sale_service  where saleServiceId=#{saleServiceId}
 	</delete>
+	<select id="findClassById" resultType="GartenClass">
+		select * from garten_class
+		where classId=#{classId}
+		and isValid=0
+	</select>
 </mapper> 

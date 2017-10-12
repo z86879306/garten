@@ -517,6 +517,14 @@ public class BigcontrolController {
 			Map<String, Object> map = bigcontrolService.cardNoList(token, province, city, countries, gartenId, pageNo, job, classId);
 			return map;
 		}
+	//导出考勤卡信息
+		@RequestMapping("exporeAttendance")
+		@ResponseBody
+		public Map<String,Object> exporeAttendance(String token ,String province,String city, String countries,Integer gartenId, String job,Integer classId,HttpServletResponse response){
+			bigcontrolService.exporeAttendance(token, province, city, countries, gartenId,job, classId, response);
+			
+			return null;
+		}
 		
 	//-------------------------------------售后订单--------------------------------------------
 	//查询售后订单
