@@ -114,5 +114,7 @@ public interface AgentDao {
 	void addSaleService(Map<String, Object> param);
 
 	AgentInfo findAgentByAgentId(Integer agentId);
+
+	void deleteSaleService(Long saleServiceId);
 	
 }

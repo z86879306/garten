@@ -617,9 +617,10 @@ public class ParentService {
 
 
 		public Map<String, Object> version(String token) {
-		WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
+			ParentInfo parentInfo= parentDao.findParentInfoByToken( token);
+
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-		if(null!=workerInfo){//验证用户
+		if(null!=parentInfo){//验证用户
 			Version vs=parentDao.findVersion( );
 			MyUtil.putMapParams(result,"state",1,"info",vs);
 		}

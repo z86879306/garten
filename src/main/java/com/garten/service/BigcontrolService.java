@@ -354,7 +354,7 @@ public class BigcontrolService {
 						parentMessages.add(new ParentMessage(p,classManageBigList));
 						
 					}
-					MyUtil.putMapParams(result,"state", 1,"info",parentMessages,"pageCount",pageCount,"count",parentMessages.size());
+					MyUtil.putMapParams(result,"state", 1,"info",parentMessages,"pageCount",pageCount,"count",count);
 					
 				}
 				//验证码错误返回  验证错误信息
@@ -448,7 +448,7 @@ public class BigcontrolService {
 					MyUtil.putMapParams( param,"contractStart",contractStart);
 					WorkerInfo principal = smallcontrolDao.findPrincipalByGartenId(gartenId);
 					if(!principal.getPhoneNumber().equals(phoneNumber)){
-						WorkerInfo worker = smallcontrolDao.findWorkerByPhoneNumber(phoneNumber);
+						WorkerInfo worker = principalDao.findPrincipalByAccount(phoneNumber);
 						if(null!=worker){
 							return MyUtil.putMapParams(result, "state", 2);			//手机号码已经存在
 						}

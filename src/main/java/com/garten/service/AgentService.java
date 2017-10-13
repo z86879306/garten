@@ -435,6 +435,16 @@ public class AgentService {
 			 }
 			return result;
 		}
+	
+	public Map<String,Object> deleteSaleService(String token ,Long saleServiceId){
+		AgentInfo agentInfo=agentDao.findAgentInfoByToken(token);
+		 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+		 if(null!=agentInfo){
+			 agentDao.deleteSaleService(saleServiceId);
+			 MyUtil.putMapParams(result, "state", 1);
+		 }
+		 return result;
+	}
 	/*public Map<String, Object> findEquipmentNameNoPage() {
 		Map<String,Object> result=MyUtil.putMapParams("state",1,"info",null);
 		List<EquipmentName> en=bigcontrolDao.findEquipmentName();

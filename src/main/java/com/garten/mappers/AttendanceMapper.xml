@@ -326,7 +326,7 @@
     
     <select id="findGartenRebootFlag" resultType="Integer">
     	select rebootFlag from attendance_machine 
-    	where macId=#{macId}
+    	where macId=#{macId} and isValid=0
     </select>
     
     <update id="updateRebootFlag">

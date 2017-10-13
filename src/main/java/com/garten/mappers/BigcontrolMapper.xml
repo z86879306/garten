@@ -701,12 +701,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 		<update id="updateGarten"  >
 		update   garten_info g
-		set  g.gartenName= g.gartenName
-		<if test="	gartenName!=null and gartenName!=''" >
-				, g.gartenName=#{gartenName}
-			</if>
+		set  g.gartenName= #{gartenName}
+		
 			<if test="	name!=null and name!=''" >
-				, g.gartenName=#{name}
+				, g.name=#{name}
 			</if>
 			<if test="	phoneNumber!=null and phoneNumber!=''" >
 				, g.phoneNumber=#{phoneNumber}
@@ -1285,7 +1283,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<update id="replySaleService"  >
 		update    sale_service  set
-		reply=#{reply},replyTime=unix_timestamp(now())*1000
+		reply=#{reply},replyTime=unix_timestamp(now())*1000,state=1
 		where saleServiceId=#{saleServiceId}
 	</update>
 	<delete id="deleteSaleService"  >

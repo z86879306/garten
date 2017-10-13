@@ -222,7 +222,13 @@ public class AgentController {
 			Map<String, Object> map = agentService.addSaleService( token, title, gartenId, content, mark);
 			return map;
 		}
-
+	//删除自己的售后订单
+		@RequestMapping("deleteSaleService")
+		@ResponseBody
+		public synchronized Map<String,Object> deleteSaleService(String token ,Long saleServiceId){
+			Map<String, Object> map = agentService.deleteSaleService(token, saleServiceId);
+			return map;
+		}
 	
 	//获取设备及价格(不分页）
 	/*@RequestMapping("findEquipmentNameNoPage")

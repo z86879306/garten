@@ -216,5 +216,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where a.isvalid=0
 		and agentId=#{agentId}
 	</select>
-	
+	<delete id="deleteSaleService">
+		delete from sale_service 
+		where 
+		saleServiceId=#{saleServiceId}
+	</delete>
 </mapper> 
