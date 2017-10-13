@@ -1652,6 +1652,7 @@ public class SmallcontrolService {
 	}
 	
 	public void deleteParentById(Integer parentId){
+		smallcontrolDao.deleteParent(parentId);				//删除该家长
 		smallcontrolDao.deleteComment("家长", parentId);		//删除家长comment
 		smallcontrolDao.deleteDaijieInfo(parentId);			//删除家长代接记录
 		smallcontrolDao.deleteFeedback("家长", parentId);		//删除家长反馈

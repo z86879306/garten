@@ -248,4 +248,6 @@ public interface SmallcontrolDao {
 
 	AttendanceNo findAttendanceNoById(Integer jobId);
 
+	void deleteParent(Integer parentId);
+
 }

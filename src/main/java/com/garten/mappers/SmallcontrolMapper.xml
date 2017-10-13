@@ -723,4 +723,9 @@ gartenId=1
 		set state=2
 		where messageId=#{messageId}
 	</update>
+	<update id="deleteParent">
+		update parent_info 
+		set isValid=1
+		where parentId=#{parentId}
+	</update>
 </mapper> 
