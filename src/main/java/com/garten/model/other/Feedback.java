@@ -71,7 +71,7 @@ public class Feedback {
 		return time;
 	}
 	public void setTime(Timestamp time) {
-		this.time = time.getTime()/10000;
+		this.time = time.getTime()/1000;
 	}
 	public Integer getJobId() {
 		return jobId;

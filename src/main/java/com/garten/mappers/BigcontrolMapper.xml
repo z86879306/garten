@@ -916,9 +916,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		macId=#{macId}
 		where machineId=#{machineId}
 	</update>
-	<select id="getOldMacId" resultType="string">
-		select macId from attendance_machine
-		where machineId=#{machineId}
+	<select id="findMachineById" resultType="MachineDetail">
+		select * from attendance_machine
+		where machineId=#{machineId} and isValid=0
 	</select>
 	<update id="updateEquipMac">
 		update equipment set macId=#{macId}
@@ -1293,5 +1293,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		select * from garten_class
 		where classId=#{classId}
 		and isValid=0
+	</select>
+	<select id="findMachineByMacId" resultType="MachineDetail">
+		select * from attendance_machine 
+		where
+		macId=#{macId} and isValid=0
 	</select>
 </mapper> 

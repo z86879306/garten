@@ -1371,6 +1371,10 @@ public class BigcontrolService {
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
+				MachineDetail machine = bigcontrolDao.findMachineByMacId(macId);
+				if(machine!=null){
+					return MyUtil.putMapParams(result, "state", 2); 	//该macId的闸机已经存在
+				}
 				bigcontrolDao.addMachine(type,macId,gartenId);
 				Integer machineId = bigcontrolDao.findMaxMachineId(gartenId);
 				bigcontrolDao.addPartner(UUID.randomUUID().toString(),UUID.randomUUID().toString(),gartenId,machineId);
@@ -1384,9 +1388,13 @@ public class BigcontrolService {
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
-				String oldMacId = bigcontrolDao.getOldMacId(machineId);
+				MachineDetail machineDetail = bigcontrolDao.findMachineByMacId(macId);
+				if(machineDetail!=null){
+					return MyUtil.putMapParams(result, "state", 2); 	//该macId的闸机已经存在
+				}
+				MachineDetail machine = bigcontrolDao.findMachineById(machineId);
 				bigcontrolDao.updateMachine(machineId,macId);
-				bigcontrolDao.updateEquipMac(macId,oldMacId);
+				bigcontrolDao.updateEquipMac(macId,machine.getMacId());
 				MyUtil.putMapParams(result, "state", 1);
 			}
 			return result;
@@ -1397,10 +1405,10 @@ public class BigcontrolService {
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
-				String oldMacId = bigcontrolDao.getOldMacId(machineId);
+				MachineDetail machine = bigcontrolDao.findMachineById(machineId);
 				bigcontrolDao.deleteMachine(machineId);
 				bigcontrolDao.deletePartner(machineId);
-				bigcontrolDao.updateEquipIsValid(machineId,oldMacId);
+				bigcontrolDao.updateEquipIsValid(machineId,machine.getMacId());
 				MyUtil.putMapParams(result, "state", 1);
 			}
 			return result;

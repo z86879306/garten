@@ -187,7 +187,7 @@ public interface BigcontrolDao {
 
 	void updateMachine(@Param("machineId")Integer machineId,@Param("macId") String macId);
 
-	String getOldMacId(Integer machineId);
+	MachineDetail findMachineById(Integer machineId);
 
 	void updateEquipMac(@Param("macId")String macId,@Param("oldMacId") String oldMacId);
 
@@ -303,4 +303,6 @@ public interface BigcontrolDao {
 	EquipmentName findEquipmentByName(String equipmentName);
 
 	GartenClass findClassById(Integer classId);
+
+	MachineDetail findMachineByMacId(String macId);
 }
