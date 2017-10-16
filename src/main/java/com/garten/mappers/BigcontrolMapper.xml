@@ -51,7 +51,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		left join garten_info g on o.gartenId=g.gartenId
 		where 
 		 o.isValid=0 
-		 <if test=" state!=null and state!='' ">
+		 <if test=" state!=null and state!=''  or state==0">
 		 	and o.state=#{state}
 		 </if>
 		 <if test=" type!=null and type!='' ">
@@ -1298,5 +1298,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		select * from attendance_machine 
 		where
 		macId=#{macId} and isValid=0
+	</select>
+	<select id="findWuliaoOrder" resultType="">
+		SELECT * FROM wuliao_order
+		where isValid=0
+		<if test=" state!=null and state!='' ">
+			state=#{state}
+		</if>
 	</select>
 </mapper> 

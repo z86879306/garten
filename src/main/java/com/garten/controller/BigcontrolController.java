@@ -503,7 +503,14 @@ public class BigcontrolController {
 			return map;
 		}
 
-		//处理代理商的物料订单
+		//查询代理商的无聊订单
+		@RequestMapping("wuliaoOrder")
+		@ResponseBody
+		public Map<String,Object> wuliaoOrder(String token , Integer pageNo,Integer state){
+			Map<String, Object> map = bigcontrolService.wuliaoOrder(token, pageNo, state);
+			return map;
+		}
+		//处理代理商的物料订单 
 		@RequestMapping("resolveWuliaoOrder")//1待发送 2已发送 3拒发送
 		public  @ResponseBody Map<String,Object> resolveWuliaoOrder(Integer wuliaoId,Integer state,String toPhoneNunmber,String remark) throws ParseException {
 			Map<String, Object> map = bigcontrolService.resolveWuliaoOrder(wuliaoId,state,toPhoneNunmber,remark);
@@ -511,7 +518,7 @@ public class BigcontrolController {
 		}
 		
 	//查看幼儿园考勤卡情况
-		@RequestMapping("cardNoList")
+		@RequestMapping("cardNoList")		
 		@ResponseBody
 		public Map<String,Object> cardNoList(String token,String province,String city,String countries,Integer gartenId,Integer pageNo,String job,Integer classId){
 			Map<String, Object> map = bigcontrolService.cardNoList(token, province, city, countries, gartenId, pageNo, job, classId);

@@ -12,6 +12,7 @@ import com.garten.model.activity.ActivityLog;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
 import com.garten.model.agent.SaleServiceAll;
+import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
@@ -305,4 +306,6 @@ public interface BigcontrolDao {
 	GartenClass findClassById(Integer classId);
 
 	MachineDetail findMachineByMacId(String macId);
+
+	List<WuliaoOrder> findWuliaoOrder(Integer state);
 }

@@ -1874,6 +1874,15 @@ public class BigcontrolService {
 			return result;
 		}
 
+		public Map<String,Object> wuliaoOrder(String token , Integer pageNo,Integer state){
+			WorkerInfo workerInfo=bigcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+				if(null!=workerInfo){
+					List<WuliaoOrder> list = bigcontrolDao.findWuliaoOrder(state);
+					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(list, pageNo));
+				}
+			return result;
+		}
 		
 		public synchronized Map<String, Object> resolveWuliaoOrder(Integer wuliaoId, Integer state, String toPhoneNunmber,String remark) {
 			Map<String,Object> result=MyUtil.putMapParams("state",2);//订单编号错误
