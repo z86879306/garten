@@ -482,4 +482,28 @@ public class SmallcontrolController {
 	   		Map<String, Object> map = smallcontrolService.VisitCount(token);
 	   		return map;
 	   	}
+	   	
+	  //申请发送通知
+		@RequestMapping("applySendMessage")
+		@ResponseBody
+		public Map<String,Object> applySendMessage(String token,String title, String info ){
+			Map<String, Object> map = smallcontrolService.applySendMessage(token, title, info);
+			return map;
+		}
+		
+		//取消申请
+		@RequestMapping("cancelApplyMessage")
+		@ResponseBody
+		public Map<String,Object> cancelApplyMessage(String token,Integer messageId){
+			Map<String, Object> map = smallcontrolService.cancelApplyMessage(token, messageId);
+			return map;
+		}
+		
+		//已申请发送列表
+		@RequestMapping("applyMessageList")
+		@ResponseBody
+		public Map<String,Object> applyMessageList(String token,Integer pageNo){
+			Map<String, Object> map = smallcontrolService.applyMessageList(token, pageNo);
+			return map;
+		}
 }

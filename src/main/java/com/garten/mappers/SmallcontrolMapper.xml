@@ -728,4 +728,33 @@ gartenId=1
 		set isValid=1
 		where parentId=#{parentId}
 	</update>
+	<insert id="addWorkerMessage">
+		insert into worker_message_log(title,info,registTime,workerId,gartenId)
+		values(#{title},#{info},now(),#{workerId},#{gartenId})
+	</insert>
+
+	<update id="cancelApplyMessage">
+		update worker_message_log
+		set
+		isValid=1
+		where messageId=#{messageId}
+	</update>
+
+	<select id="findApplyMessage" resultType="WorkerMessageLog">
+		select * from worker_message_log
+		where workerId=#{workerId}
+		and isValid=0
+	</select>
+	<select id="findMessageById" resultType="WorkerMessageLog">
+		select * from worker_message_log
+		where messageId=#{messageId}
+	</select>
+	<select id="findMessageMore" resultType="WorkerNameMessage">
+		select * from worker_message_log
+		where workerId=#{workerId} and isValid=0
+	</select>
+	
+	<select id="findMostEarlyApply" resultType="Integer">
+		select MIN(messageId) from worker_message_log where isValid=0 and workerId=#{workerId} 
+	</select>
 </mapper> 

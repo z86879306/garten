@@ -38,22 +38,19 @@ import com.garten.Thread.AddRecipeNotify;
 import com.garten.Thread.DeleteBabyThread;
 import com.garten.Thread.DeleteParentThread;
 import com.garten.Thread.DeleteTeacherThread;
-import com.garten.Thread.HuanXinThread;
 import com.garten.Thread.InsertCheckThread;
 import com.garten.Thread.SmallcontrolSendNotify;
 import com.garten.dao.AttendanceDao;
-import com.garten.dao.BigWorkerDao;
+
 import com.garten.dao.BigcontrolDao;
 import com.garten.dao.ParentDao;
 import com.garten.dao.PrincipalDao;
 import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.baby.BabyInfo;
-import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
-import com.garten.model.garten.GartenLesson;
 import com.garten.model.garten.GartenRecipe;
 import com.garten.model.garten.IgnoreTime;
 import com.garten.model.other.AttendanceNo;
@@ -117,8 +114,7 @@ public class SmallcontrolService {
 	private WorkerService workerService;
 	@Autowired
 	private AttendanceDao attendanceDao;
-	@Autowired
-	private BigWorkerDao bigWorkerDao;
+	
 	public Map<String, Object> login(String phoneNumber, String pwd) {
 		Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
 		WorkerInfo worker=smallcontrolDao.findWorkerByPwd(param);
@@ -756,7 +752,7 @@ public class SmallcontrolService {
 					return MyUtil.putMapParams(result, "state",3);
 				}
 				Integer oldClassId = teacher.getClassId();
-				if(!oldClassId.equals(classId)){
+				if(!oldClassId.equals(classId)){			// 更改了班级
 					//原先改班级拥有的老师数组
 					Integer[] teachers = smallcontrolDao.getTeacherByClassId(oldClassId);
 					if(teachers.length==1){
@@ -773,8 +769,11 @@ public class SmallcontrolService {
 					newTeacher = LyUtils.intChangeToStr(teachers);
 					smallcontrolDao.updateBaByTeacher(newTeacher,classId);
 					//修改信息后 考勤机重启
-					//smallcontrolDao.updateRebootFlag(workerInfo.getGartenId());
+					smallcontrolDao.updateRebootFlag(workerInfo.getGartenId());
+				}else{
+					smallcontrolDao.updateTeacher( sex, age, education, certificate, chinese,classId, phoneNumber,workerName,workerId,jobcall,permission);
 				}
+				
 				MyUtil.putMapParams(result, "state",1);
 			}
 			
@@ -1777,7 +1776,7 @@ public class SmallcontrolService {
 			WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 				if(null!=workerInfo){
-					WorkerMessageLog messageLog = bigWorkerDao.findMessageById(messageId);
+					WorkerMessageLog messageLog = smallcontrolDao.findMessageById(messageId);
 					GartenClass gartenClass = smallcontrolDao.findClassByTeacher(messageLog.getWorkerId());
 					
 					SmallcontrolSendNotify notify = new SmallcontrolSendNotify(gartenClass.getLeadClass(), gartenClass.getLeadGrade(), 2, messageLog.getTitle(), messageLog.getInfo(), workerInfo);
@@ -1802,4 +1801,41 @@ public class SmallcontrolService {
 				}
 				return result;
 	   	}
+		
+		public Map<String,Object> applySendMessage(String token,String title, String info){
+			Map<String, Object> result = MyUtil.putMapParams("state", 0);
+			WorkerInfo workerInfo = workerDao.findWorkerInfoByToken(token);		//根据token获取老师信息
+			if(null!=workerInfo){	
+				Map<String, Object> params = MyUtil.putMapParams("title", title,"info",info,"workerId",workerInfo.getWorkerId(),"gartenId",workerInfo.getGartenId());
+				smallcontrolDao.addWorkerMessage(params);
+				List<WorkerNameMessage> list = smallcontrolDao.findMessageMore(workerInfo.getWorkerId());
+				if(list.size()>100){		//申请大于一百条  删除最前面一条数据
+					Integer messageId = smallcontrolDao.findMostEarlyApply(workerInfo.getWorkerId());
+					smallcontrolDao.cancelApplyMessage(messageId);
+				}
+				MyUtil.putMapParams(result, "state", 1);
+			}
+			return result;
+		}
+		
+		
+		public Map<String,Object> cancelApplyMessage(String token,Integer messageId){
+			Map<String, Object> result = MyUtil.putMapParams("state", 0);
+			WorkerInfo workerInfo = workerDao.findWorkerInfoByToken(token);		//根据token获取老师信息
+			if(null!=workerInfo){	
+				smallcontrolDao.cancelApplyMessage(messageId);
+				MyUtil.putMapParams(result, "state", 1);
+			}
+			return result;
+		}
+		
+		public Map<String,Object> applyMessageList(String token,Integer pageNo){
+			Map<String, Object> result = MyUtil.putMapParams("state", 0);
+			WorkerInfo workerInfo = workerDao.findWorkerInfoByToken(token);		//根据token获取老师信息
+			if(null!=workerInfo){	
+				List<WorkerMessageLog> list = smallcontrolDao.findApplyMessage(workerInfo.getWorkerId());
+				return MyUtil.putMapParams(result, "state", 1, "info", MyPage.listPage16(list, pageNo));
+			}
+			return result;
+		}
 }

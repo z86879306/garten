@@ -73,7 +73,7 @@ public class ParentController {
 	
 	//视频
   	@RequestMapping(value="video")
-   	public  @ResponseBody Map<String,Object> video(String token,Integer babyId) throws ParseException  {
+   	public  @ResponseBody synchronized Map<String,Object> video(String token,Integer babyId) throws ParseException  {
        	Map<String ,Object>  map=parentService.video( token,babyId);
    		return map;
    	}
@@ -89,7 +89,7 @@ public class ParentController {
 	//宝宝晨检 考勤共用这一个接口
   	@RequestMapping("babyCheck")
   	@ResponseBody
-  	public Map<String, Object> babyCheck(String token,Long time,Integer babyId) throws ParseException{
+  	public  synchronized Map<String, Object> babyCheck(String token,Long time,Integer babyId) throws ParseException{
   		Map<String,Object> result=parentService.babyCheck( token, time,babyId);
   		return result;
   	}

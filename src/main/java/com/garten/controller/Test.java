@@ -19,6 +19,7 @@ import com.garten.Thread.HuanXinThread;
 import com.garten.service.BigcontrolService;
 import com.garten.util.lxcutil.MyParamAll;
 import com.garten.util.myutil.MyUtil;
+import com.mysql.fabric.xmlrpc.base.Array;
 
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
@@ -40,8 +41,16 @@ public class Test {
 	
 	public static void main(String[] args) throws ParseException, UnsupportedEncodingException, APIConnectionException, APIRequestException {
 
-		t11111(null, null);
-		
+		//t11111(null, null);
+		List a = new ArrayList();
+		a.add("1");
+		a.add(3);
+		for(Object item : a){
+			if("3".equals(item)){
+				a.remove(item);
+			}
+		}
+		System.out.println(a);
 		
 	}
 	public static String test1(){

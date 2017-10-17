@@ -1299,7 +1299,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where
 		macId=#{macId} and isValid=0
 	</select>
-	<select id="findWuliaoOrder" resultType="">
+	<select id="findWuliaoOrder" resultType="WuliaoOrder">
 		SELECT * FROM wuliao_order
 		where isValid=0
 		<if test=" state!=null and state!='' ">
