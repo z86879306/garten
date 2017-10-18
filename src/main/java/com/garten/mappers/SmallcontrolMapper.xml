@@ -15,7 +15,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="findWorkerByToken"  resultType="WorkerInfo">
 		SELECT * FROM worker＿info  w
 		where token=#{token}
-		and job='园长'
+		and job in ('园长','老师')
 		and w.isValid=0
 	</select>
 	
@@ -65,7 +65,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		update   worker＿info w
 		set token=#{token},tokenTime=now(),pwd=#{pwd}
 		where phoneNumber=#{phoneNumber} 
-		and w.job in ('园长')
+		and w.job in ('园长','老师')
 		and w.isValid=0
 	</update>
 	
@@ -230,7 +230,8 @@ gartenId=1
 		select an.cardNo1,an.cardNo2,an.cardNo3,an.job,an.jobId,b.babyName name from
 		attendance_no an,worker＿info w,baby_info b
 		where
-		an.isValid=0
+		an.isValid=0 
+		and w.isValid=0 and b.isValid=0
 		and an.gartenId=#{gartenId}
 		and an.job='宝宝' and b.babyId=an.jobId
 		<if test=" classId!=null and classId!=''">
@@ -244,7 +245,7 @@ gartenId=1
 		select an.cardNo1,an.cardNo2,an.cardNo3,an.job,an.jobId,w.workerName name from
 		attendance_no an,worker＿info w
 		where
-		an.isValid=0
+		an.isValid=0 and w.isValid=0
 		and an.gartenId=#{gartenId}
 		and an.job='老师' and w.workerId=an.jobId
 		<if test=" classId!=null and classId!=''">
