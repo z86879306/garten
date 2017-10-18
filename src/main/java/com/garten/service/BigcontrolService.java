@@ -556,7 +556,7 @@ public class BigcontrolService {
 			MyUtil.putMapParams(param,"leadClass", "一班","pwd",CryptographyUtil.md5("123456", "lxc"),"agentAudit",agentAudit);
 			bigcontrolDao.insertGartenInfo(param);
 			Integer gartenId=bigcontrolDao.fingMaxGartenId();
-			MyUtil.putMapParams(param,"gartenId",gartenId,"job","园长");
+			MyUtil.putMapParams(param,"gartenId",gartenId,"job","园长","permission",LyParam.PRINCIPAL_QX);
 			bigcontrolDao.insertAttendanceNo(param);
 			Integer jobId=bigcontrolDao.fingMaxJobId();
 			MyUtil.putMapParams(param,"jobId",jobId);

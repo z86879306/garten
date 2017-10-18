@@ -459,7 +459,7 @@ public class SmallcontrolController {
 			return map;
 		}
 
-	   	//老师短信申请列表
+	   	// 查看老师短信申请列表
 	   	@RequestMapping("teacherMessage")
 	   	@ResponseBody
 	   	public synchronized Map<String,Object> teacherMessage(String token,Long startTime , Long endTime,Integer pageNo,Integer state){
@@ -467,7 +467,7 @@ public class SmallcontrolController {
 	   		return map;
 	   	}
 	   	
-	   	//同意老师短信群发申请
+	   	// 园长同意老师短信群发申请
 	   	@RequestMapping("agreeMessage")
 	   	@ResponseBody
 	   	public synchronized Map<String,Object> agreeMessage(String token,Integer messageId){
@@ -483,7 +483,15 @@ public class SmallcontrolController {
 	   		return map;
 	   	}
 	   	
-	  //申请发送通知
+	  /*// 老师登录幼儿园后台
+		@RequestMapping("workerLogin")
+		@ResponseBody
+		public Map<String,Object> workerLogin(String phoneNumber, String pwd){
+			Map<String, Object> map = smallcontrolService.workerLogin(phoneNumber, pwd);
+			return map;
+		}*/
+	   	
+	  // 老师申请发送通知
 		@RequestMapping("applySendMessage")
 		@ResponseBody
 		public Map<String,Object> applySendMessage(String token,String title, String info ){
@@ -491,7 +499,7 @@ public class SmallcontrolController {
 			return map;
 		}
 		
-		//取消申请
+		// 老师取消申请
 		@RequestMapping("cancelApplyMessage")
 		@ResponseBody
 		public Map<String,Object> cancelApplyMessage(String token,Integer messageId){
@@ -499,7 +507,7 @@ public class SmallcontrolController {
 			return map;
 		}
 		
-		//已申请发送列表
+		// 老师已申请发送列表
 		@RequestMapping("applyMessageList")
 		@ResponseBody
 		public Map<String,Object> applyMessageList(String token,Integer pageNo){

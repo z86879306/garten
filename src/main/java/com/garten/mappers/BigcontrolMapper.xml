@@ -414,7 +414,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
 		WHERE
 		w.gartenId = #{gartenId}
-		and UNIX_TIMESTAMP(c.time)=#{time}
+		and UNIX_TIMESTAMP(c.time)=#{time}    
 		and b.isValid=0 and c.isValid=0 and w.isValid=0
 		group by b.babyId
 	</select>
@@ -818,7 +818,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		job=#{job},
 		workerId=#{jobId},
 		jobcall=#{jobcall},
-		token=#{token}
+		token=#{token},
+		permission=#{permission}
 	</insert>
 	
 	

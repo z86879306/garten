@@ -125,7 +125,7 @@ public class SmallcontrolService {
 		if(null!=worker&&!"".equals(worker)){
 			uuid=smallcontrolDao.findToken(param);
 			String gartenName = smallcontrolDao.getGartenNameById(worker.getGartenId());
-			MyUtil.putMapParams(result,"state", 1, "info", uuid,"gartenName",gartenName,"name",worker.getWorkerName());
+			MyUtil.putMapParams(result,"state", 1, "info", worker,"gartenName",gartenName);
 		}
 		return result;
 	}
@@ -959,7 +959,7 @@ public class SmallcontrolService {
 				String teachers = LyUtils.intChangeToStr(teacher);
 				//根据宝宝身份证获取生日
 				Long birthday = null;
-				if(cardId!=null){
+				if(cardId!=null&&!"".equals(cardId)){
 					birthday = LyUtils.getBirthByIdCard(cardId);
 				}
 				//在attendance 生成一个宝宝  获取宝宝id
@@ -1801,6 +1801,19 @@ public class SmallcontrolService {
 				}
 				return result;
 	   	}
+		
+		/*public Map<String,Object> workerLogin(String phoneNumber, String pwd){
+			
+			Map<String, Object> params = MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
+			WorkerInfo workerInfo = workerDao.findWorkerByPwd(params);
+			Map<String, Object> result = MyUtil.putMapParams("state", 0);
+			if(null!=workerInfo){
+				String gartenName = smallcontrolDao.getGartenNameById(workerInfo.getGartenId());
+				MyUtil.putMapParams(result, "state", 1, "info", workerInfo,"gartenName",gartenName);
+				
+			}
+			return result;
+		}*/
 		
 		public Map<String,Object> applySendMessage(String token,String title, String info){
 			Map<String, Object> result = MyUtil.putMapParams("state", 0);

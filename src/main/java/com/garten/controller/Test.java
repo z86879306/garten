@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.garten.Thread.HuanXinThread;
 import com.garten.service.BigcontrolService;
+import com.garten.util.LyParam;
 import com.garten.util.lxcutil.MyParamAll;
 import com.garten.util.myutil.MyUtil;
 import com.mysql.fabric.xmlrpc.base.Array;
@@ -42,15 +43,7 @@ public class Test {
 	public static void main(String[] args) throws ParseException, UnsupportedEncodingException, APIConnectionException, APIRequestException {
 
 		//t11111(null, null);
-		List a = new ArrayList();
-		a.add("1");
-		a.add(3);
-		for(Object item : a){
-			if("3".equals(item)){
-				a.remove(item);
-			}
-		}
-		System.out.println(a);
+		System.out.println(LyParam.PRINCIPAL_QX);
 		
 	}
 	public static String test1(){

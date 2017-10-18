@@ -316,7 +316,8 @@ public class PrincipalService {
 		WorkerInfo workerInfo= principalDao.findPrincipalInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		if(null!=workerInfo){//验证用户
-			WorkerInfoShort teacher=workerDao.findTeacherByToken(token);//该幼儿园所有的职工和园长
+			//WorkerInfoShort teacher=workerDao.findTeacherByToken(token);//该幼儿园所有的职工和园长
+			WorkerInfo teacher = principalDao.findPrincipalInfoByToken(token);
 			MyUtil.putMapParams(result, "state",1,"info",teacher);
 		}
 		return  result;

@@ -8,7 +8,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT * FROM worker＿info  w
 		where phoneNumber=#{phoneNumber} 
 		and pwd=#{pwd}
-		and job='园长'
+		<!--  and job='园长'-->
 		and w.isValid=0
 	</select>
 	
@@ -489,7 +489,7 @@ gartenId=1
 	</insert>
 	<select id="findWorkerByPhoneNumber" resultType="WorkerInfo">
 		select * from worker＿info
-		where phoneNumber=#{phoneNumber}	and isValid=0 and job='老师'
+		where phoneNumber=#{phoneNumber}	and isValid=0 
 	</select>
 	<select id="getGartenById" resultType="GartenInfo">
 		select * from garten_info
