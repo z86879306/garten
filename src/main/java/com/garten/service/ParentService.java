@@ -772,6 +772,18 @@ public class ParentService {
 					System.err.println("回调成功");
 					System.err.println("回调成功");
 					System.err.println("回调成功");
+					System.err.println("回调成功");
+					System.err.println("回调成功");
+					System.err.println("回调成功");
+					System.err.println("回调成功");
+					System.err.println("回调成功");
+					System.err.println("回调成功");
+					System.err.println("回调成功");
+					System.err.println("回调成功");
+					System.err.println("回调成功");
+					System.err.println("回调成功");
+					System.err.println("回调成功");
+					
 					//处理到期时间
 					Order order=parentDao.findOrder(orderNumber);
 					ParentInfo parentInfo=parentDao.findParentById(order.getId());
@@ -850,7 +862,7 @@ public class ParentService {
 				BigDecimal big=(BigDecimal) getPrice.get("info");
 				Long orderNumber=System.currentTimeMillis();
 				String orderDetail=0==type?"购买视频":(1==type?"购买考勤":"购买视频和考勤");
-				Order o=new Order(orderNumber,new Date().getTime()/1000,null,"家长",big,orderDetail,parentInfo.getParentId(),type+4,0,1,monthCount,babyId,baby.getGartenId());
+				Order o=new Order(orderNumber,new Date().getTime()/1000,null,"家长",big,orderDetail,parentInfo.getParentId(),type+4,1,0,monthCount,babyId,baby.getGartenId());
 				parentDao.insertOrdr(o);//创建未支付订单
 				System.err.println("成功创建==微信");
 				System.err.println("成功创建==微信");
@@ -906,7 +918,7 @@ public class ParentService {
 	                 String openid = (String)packageParams.get("openid");  //用户标识
 	                 String out_trade_no = (String)packageParams.get("out_trade_no"); //商户订单号
 	                 String payType="微信"+out_trade_no;
-	                 out_trade_no=out_trade_no.substring(0, 14);
+	                 //out_trade_no=out_trade_no.substring(0, 14);
 	                 String total_fee = (String)packageParams.get("total_fee");  
 	                 String transaction_id = (String)packageParams.get("transaction_id"); //微信支付订单号
 	                 String noncestr = (String)packageParams.get("nonce_str"); //微信支付订单号
