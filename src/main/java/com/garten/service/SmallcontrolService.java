@@ -1702,7 +1702,7 @@ public class SmallcontrolService {
 		if(null!=g){
 			gartenName+=g.getGartenName();
 		}
-		MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,content,null,workerInfo.getWorkerName(),workerInfo.getGartenId(),title,gartenName,gartenName,workerInfo.getWorkerId(),"园长",toclass,2);
+		MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,content,null,workerInfo.getWorkerName(),workerInfo.getGartenId(),title,gartenName,gartenName,workerInfo.getWorkerId(),"园长",toclass);
 		smallcontrolDao.insertMessageLog(ml);
 			List<WorkerInfo> workers=new ArrayList<WorkerInfo>();//需要发的老师
 			List<ParentInfoCharge> parents=new ArrayList<ParentInfoCharge>();//需要发的家长

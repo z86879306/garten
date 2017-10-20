@@ -1756,7 +1756,7 @@ public class BigcontrolService {
 			//----------------------------------新增发送历史记录---------------
 			String targetName="";//拼接目标人群
 			targetName+=0==type?"老师和家长和园长":(1==type?"园长":(2==type?"家长":"老师"));
-			MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,info,null,employee.getName(),null,title,toGartenName,"成长记忆总台",employee.getEmployeeNo(),"总管理员",null,1);
+			MessageLog ml=new MessageLog(new Date().getTime()/1000,targetName,info,null,employee.getName(),null,title,toGartenName,"成长记忆总台",employee.getEmployeeNo(),"总管理员",null);
 			smallcontrolDao.insertMessageLog(ml);
 		}
 		

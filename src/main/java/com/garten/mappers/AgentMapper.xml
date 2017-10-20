@@ -90,7 +90,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<select id="findAgentAudit" resultType="AgentAudit">
 		select * from agent_audit
-		where resourceId=#{agentId} and isvalid=0
+		where resourceId=#{agentId} and isvalid=0 and resource=1
 	</select>
 	
 	<delete id="cancelApply">
@@ -126,7 +126,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		agent_audit a
 		where
 		isValid=0
-		and resourceId=#{agentId}
+		and resourceId=#{agentId} and resource=1
 	</select>
 	
 	<select id="findGartenById" resultType="GartenInfo">
