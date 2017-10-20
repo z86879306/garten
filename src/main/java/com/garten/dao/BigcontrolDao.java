@@ -16,6 +16,11 @@ import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
+import com.garten.model.company.CpActivity;
+import com.garten.model.company.Department;
+import com.garten.model.company.Employee;
+import com.garten.model.company.Jobs;
+import com.garten.model.company.Report;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
@@ -308,4 +313,65 @@ public interface BigcontrolDao {
 	MachineDetail findMachineByMacId(String macId);
 
 	List<WuliaoOrder> findWuliaoOrder(Integer state);
+	
+	List<Employee> findEmployee(Map<String, Object> param);
+
+	Boolean findIfDeleteEmployee(Integer employeeNo);
+
+    void deleteEmployee(Map<String, Object> param);
+
+	void updateEmployee(Map<String, Object> param);
+
+	void addEmployee(Map<String, Object> param);
+
+	List<CpActivity> findCpActivity(Map<String, Object> param);
+
+	void deleteCpActivity(Integer cpActivityId);
+
+	void addCpActivity(Map<String, Object> param);
+
+	void updateCpActivity(Map<String, Object> param);
+
+	Employee findEmployeeByToken(String token);
+
+	List<Report> findDepartmentReport(Map<String, Object> param);
+
+	void deleteReport(Long departmentNo);
+
+	void addReport(Map<String, Object> param);
+
+	List<AgentAudit> findMyApplyGarten(Integer employeeNo);
+
+	Employee findEmployeeByPwd(Map<String, Object> param);
+
+	Employee findEmployeeByPhoneNumber(String phoneNumber);
+
+	void auditCpActivity(Integer cpActivityId);
+
+	Employee findEmployeeById(Integer employeeNo);
+	
+	List<Department> findDepartment();
+
+	void deleteDepartment(Long departmentno);
+
+	void addDepartment(Map<String, Object> param);
+
+	Boolean ifExistDepartment(String departmentName);
+
+	int ifExistDepartmentEmployee(Long departmentNo);
+
+	List<Jobs> findJobs();
+
+	int ifExistJobsEmployee(Long jobsNo);
+
+	Boolean ifExistJobs(String jobsName);
+
+	void addJobs(Map<String, Object> param);
+
+	Jobs findJobsByEmployeeNo(Integer employeeNo);
+
+	Department findDepartmentByEmployeeNo(Integer employeeNo);
+	
+	List<CpActivity> findDepartmentCpActivity(Map<String, Object> param);
+
 }

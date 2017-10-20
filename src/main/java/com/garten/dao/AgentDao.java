@@ -81,11 +81,10 @@ public interface AgentDao {
 
 	List<AgentAudit> findAgentAudit(Integer agentId);
 
-	void cancelApply(String auditId);
+	void cancelApply(Map<String, Object> param);
 
-	void addApplyGarten(@Param("gartenName")String gartenName, @Param("name")String name, @Param("phoneNumber")String phoneNumber,@Param("contractNumber") String contractNumber,@Param("province") String province,
+	void addApplyGarten(@Param("resource")Integer resource,@Param("gartenName")String gartenName, @Param("name")String name, @Param("phoneNumber")String phoneNumber,@Param("contractNumber") String contractNumber,@Param("province") String province,
 			@Param("city")String city,@Param("countries") String countries, @Param("count")Integer count,@Param("money") Double money, @Param("equipment")String equipment,@Param("agentId")Integer agentId);
-
 
 	List<AgentVisitDetail> getAgentVisit(@Param("agentId")Integer agentId,@Param("gartenId") Integer gartenId);
 

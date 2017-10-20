@@ -119,8 +119,8 @@ public class AgentController {
 	//取消申请
 	@RequestMapping("cancelApply")
 	@ResponseBody
-	public synchronized Map<String,Object> cancelApply(String token,String auditId){
-		Map<String, Object> map = agentService.cancelApply(token, auditId);
+	public synchronized Map<String,Object> cancelApply(Integer auditId,Integer resource){
+		Map<String, Object> map = agentService.cancelApply( auditId,resource);
 		return map;
 		
 	}

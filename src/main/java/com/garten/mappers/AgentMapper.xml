@@ -93,15 +93,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where resourceId=#{agentId} and isvalid=0
 	</select>
 	
-	<update id="cancelApply">
-		update agent_audit set
-		isvalid=1
-		where auditId=#{auditId}
-	</update>
+	<delete id="cancelApply">
+		delete from agent_audit 
+		where auditId=#{auditId} and resource=#{resource}
+	</delete>
 	
 	<insert id="addApplyGarten">
 		insert into agent_audit(gartenName,name,phoneNumber,contractNumber,province,city,countries,count,money1,equipment,resource,registTime,resourceId)
-		values(#{gartenName},#{name},#{phoneNumber},#{contractNumber},#{province},#{city},#{countries},#{count},#{money},#{equipment},1,now(),#{agentId})
+		values(#{gartenName},#{name},#{phoneNumber},#{contractNumber},#{province},#{city},#{countries},#{count},#{money},#{equipment},#{resource},now(),#{agentId})
 	</insert>
 	
 	<insert id="addVisit">
@@ -135,13 +134,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		garten_info
 		where 
 		agent=#{agentId}
+		and agentType=1
 	</select>
 	
 	<select id="getGartenNameAndId" resultType="GartenSimple">
 		select gartenName,gartenId from
 		garten_info
 		where agent=#{agentId}
-		AND isValid=0
+		AND isValid=0 and agentType=1
 	</select>
 	
 	<select id="FindParentByGartenId" resultType="GartenCountTongJi">
@@ -184,7 +184,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		postalcode=#{postalcode},
 		agentId=#{agentId},
 		fromPhonenumber=#{fromPhoneNumber},
-		totalPrice=#{totalPrice}
+		totalPrice=#{totalPrice},
+		resource=#{resource}
 	</insert>
 	
 	<update id="deleteWuliaoOrder"  >

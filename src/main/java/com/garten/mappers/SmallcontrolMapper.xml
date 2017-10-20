@@ -682,7 +682,8 @@ gartenId=1
 		toGartenName=#{toGartenName},
 		fromGartenName=#{fromGartenName},
 		fromId=#{fromId},
-		fromJob=#{fromJob}
+		fromJob=#{fromJob},
+		sendType=#{sendType}
 	</insert>
 	<select id="findMessageLog"  resultType="MessageLog">
 		SELECT * FROM message_log  m

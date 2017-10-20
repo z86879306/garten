@@ -228,15 +228,12 @@ public class AgentService {
 		}
 		
 		//取消申请
-		public Map<String,Object> cancelApply(String token,String auditId){
-			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
-			 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-			 if(null!=agentInfo){
-				 agentDao.cancelApply(auditId);
-				 MyUtil.putMapParams(result,"state", 1,"info","操作成功" );
-			 }
-			 return result;
-		}
+		public Map<String,Object> cancelApply(Integer auditId,Integer resource){
+			Map<String,Object> param=MyUtil.putMapParams("auditId", auditId, "resource", resource);
+			 agentDao.cancelApply(param);
+			Map<String,Object> result= MyUtil.putMapParams("state", 1,"info","操作成功" );
+		 return result;
+	}
 		
 		//开园申请
 		public Map<String,Object> applyGarten(String token,String gartenName,String name,String phoneNumber,String contractNumber,String province,
@@ -248,7 +245,7 @@ public class AgentService {
 				 if(null!=worker){
 					 return MyUtil.putMapParams(result,"state", 2);			//该幼儿园联系手机号码已经被注册
 				 }
-				 agentDao.addApplyGarten(gartenName,name, phoneNumber, contractNumber, province,
+				 agentDao.addApplyGarten(1,gartenName,name, phoneNumber, contractNumber, province,
 							 city, countries, count, money, equipment,agentInfo.getAgentId());
 				 MyUtil.putMapParams(result,"state", 1,"info","操作成功" );
 			 }
@@ -383,7 +380,7 @@ public class AgentService {
 		AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 		 Map<String,Object> result=MyUtil.putMapParams("state", 0);
 		 if(null!=agentInfo){
-			 Map<String,Object> param=MyUtil.putMapParams("agentId",agentInfo.getAgentId(),"equipmentAll",equipmentAll,"address",address,"postalcode",postalcode,"fromPhoneNumber",fromPhoneNumber,"totalPrice",totalPrice);
+			 Map<String,Object> param=MyUtil.putMapParams("agentId",agentInfo.getAgentId(),"equipmentAll",equipmentAll,"address",address,"postalcode",postalcode,"fromPhoneNumber",fromPhoneNumber,"totalPrice",totalPrice,"resource",1);
 			agentDao.addWuliaoOrder(param);
 			 MyUtil.putMapParams(result,"state", 1);
 		 }

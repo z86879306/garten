@@ -552,4 +552,238 @@ public class BigcontrolController {
 			Map<String, Object> map = bigcontrolService.deleteSaleService(saleServiceId);
 			return map;
 		}  	
+		
+		
+		//-------------------------- ----  公司管理    ----------------         ----------------	
+		
+		
+		//-------------------------- ----  员工管理管理    ----------------         ----------------	
+
+			
+				
+				
+				
+		//查询员工
+		@RequestMapping("findEmployee")
+		public  @ResponseBody Map<String,Object> findEmployee(Integer pageNo,String name,Integer employeeNo,Long departmentNo,Long jobsNo,String phoneNumber) throws ParseException {
+			Map<String, Object> map = bigcontrolService.findEmployee(  pageNo, name, employeeNo, departmentNo, jobsNo,phoneNumber);
+			return map;
+		}  
+		//删除员工
+		@RequestMapping("deleteEmployee")
+		public  @ResponseBody Map<String,Object> deleteEmployee(Integer  employeeNo) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteEmployee(employeeNo);
+			return map;
+		}  
+		//修改员工
+		@RequestMapping("updateEmployee")
+		public  @ResponseBody Map<String,Object> updateEmployee(Integer employeeNo,String name,Long departmentNo,
+				Long jobsNo,String permission,String province,String city,String countries,
+				String phoneNumebr,String pwd) throws ParseException {
+			Map<String, Object> map = bigcontrolService.updateEmployee( employeeNo, name, departmentNo,
+					 jobsNo, permission, province, city, countries,
+					 phoneNumebr, pwd);
+					return map;
+			}  
+		
+		//添加员工
+		@RequestMapping("addEmployee")
+		public  @ResponseBody Map<String,Object> addEmployee(String name,Long departmentNo,
+				Long jobsNo,String permission,String province,String city,String countries,
+				String phoneNumebr,String pwd) throws ParseException {
+			Map<String, Object> map = bigcontrolService.addEmployee( name, departmentNo,
+					 jobsNo, permission, province, city, countries,
+					 phoneNumebr, pwd);
+			return map;
+		}  
+					
+		//-------------------------- ----  活动中心    ----------------         ----------------	
+				
+		//查询所有活动 company=cp employeeNo 谁申请的活动
+		@RequestMapping("findCpActivity")
+		public  @ResponseBody Map<String,Object> findCpActivity(Integer pageNo,String state,Integer employeeNo) throws ParseException {
+			Map<String, Object> map = bigcontrolService.findCpActivity( pageNo,state,employeeNo);
+			return map;
+		}  
+		
+		
+		//查询本部门活动 company=cp  
+		@RequestMapping("findDepartmentCpActivity")
+		public  @ResponseBody Map<String,Object> findDepartmentCpActivity(Integer pageNo,String state,String token) throws ParseException {
+			Map<String, Object> map = bigcontrolService.findDepartmentCpActivity( pageNo,state,token);
+			return map;
+		}  
+		
+		//删除活动
+		@RequestMapping("deleteCpActivity")
+		public  @ResponseBody Map<String,Object> deleteCpActivity(Integer  cpActivityId) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteCpActivity(cpActivityId);
+			return map;
+		}  
+		
+			
+		//添加活动
+		@RequestMapping("addCpActivity")
+		public  @ResponseBody Map<String,Object> addCpActivity(String token,String content,String reason,String title
+				) throws ParseException {
+			Map<String, Object> map = bigcontrolService.addCpActivity( token, content, reason, title);
+			return map;
+		} 
+			
+			
+		//修改活动
+		@RequestMapping("updateCpActivity")
+		public  @ResponseBody Map<String,Object> updateCpActivity(Integer cpActivityId,String state
+		) throws ParseException {
+			Map<String, Object> map = bigcontrolService.updateCpActivity(  cpActivityId, state);
+			return map;
+		} 
+
+		//-------------------------- ----  报表统计    ----------------         ----------------	
+
+		//查询 所属部门的 报表
+		@RequestMapping("findDepartmentReport")
+		public  @ResponseBody Map<String,Object> findDepartmentReport(Integer pageNo,String token ,Integer type,Long startTime,Long endTime) throws ParseException {
+			Map<String, Object> map = bigcontrolService.findDepartmentReport(  pageNo, token , type, startTime, endTime);
+			return map;
+		}  
+				
+		//查询 不同部门的 报表
+		@RequestMapping("findReport")
+		public  @ResponseBody Map<String,Object> findReport(Integer pageNo,Integer type,Long startTime,Long endTime,Long departmentNo) throws ParseException {
+			Map<String, Object> map = bigcontrolService.findReport( pageNo , type, startTime, endTime,departmentNo);
+			return map;
+		}  
+		//删除报表
+		@RequestMapping("deleteReport")
+		public  @ResponseBody Map<String,Object> deleteReport(Long departmentNo) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteReport(departmentNo);
+			return map;
+		}  
+				
+					
+		//添加报表
+		@RequestMapping("addReport")
+		public  @ResponseBody Map<String,Object> addReport(String token,Long startTime,Long endTime,String workContent,
+				String workSummary,String harmonizeContent,String plan,Integer type) throws ParseException {
+			Map<String, Object> map = bigcontrolService.addReport( token, startTime, endTime, workContent,
+					 workSummary, harmonizeContent, plan, type);
+			return map;
+		} 
+		//-------------------------- ---- 开园申请     ----------------         ----------------			
+		//查询 所属部门的 报表
+		/**
+		 * 找到自己的申请幼儿园
+		 * @param token 员工的token
+		 * @return
+		 */
+		@RequestMapping("findMyApplyGarten")
+		public  @ResponseBody Map<String,Object> findMyApplyGarten(String token ) throws ParseException {
+			Map<String, Object> map = bigcontrolService.findMyApplyGarten(token );
+			return map;
+		}  
+			
+	
+		/**
+		 * 提交申请开通幼儿园
+		 * @param token 员工的token
+		 * @return
+		 */
+		@RequestMapping("applyGarten")
+		@ResponseBody
+		public synchronized Map<String,Object> applyGarten(String token,String gartenName,String name,String phoneNumber,String contractNumber,String province,
+				String city, String countries,Integer count,Double money,String equipment){
+			Map<String, Object> map = bigcontrolService.applyGarten(token, gartenName, name, phoneNumber, contractNumber, province, city, countries, count, money, equipment);
+			return map;
+		}
+		
+
+		/**
+		 * 删除申请申请开通幼儿园   agent/cancelApply
+		 * @param auditId 员工主键
+		 * @param resource 0
+		 */
+
+		//-------------------------- ---- 部门管理     ----------------         ----------------			
+		/**
+		 * 查找部门
+		 */
+		@RequestMapping("findDepartment")
+		public  @ResponseBody Map<String,Object> findDepartment( ) throws ParseException {
+			Map<String, Object> map = bigcontrolService.findDepartment( );
+			return map;
+		} 
+		
+		/**
+		 * 删除部门
+		 */
+		@RequestMapping("deleteDepartment")
+		public  @ResponseBody Map<String,Object> deleteDepartment( Long departmentNo) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteDepartment( departmentNo);
+			return map;
+		}  
+		
+		
+		
+		/**
+		 * 添加部门
+		 */
+		@RequestMapping("addDepartment")
+		public  @ResponseBody Map<String,Object> addDepartment( String departmentName,String mark) throws ParseException {
+			Map<String, Object> map = bigcontrolService.addDepartment( departmentName,mark);
+			return map;
+		}  
+//-------------------------- ---- 岗位管理     ----------------         ----------------	
+			
+		/**
+		 * 查找岗位Jobs
+		 */
+		@RequestMapping("findJobs")
+		public  @ResponseBody Map<String,Object> findJobs( ) throws ParseException {
+			Map<String, Object> map = bigcontrolService.findJobs( );
+			return map;
+		}
+		
+		/**
+		 * 删除岗位
+		 */
+		@RequestMapping("deleteJobs")
+		public  @ResponseBody Map<String,Object> deleteJobs( Long jobsNo) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteJobs( jobsNo);
+			return map;
+		}  
+		
+		/**
+		 * 添加岗位
+		 */
+		@RequestMapping("addJobs")
+		public  @ResponseBody Map<String,Object> addJobs( String jobsName,String mark) throws ParseException {
+			Map<String, Object> map = bigcontrolService.addJobs( jobsName,mark);
+			return map;
+		}  
+		
+		//生成物料订单
+		@RequestMapping("addWuliaoOrder")
+		@ResponseBody
+		public synchronized Map<String,Object> addWuliaoOrder(String token,String equipmentAll,String address,String postalcode,String fromPhoneNumber,BigDecimal totalPrice){
+			Map<String, Object> map = bigcontrolService.addWuliaoOrder( token, equipmentAll, address, postalcode, fromPhoneNumber,totalPrice);
+			return map;
+		}
+		
+		//查询自己的物料订单
+		@RequestMapping("findWuliaoOrder")
+		@ResponseBody
+		public synchronized Map<String,Object> findWuliaoOrder(String token,Integer pageNo ,Integer state){
+			Map<String, Object> map = bigcontrolService.findWuliaoOrder(token,pageNo,state);
+			return map;
+		}
+		
+		//删除物料订单 
+		@RequestMapping("deleteWuliaoOrder")
+		@ResponseBody
+		public synchronized Map<String,Object> deleteWuliaoOrder(String token,Integer wuliaoId ){
+			Map<String, Object> map = bigcontrolService.deleteWuliaoOrder( token, wuliaoId);
+			return map;
+		}
+
 }

@@ -16,7 +16,15 @@ public class MessageLog {
 	private Integer fromId;
 	private String fromJob;
 	private String toclass;
+	private Integer sendType;
 	
+	
+	public Integer getSendType() {
+		return sendType;
+	}
+	public void setSendType(Integer sendType) {
+		this.sendType = sendType;
+	}
 	public String getFromGartenName() {
 		return fromGartenName;
 	}
@@ -131,6 +139,24 @@ public class MessageLog {
 	}
 	public void setGartenId(Integer gartenId) {
 		this.gartenId = gartenId;
+	}
+	public MessageLog(Long registTime, String targetName, String message, Integer messageId, String fromName,
+			Integer gartenId, String title, String toGartenName, String fromGartenName, Integer fromId, String fromJob,
+			String toclass, Integer sendType) {
+		super();
+		this.registTime = registTime;
+		this.targetName = targetName;
+		this.message = message;
+		this.messageId = messageId;
+		this.fromName = fromName;
+		this.gartenId = gartenId;
+		this.title = title;
+		this.toGartenName = toGartenName;
+		this.fromGartenName = fromGartenName;
+		this.fromId = fromId;
+		this.fromJob = fromJob;
+		this.toclass = toclass;
+		this.sendType = sendType;
 	}
 	
 	

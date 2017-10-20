@@ -803,7 +803,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		 contractEnd=FROM_UNIXTIME(#{contractEnd},  '%Y-%m-%d %H:%i:%s'), 
 		 organizationCode=#{organizationCode}, 
 		  name=#{name},
-		  token=#{token}
+		  token=#{token},
+		  agentType=#{agentType}
 	</insert>
 	
 	<insert id="insertWorkerInfo"  >
@@ -1305,6 +1306,230 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where isValid=0
 		<if test=" state!=null and state!='' ">
 			state=#{state}
+		</if>
+	</select>
+	
+	<select id="findEmployee" resultType="Employee">
+		SELECT * FROM employee
+		where name=name
+		<if test=" name!=null and name!='' ">
+			and name=#{name}
+		</if>
+		<if test=" employeeNo!=null and employeeNo!='' ">
+			and employeeNo=#{employeeNo}
+		</if>
+		<if test=" departmentNo!=null and departmentNo!='' ">
+			and departmentNo=#{departmentNo}
+		</if>
+		<if test=" jobsNo!=null and jobsNo!='' ">
+			and jobsNo=#{jobsNo}
+		</if>
+		order by registTime desc
+	</select>
+	
+	<select id="findIfDeleteEmployee" resultType="Boolean">
+		select count(*) from garten_info 
+		where
+		agentType=0 and agent=#{employeeNo}
+	</select>
+	
+	<delete id="deleteEmployee" >
+		delete  from employee 
+		where
+		 employeeNo=#{employeeNo}
+	</delete>
+	
+	<update id="updateEmployee" >
+		update   employee 
+		set
+		name=#{name},
+		departmentNo=#{departmentNo},
+		jobsNo=#{jobsNo},
+		permission=#{permission},
+		province=#{province},
+		city=#{city},
+		countries=#{countries},
+		phoneNumebr=#{phoneNumebr},
+		pwd=#{pwd}
+		where employeeNo=#{employeeNo}
+	</update>
+	
+	<insert id="addEmployee" >
+		insert  into employee 
+		set
+		name=#{name},
+		departmentNo=#{departmentNo},
+		jobsNo=#{jobsNo},
+		permission=#{permission},
+		province=#{province},
+		city=#{city},
+		countries=#{countries},
+		phoneNumebr=#{phoneNumebr},
+		pwd=#{pwd},
+		token=#{token}
+	</insert>
+	
+	<select id="findCpActivity" resultType="CpActivity">
+		select * from company_activity 
+		where 1=1
+		<if test=" state!=null and state!='' ">
+			and state=#{state}
+		</if>
+		<if test=" employeeNo!=null and employeeNo!='' ">
+			and employeeNo=#{employeeNo}
+		</if>
+	</select>
+	
+	
+	
+	<update id="updateCpActivity" >
+		update   company_activity 
+		set state=#{state}
+		where
+		 cpActivityId=#{cpActivityId}
+	</update>
+	
+	<delete id="deleteCpActivity" >
+		delete  from company_activity 
+		where
+		 cpActivityId=#{cpActivityId}
+	</delete>
+	
+	<insert id="addCpActivity" >
+		insert  into company_activity 
+		set
+		employeeNo=#{employeeNo},
+		content=#{content},
+		reason=#{reason},
+		title=#{title}
+	</insert>
+	
+	<select id="findEmployeeByToken" resultType="Employee">
+		select * from employee 
+		where
+		token=#{token}
+	</select>
+	
+		<select id="findEmployeeByPwd" resultType="Employee">
+		select * from employee 
+		where phoneNumber=#{phoneNumber}
+		and pwd=#{pwd}
+	</select>
+	
+		<select id="findEmployeeByPhoneNumber" resultType="Employee">
+		select * from employee 
+		where phoneNumber=#{phoneNumber}
+		
+	</select>
+	
+	
+	<select id="findDepartmentReport" resultType="Report">
+		select * from company_report r 
+		left join employee e  on  r.employeeNo=e.employeeNo
+		where  #{startTime}-1 &lt; unix_timestamp(r.registTime)
+		and  unix_timestamp(r.registTime) &lt;  #{endTime}+86400
+		and e.departmentNo=#{departmentNo}
+		
+		order by r.registTime desc
+
+	</select>
+	
+	<delete id="deleteReport" >
+		delete  from company_report 
+		where
+		 departmentNo=#{departmentNo}
+	</delete>
+	
+	<insert id="addReport" >
+		insert  into company_report 
+		where
+		startTime=#{startTime},
+		endTime=#{endTime},
+		workContent=#{workContent},
+		workSummary=#{workSummary},
+		harmonizeContent=#{harmonizeContent},
+		plan=#{plan},
+		employeeNo=#{employeeNo},
+		type=#{type}
+
+	</insert>
+	
+	<select id="findMyApplyGarten" resultType="AgentAudit">
+		
+		select * from agent_audit 
+		where resource=0 and resourceId=#{employeeNo}
+		order by registTime desc
+		
+	</select>
+	
+	<select id="findEmployeeById" resultType="Employee">
+		select * from employee
+		where employeeNo=#{employeeNo}
+	</select>
+	
+	<select id="findDepartment" resultType="Department">
+		select * from department  order by departmentNo desc
+	</select>
+	
+	<select id="findDepartmentByEmployeeNo" resultType="Department">
+		select * from department d left join employee e on e.departmentNo=d.departmentNo
+		where e.employeeNo=#{employeeNo}
+	</select>
+	
+	<delete id="deleteDepartment" >
+		delete  from department  where  departmentNo=#{departmentNo}
+	</delete>
+	
+	<insert id="addDepartment" >
+		insert  into department  set
+		departmentNo=unix_timestamp(now()),
+		departmentName=#{departmentName},
+		mark=#{mark}
+	</insert>
+	
+	<select id="ifExistDepartment" resultType="Boolean">
+		select count(1) from department  where departmentName=#{departmentName}
+	</select>
+	
+	<select id="ifExistJobs" resultType="Boolean">
+		select count(1) from jobs  where jobsName=#{jobsName}
+	</select>
+	
+	
+	<select id="ifExistDepartmentEmployee" resultType="Integer">
+		select count(1) from department  d
+		 join employee e on d.departmentNo=e.departmentNo 
+		 where d.departmentNo=#{departmentNo}
+	</select>
+	
+	<select id="ifExistJobsEmployee" resultType="Integer">
+		select count(1) from jobs  j
+		 join employee e on j.jobsNo=e.jobsNo 
+		 where j.jobsNo=#{jobsNo}
+	</select>
+	
+	
+	<select id="findJobs" resultType="Jobs">
+		select * from jobs  j order by jobsNo desc
+	</select>
+	
+	<select id="findJobsByEmployeeNo" resultType="Jobs">
+		select * from jobs  j left join employee e on e.jobsNo=j.jobsNo
+		where e.employeeNo=#{employeeNo}
+	</select>
+	
+	<insert id="addJobs" >
+		insert into jobs  set
+		jobsNo=unix_timestamp(now()),
+		jobsName=#{jobsName},
+		mark=#{mark}
+	</insert>
+	<select id="findDepartmentCpActivity" resultType="CpActivity">
+		select * from company_activity  a 
+		left join employee e on a.employeeNo=e.employeeNo
+		where e.departmentNo=#{departmentNo}
+		<if test=" state!=null and state!='' ">
+			and state=#{state}
 		</if>
 	</select>
 </mapper> 

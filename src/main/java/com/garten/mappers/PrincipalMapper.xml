@@ -135,10 +135,11 @@ c.leaveTime,c.time,c.checkId, c.amFileId, c.pmFileId, c.amMacId,c.pmMacId, c.arr
 			 u.jobId = w.workerId
 		AND u.job = '老师'
 		AND w.gartenId = (select gartenId from worker＿info where token=#{token})
-		AND UNIX_TIMESTAMP(u.time) &lt; #{endTime}
-		AND UNIX_TIMESTAMP(u.time) &gt; #{startTime}
+		AND UNIX_TIMESTAMP(u.time)= #{time}
 		AND u.isValid = 0 AND w.isValid = 0
 	</select>
+
+
 	
 	
 	<select id="findBabyCheckByClass"  resultType="BabyCheckLogAll">

@@ -1,3 +1,12 @@
+											/*　　      ＿＿＿
+											　　 ／　　　▲
+											／￣　 ヽ　■■
+											●　　　　　■■
+											ヽ＿＿＿　　■■			史努比祭天
+											　　　　）＝｜
+											　　　／　｜｜
+											　∩∩＿＿とﾉ
+											　しし———┘*/
 package com.garten.util;
 
 import java.io.BufferedReader;

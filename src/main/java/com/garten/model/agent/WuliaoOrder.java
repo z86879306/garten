@@ -20,7 +20,31 @@ public class WuliaoOrder {
 	private String fromPhonenumber;
 	private BigDecimal totalPrice;
 	private String remark;
+	private Integer resource;
 	
+	public Integer getResource() {
+		return resource;
+	}
+	public void setResource(Integer resource) {
+		this.resource = resource;
+	}
+	public WuliaoOrder(List<Map<String, Object>> equipmentAll, Integer wuliaoId, String address, String postalcode,
+			Long registTime, Integer agentId, Integer state, String toPhonenumber, String fromPhonenumber,
+			BigDecimal totalPrice, String remark, Integer resource) {
+		super();
+		this.equipmentAll = equipmentAll;
+		this.wuliaoId = wuliaoId;
+		this.address = address;
+		this.postalcode = postalcode;
+		this.registTime = registTime;
+		this.agentId = agentId;
+		this.state = state;
+		this.toPhonenumber = toPhonenumber;
+		this.fromPhonenumber = fromPhonenumber;
+		this.totalPrice = totalPrice;
+		this.remark = remark;
+		this.resource = resource;
+	}
 	public BigDecimal getTotalPrice() {
 		return totalPrice;
 	}
