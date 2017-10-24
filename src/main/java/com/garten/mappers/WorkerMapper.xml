@@ -418,7 +418,7 @@ and l.activityId=#{activityId}
 		WHERE
 			 w.token = #{token}
     	and r.isValid=0 and w.isValid=0 
-    	order by UNIX_TIMESTAMP(r.time)
+    	order by UNIX_TIMESTAMP(r.time) desc
 	</select>
 	
 	<select id="findWCheckLongByToken"  resultType="Long">

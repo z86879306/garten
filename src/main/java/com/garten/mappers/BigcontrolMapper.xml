@@ -262,9 +262,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			</if>
 			
 	</select>
-	<select id="findBabyMessage"  resultType="BabyMessage">
+	<select id="findBabyMessage"  resultType="BabyMessageAndParent">
 		SELECT * FROM 
 		baby_info  b left join worker＿info w on FIND_IN_SET(w.workerId, b.teacherId)
+		left join  parent_info p on   FIND_IN_SET(b.babyId,p.babyId)
 		left join  garten_class c on w.classId=c.classId
 		left join  attendance_no n on n.jobId=b.babyId and n.job='宝宝'
 		left join  garten_info g on   g.gartenId =w.gartenId
@@ -1532,4 +1533,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			and state=#{state}
 		</if>
 	</select>
+	<select id="findToken" resultType="string"> 
+		select  token from  employee e
+		where phoneNumber=#{phoneNumber} 
+	</select>
+	<select id="findMyReport" resultType="Report">
+		select * from company_report r 
+		left join employee e  on  r.employeeNo=e.employeeNo
+		where  #{startTime}-1 &lt; unix_timestamp(r.registTime)
+		and  unix_timestamp(r.registTime) &lt;  #{endTime}+86400
+		and e.employeeNo=#{employeeNo}
+		order by r.registTime desc
+	</select>
+	
 </mapper> 

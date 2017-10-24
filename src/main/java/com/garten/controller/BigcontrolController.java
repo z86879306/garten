@@ -119,6 +119,13 @@ public class BigcontrolController {
 		Map<String,Object> map=bigcontrolService.gartenMessage( token, name,province,city,countries,phoneNumber,pageNo,gartenId,monitorState,attendanceState);
 		return map;
 	}
+	
+	//幼儿园信息导出
+	@RequestMapping("exportGarten")
+	@ResponseBody
+	public void exportGarten(String token,String name ,String province,String city,String countries,String phoneNumber,Integer gartenId,HttpServletResponse response){
+		bigcontrolService.exportGarten(token, name, province, city, countries, phoneNumber, gartenId, response);
+	}
 	//修改幼儿园信息
 	@RequestMapping("updateGarten")//
 	public synchronized  @ResponseBody Map<String,Object> updateGarten(String token,Integer gartenId,String gartenName ,String name,String phoneNumber,String contractNumber,Long  contractStart,Long  contractEnd,String  organizationCode,String province,String city,String countries ,String address,Integer accountState,BigDecimal charge,Long attendanceTime,Long monitorTime) throws ParseException {
@@ -670,6 +677,14 @@ public class BigcontrolController {
 					 workSummary, harmonizeContent, plan, type);
 			return map;
 		} 
+		
+		//查询 自己的 报表
+		@RequestMapping("findMyReport")
+		public  @ResponseBody Map<String,Object> findMyReport(Integer pageNo,String token ,Integer type,Long startTime,Long endTime) throws ParseException {
+			Map<String, Object> map = bigcontrolService.findMyReport(  pageNo, token , type, startTime, endTime);
+			return map;
+		}  
+
 		//-------------------------- ---- 开园申请     ----------------         ----------------			
 		//查询 所属部门的 报表
 		/**

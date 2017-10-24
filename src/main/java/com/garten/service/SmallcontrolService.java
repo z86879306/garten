@@ -194,8 +194,9 @@ public class SmallcontrolService {
 			MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(workerMessage, pageNo),"count",workerMessage.size());
 			}
 			
-	return result;
+			return result;
 	}
+	
 	public Map<String, Object> WorkerMessageNo(String token, String name, String phoneNumber ) {
 		 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
@@ -203,18 +204,17 @@ public class SmallcontrolService {
 				List<WorkerMessage> workerMessage=bigcontrolDao.findWorkerMessage(MyUtil.putMapParams("name", name , "phoneNumber",phoneNumber,"gartenId", workerInfo.getGartenId()));
 			MyUtil.putMapParams(result,"state", 1,"info",workerMessage);
 			}
-			
-	return result;
+		
+		return result;
 	}
 	public Map<String, Object> babyMessage(String token,String name ,String leadGrade,String leadClass,Integer pageNo ) {
-		 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-		 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
-			if(null!=workerInfo){
-				List<BabyMessageAndParent> babyMessages=smallcontrolDao.findBabyMessage(MyUtil.putMapParams("name", name ,"gartenId",workerInfo.getGartenId(),"leadGrade",leadGrade,"leadClass",leadClass));
-				MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(babyMessages, pageNo),"count",babyMessages.size());
+		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+		if(null!=workerInfo){
+			List<BabyMessageAndParent> babyMessages=smallcontrolDao.findBabyMessage(MyUtil.putMapParams("name", name ,"gartenId",workerInfo.getGartenId(),"leadGrade",leadGrade,"leadClass",leadClass));
+			MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(babyMessages, pageNo),"count",babyMessages.size());
 		}
-			
-	return result;
+		return result;
 	}
 	
 	public Map<String, Object> parentMessage(String token,String name ,String phoneNumber,Integer pageNo, Integer attendanceState, Integer monitorState ) throws ParseException {

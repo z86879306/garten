@@ -43,6 +43,7 @@ import com.garten.model.worker.WorkerCheckLog;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.model.worker.WorkerLeaveLog;
 import com.garten.vo.agent.AgentAuditMessage;
+import com.garten.vo.baby.BabyMessageAndParent;
 import com.garten.vo.bigcontrol.AddDetail;
 import com.garten.vo.bigcontrol.BabyMessage;
 import com.garten.vo.bigcontrol.ClassManageBig;
@@ -110,7 +111,7 @@ public interface BigcontrolDao {
 
 	ClassManageBig findBabyByIdBig(Integer babyId);
 
-	List<BabyMessage> findBabyMessage(Map<String, Object> putMapParams);
+	List<BabyMessageAndParent> findBabyMessage(Map<String, Object> putMapParams);
 
 	List<WorkerMessage> findWorkerMessage(Map<String, Object> putMapParams);
 
@@ -339,6 +340,8 @@ public interface BigcontrolDao {
 	void deleteReport(Long departmentNo);
 
 	void addReport(Map<String, Object> param);
+	
+	List<Report> findMyReport(Map<String, Object> param);
 
 	List<AgentAudit> findMyApplyGarten(Integer employeeNo);
 
@@ -373,5 +376,7 @@ public interface BigcontrolDao {
 	Department findDepartmentByEmployeeNo(Integer employeeNo);
 	
 	List<CpActivity> findDepartmentCpActivity(Map<String, Object> param);
+
+	String findToken(Map<String, Object> param);
 
 }
