@@ -76,6 +76,10 @@ public class PrincipalService {
 			//uuid=UUID.randomUUID().toString();
 			//param.put("token", uuid);
 			//principalDao.updateToken(param);//调用老师Dao的方法验证更新token
+			GartenInfo gartenInfo = workerDao.findGartenInfoById(worker.getGartenId());
+			if(1==gartenInfo.getAccountState()){
+				return MyUtil.putMapParams(result, "state",2);
+			}
 			MyUtil.putMapParams(result,"state", 1, "info", worker.getToken());//info: token或error  user:首页信息
 		}
 		return result;

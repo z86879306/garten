@@ -194,6 +194,9 @@ public class AttendanceService {
 		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
 			result.put("respCode", 600009);
 			result.put("respDesc", "考勤服务到期，请联系成长记忆续费");
+			if(1==gartenInfo.getAccountState()){
+				MyUtil.putMapParams(result, "respCode", 600011, "respDesc", "幼儿园已被冻结");
+			}
 			return result;
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -450,13 +453,17 @@ public class AttendanceService {
 			result.put("respDesc", "请求参数错误");
 			return result;
 		}
+		GartenInfo gartenInfo = attendanceDao.findGartenByToken(schoolToken);
+		PartnerInfo partnerInfo = attendanceDao.findPartnerByTokenAndId(partnerToken, partnerId);
 		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
 			result.put("respCode", 600009);
 			result.put("respDesc", "考勤服务到期，请联系成长记忆续费");
+			
+			if(1==gartenInfo.getAccountState()){
+				MyUtil.putMapParams(result, "respCode", 600011, "respDesc", "幼儿园已被冻结");
+			}
 			return result;
 		}
-		GartenInfo gartenInfo = attendanceDao.findGartenByToken(schoolToken);
-		PartnerInfo partnerInfo = attendanceDao.findPartnerByTokenAndId(partnerToken, partnerId);
 		if(gartenInfo==null||partnerInfo==null){
 			result.put("respCode", 600001);
 			result.put("respDesc", "无效合作商或者无效schoolToken");

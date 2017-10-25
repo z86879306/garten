@@ -27,11 +27,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.garten.Thread.AddRecipeNotify;
@@ -40,6 +42,7 @@ import com.garten.Thread.DeleteParentThread;
 import com.garten.Thread.DeleteTeacherThread;
 import com.garten.Thread.InsertCheckThread;
 import com.garten.Thread.SmallcontrolSendNotify;
+import com.garten.dao.AgentDao;
 import com.garten.dao.AttendanceDao;
 
 import com.garten.dao.BigcontrolDao;
@@ -47,7 +50,9 @@ import com.garten.dao.ParentDao;
 import com.garten.dao.PrincipalDao;
 import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
+import com.garten.model.agent.AgentInfo;
 import com.garten.model.baby.BabyInfo;
+import com.garten.model.company.Employee;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
@@ -79,6 +84,7 @@ import com.garten.vo.bigcontrol.ClassManageBig;
 import com.garten.vo.bigcontrol.GartenClassAll;
 import com.garten.vo.bigcontrol.ParentMessage;
 import com.garten.vo.bigcontrol.WorkerMessage;
+import com.garten.vo.garent.GartenAndAgent;
 import com.garten.vo.parent.ParentInfoCharge;
 import com.garten.vo.smallcontrol.BabyCheckSimple;
 import com.garten.vo.smallcontrol.CardNoDetail;
@@ -114,6 +120,8 @@ public class SmallcontrolService {
 	private WorkerService workerService;
 	@Autowired
 	private AttendanceDao attendanceDao;
+	@Autowired
+	private AgentDao agentDao;
 	
 	public Map<String, Object> login(String phoneNumber, String pwd) {
 		Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
@@ -1129,33 +1137,40 @@ public class SmallcontrolService {
 	}
 	
 	//删除家长
-	public synchronized Map<String,Object> deleteParent(String token,Integer parentId){
+	public synchronized Map<String,Object> deleteParent(Integer parentId){
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
-			if(null!=workerInfo){
-				BabyInfo babyInfo = smallcontrolDao.findBabyByParentId(parentId);
-				if(null!=babyInfo){
-					MyUtil.putMapParams(result,  "state",2);			//该家长为某位宝宝的主监护人  无法删除
-				}else{
-					//不是主监护人   开始删除这位家长的信息  isValid=1
-					//开启删除家长线程
-					DeleteParentThread deleteParentThread = new DeleteParentThread(parentId);
-					Thread thread = new Thread(deleteParentThread);
-					thread.start();
-					MyUtil.putMapParams(result,  "state",1);	
-				}
-				
+		
+			BabyInfo babyInfo = smallcontrolDao.findBabyByParentId(parentId);
+			if(null!=babyInfo){
+				MyUtil.putMapParams(result,  "state",2);			//该家长为某位宝宝的主监护人  无法删除
+			}else{
+				//不是主监护人   开始删除这位家长的信息  isValid=1
+				//开启删除家长线程
+				DeleteParentThread deleteParentThread = new DeleteParentThread(parentId);
+				Thread thread = new Thread(deleteParentThread);
+				thread.start();
+				MyUtil.putMapParams(result,  "state",1);	
 			}
+			
 			return result;
 	}
 	
 	
 	//该幼儿园资料
+	
 	public Map<String ,Object > getGartenMessage(String token){
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 			if(null!=workerInfo){
-				GartenInfo gartenInfo = smallcontrolDao.getGartenById(workerInfo.getGartenId());
+				GartenAndAgent gartenInfo = smallcontrolDao.getGartenById(workerInfo.getGartenId());
+							
+				if(gartenInfo.getAgentType()==1){		//0是员工  1是代理商
+					AgentInfo agentInfo = agentDao.findAgentById(Integer.parseInt(gartenInfo.getAgent()));
+					gartenInfo.setAgentInfo(agentInfo);
+				}else if(gartenInfo.getAgentType()==0){
+					Employee employee = bigcontrolDao.findEmployeeById(Integer.parseInt(gartenInfo.getAgent()));
+					gartenInfo.setEmployee(employee);
+				}
 				MyUtil.putMapParams(result, "state",1,"info",gartenInfo);
 			}
 			return result;

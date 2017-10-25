@@ -180,7 +180,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="findAgentAudit"  resultType="AgentAuditMessage">
 		SELECT  * from agent_audit  a 
 		left join agent_info ai on a.resourceId=ai.agentId
-		where resource=#{resource} and a.isvalid=0 and state=0
+		where resource=#{resource} and a.isvalid=0 and a.state=0
 	</select>
 	
 	<select id="findAgentAuditOne"  resultType="AgentAudit">
@@ -646,7 +646,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where auditId=#{auditId} 
 		and a.isValid=0
 	</update>
-	
+	<update id="refuseAgentAudit">
+		update agent_audit
+		set state=2,reason=#{reason}
+		where auditId=#{auditId}
+		and isValid=0
+	</update>
 	<update id="deleteAgentMessge"  >
 		update   agent_info i
 		set isvalid=1
@@ -702,54 +707,57 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 		<update id="updateGarten"  >
 		update   garten_info g
-		set  g.gartenName= #{gartenName}
-		
+		 
+		<set>
+			<if test="	gartenName!=null and gartenName!=''" >
+				g.gartenName= #{gartenName},
+			</if>
 			<if test="	name!=null and name!=''" >
-				, g.name=#{name}
+				g.name=#{name},
 			</if>
 			<if test="	phoneNumber!=null and phoneNumber!=''" >
-				, g.phoneNumber=#{phoneNumber}
+				g.phoneNumber=#{phoneNumber},
 			</if>
 			<if test="	contractNumber!=null and contractNumber!=''" >
-				, g.contractNumber=#{contractNumber}
+				g.contractNumber=#{contractNumber},
 			</if>
 			<if test="	contractStart!=null and contractStart!=''" >
-				, g.contractStart=FROM_UNIXTIME(#{contractStart},  '%Y-%m-%d %H:%i:%s')
+				g.contractStart=FROM_UNIXTIME(#{contractStart},  '%Y-%m-%d %H:%i:%s'),
 			</if>
 			<if test="	contractEnd!=null and contractEnd!=''" >
-				, g.contractEnd=FROM_UNIXTIME(#{contractEnd},  '%Y-%m-%d %H:%i:%s')
+				g.contractEnd=FROM_UNIXTIME(#{contractEnd},  '%Y-%m-%d %H:%i:%s'),
 			</if>
 			<if test="	organizationCode!=null and organizationCode!=''" >
-				, g.organizationCode=#{organizationCode}
+				g.organizationCode=#{organizationCode},
 			</if>
 			<if test="	province!=null and province!=''" >
-				, g.province=#{province}
+				g.province=#{province},
 			</if>
 			<if test="	city!=null and city!=''" >
-				, g.city=#{city}
+				g.city=#{city},
 			</if>
 			<if test="	countries!=null and countries!=''" >
-				, g.countries=#{countries}
+				g.countries=#{countries},
 			</if>
 			<if test="	address!=null and address!=''" >
-				, g.address=#{address}
+				g.address=#{address},
 			</if>
 			<if test="	accountState!=null " >
-				, g.accountState=#{accountState}
+				g.accountState=#{accountState},
 			</if>
 			<if test="	charge!=null and charge!=''" >
-				, g.charge=#{charge}
+				g.charge=#{charge},
 			</if>
 			<if test="	attendanceTime!=null and attendanceTime!=''" >
-				, g.attendanceTime=FROM_UNIXTIME(#{attendanceTime},  '%Y-%m-%d %H:%i:%s')
+				g.attendanceTime=FROM_UNIXTIME(#{attendanceTime},  '%Y-%m-%d %H:%i:%s'),
 			</if>
 			<if test="	monitorTime!=null and monitorTime!=''" >
-				, g.monitorTime=FROM_UNIXTIME(#{monitorTime},  '%Y-%m-%d %H:%i:%s')
+				g.monitorTime=FROM_UNIXTIME(#{monitorTime},  '%Y-%m-%d %H:%i:%s'),
 			</if>
 			<if test="	accountState!=null and accountState!=''" >
-				, g.accountState=#{accountState}
+				g.accountState=#{accountState}
 			</if>
-				
+		</set>		
 		where g.gartenId=#{gartenId} 
 		and g.isValid=0
 	</update>
@@ -1202,7 +1210,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</delete>
 	<update id="resolveWuliaoOrder"  >
 		update   wuliao_order  
-		set state=#{state},toPhonenumber=#{toPhoneNunmber},remark=#{remark}
+		set state=#{state},toPhonenumber=#{toPhoneNumber},remark=#{remark}
 		where   wuliaoId=#{wuliaoId}  and isvalid=0
 	</update>
 	<update id="updateBalance"  >
@@ -1545,5 +1553,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		and e.employeeNo=#{employeeNo}
 		order by r.registTime desc
 	</select>
+	<select id="findWithdraw" resultType="WithdrawAll">
+		select * from agent_withdraw   
+		where  #{startTime}-1 &lt; unix_timestamp(registTime)
+		and  unix_timestamp(registTime) &lt;  #{endTime}+86400
+		<if test=" state!=null ">
+			and state=#{state}
+		</if>
+		order by registTime desc
+	</select>
+	
+	
+	<update id="updateWithdraw" >
+		update   agent_withdraw   
+		set state=#{state},mark=#{mark},employeeNo=#{employeeNo}
+		where  withdrawId=#{withdrawId}
+	</update>
+	
+	
+	<delete id="deleteWithdraw" >
+		delete from    agent_withdraw    where  withdrawId=#{withdrawId}
+	</delete>
 	
 </mapper> 

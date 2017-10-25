@@ -29,6 +29,7 @@ import org.codehaus.jackson.map.util.Comparators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServletServerHttpAsyncRequestControl;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -52,6 +53,7 @@ import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
 import com.garten.model.agent.SaleServiceAll;
+import com.garten.model.agent.WithdrawAll;
 import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.company.CpActivity;
@@ -143,8 +145,7 @@ public class BigcontrolService {
 		//如果worker为空则返回error
 		//如果worker不为空则返回uuid,并修改token为uuid
 		if(null!=e&&!"".equals(e)){
-			uuid=bigcontrolDao.findToken(param);
-			MyUtil.putMapParams(result,"state", 1, "info", uuid);
+			MyUtil.putMapParams(result,"state", 1, "info", e);
 		}
 		return result;
 	}
@@ -530,7 +531,12 @@ public class BigcontrolService {
 				return result;
 		}
 		
-		
+		public Map<String,Object> refuseAgentAudit(Integer auditId,String reason){
+			Map<String, Object> params = MyUtil.putMapParams("auditId", auditId, "reason", reason);
+			
+			bigcontrolDao.refuseAgentAudit(params);
+			return MyUtil.putMapParams("state", 1);
+		}
 		
 		
 		
@@ -1910,7 +1916,7 @@ public class BigcontrolService {
 			return result;
 		}
 		
-		public synchronized Map<String, Object> resolveWuliaoOrder(Integer wuliaoId, Integer state, String toPhoneNunmber,String remark) {
+		public synchronized Map<String, Object> resolveWuliaoOrder(Integer wuliaoId, Integer state, String toPhoneNumber,String remark) {
 			Map<String,Object> result=MyUtil.putMapParams("state",2);//订单编号错误
 			List<WuliaoOrder> wo=agentDao.findWuliaoOrder(MyUtil.putMapParams("wuliaoId",wuliaoId));
 			if(1==wo.size()){
@@ -1926,19 +1932,19 @@ public class BigcontrolService {
 					MyUtil.putMapParams(result,"state",3);//余额不足
 					if((1==big||0==big)&&2==state){//余额足够
 						BigDecimal balance=ai.getCreditMoney().subtract(wo.get(0).getTotalPrice());
-						Map<String,Object> param=MyUtil.putMapParams("wuliaoId",wuliaoId,"state",state,"toPhoneNunmber",toPhoneNunmber,"remark",remark,"balance",balance,"agentId",wo.get(0).getAgentId());
+						Map<String,Object> param=MyUtil.putMapParams("wuliaoId",wuliaoId,"state",state,"toPhoneNumber",toPhoneNumber,"remark",remark,"balance",balance,"agentId",wo.get(0).getAgentId());
 						bigcontrolDao.updateBalance(param);
 						bigcontrolDao.resolveWuliaoOrder(param);
 						MyUtil.putMapParams(result,"state",1);
 					}
 					if(3==state){//判断是否拒收
-						Map<String,Object> param=MyUtil.putMapParams("wuliaoId",wuliaoId,"state",state,"toPhoneNunmber",toPhoneNunmber,"remark",remark,"agentId",wo.get(0).getAgentId());
+						Map<String,Object> param=MyUtil.putMapParams("wuliaoId",wuliaoId,"state",state,"toPhoneNumber",toPhoneNumber,"remark",remark,"agentId",wo.get(0).getAgentId());
 						bigcontrolDao.resolveWuliaoOrder(param);
 						MyUtil.putMapParams(result,"state",1);
 					}
 					
 				}else {//这个订单是员工的  只是修改一下订单状态
-						Map<String,Object> param=MyUtil.putMapParams("wuliaoId",wuliaoId,"state",state,"toPhoneNunmber",toPhoneNunmber,"remark",remark);
+						Map<String,Object> param=MyUtil.putMapParams("wuliaoId",wuliaoId,"state",state,"toPhoneNumber",toPhoneNumber,"remark",remark);
 						bigcontrolDao.resolveWuliaoOrder(param);
 				}
 				
@@ -2228,7 +2234,7 @@ public class BigcontrolService {
 
 		//开园申请
 		public Map<String,Object> applyGarten(String token,String gartenName,String name,String phoneNumber,String contractNumber,String province,
-				String city, String countries,Integer count,Double money,String equipment){
+				String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money,String equipment,String remark){
 			Employee em=bigcontrolDao.findEmployeeByToken(token);
 			Map<String,Object> result=MyUtil.putMapParams("state",0,"info",null);
 			 if(null!=em){
@@ -2237,7 +2243,7 @@ public class BigcontrolService {
 					 return MyUtil.putMapParams(result,"state", 4,"info","该参数已被注册");			//该幼儿园联系手机号码已经被注册
 				 }
 				 agentDao.addApplyGarten(0,gartenName,name, phoneNumber, contractNumber, province,
-							 city, countries, count, money, equipment,em.getEmployeeNo());
+							 city, countries, workerCount,babyCount,gradeCount,classCount, money, equipment,em.getEmployeeNo(),remark);
 				 MyUtil.putMapParams(result,"state", 1,"info","操作成功" );
 			 }
 			
@@ -2333,36 +2339,61 @@ public class BigcontrolService {
 			return bigcontrolDao.findDepartmentByEmployeeNo(employeeNo);
 		}
 		
-		public synchronized Map<String, Object> addWuliaoOrder(String token, String equipmentAll, String address, String postalcode,
-				String fromPhoneNumber,BigDecimal totalPrice) {
-			Employee em= bigcontrolDao.findEmployeeByToken(token);
-			 Map<String,Object> result=MyUtil.putMapParams("state", 0);
-			 if(null!=em){
-				 Map<String,Object> param=MyUtil.putMapParams("agentId",em.getEmployeeNo(),"equipmentAll",equipmentAll,"address",address,"postalcode",postalcode,"fromPhoneNumber",fromPhoneNumber,"totalPrice",totalPrice,"resource",0);
-				agentDao.addWuliaoOrder(param);
-				 MyUtil.putMapParams(result,"state", 1);
-			 }
-			 return result;
-		}
+	public synchronized Map<String, Object> addWuliaoOrder(String token, String equipmentAll, String address, String postalcode,
+			String fromPhoneNumber,BigDecimal totalPrice) {
+		Employee em= bigcontrolDao.findEmployeeByToken(token);
+		 Map<String,Object> result=MyUtil.putMapParams("state", 0);
+		 if(null!=em){
+			 Map<String,Object> param=MyUtil.putMapParams("agentId",em.getEmployeeNo(),"equipmentAll",equipmentAll,"address",address,"postalcode",postalcode,"fromPhoneNumber",fromPhoneNumber,"totalPrice",totalPrice,"resource",0);
+			agentDao.addWuliaoOrder(param);
+			 MyUtil.putMapParams(result,"state", 1);
+		 }
+		 return result;
+	}
 
-			public Map<String, Object> findWuliaoOrder(String token,Integer pageNo ,Integer state) {
-			Employee em= bigcontrolDao.findEmployeeByToken(token);
-			 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-			 if(null!=em){
-				 Map<String,Object> param=MyUtil.putMapParams("agentId",em.getEmployeeNo(),"state",state,"resource",0);
-				List<WuliaoOrder> wuliaoOrder=agentDao.findWuliaoOrder(param);
-				 MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(wuliaoOrder, pageNo));
-			 }
-			 return result;
-		}
+		public Map<String, Object> findWuliaoOrder(String token,Integer pageNo ,Integer state) {
+		Employee em= bigcontrolDao.findEmployeeByToken(token);
+		 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+		 if(null!=em){
+			 Map<String,Object> param=MyUtil.putMapParams("agentId",em.getEmployeeNo(),"state",state,"resource",0);
+			List<WuliaoOrder> wuliaoOrder=agentDao.findWuliaoOrder(param);
+			 MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(wuliaoOrder, pageNo));
+		 }
+		 return result;
+	}
 
-			public synchronized Map<String, Object> deleteWuliaoOrder(String token, Integer wuliaoId) {
-			Employee em= bigcontrolDao.findEmployeeByToken(token);
-			 Map<String,Object> result=MyUtil.putMapParams("state", 0);
-			 if(null!=em){
-				agentDao.deleteWuliaoOrder(wuliaoId);
-				 MyUtil.putMapParams(result,"state", 1);
-			 }
-			 return result;
-		}
+		public synchronized Map<String, Object> deleteWuliaoOrder(String token, Integer wuliaoId) {
+		Employee em= bigcontrolDao.findEmployeeByToken(token);
+		 Map<String,Object> result=MyUtil.putMapParams("state", 0);
+		 if(null!=em){
+			agentDao.deleteWuliaoOrder(wuliaoId);
+			 MyUtil.putMapParams(result,"state", 1);
+		 }
+		 return result;
+	}
+			
+	public Map<String, Object> findWithdraw(Long startTime, Long endTime, Integer state) {
+		 Map<String,Object> param=MyUtil.putMapParams("startTime", startTime,"endTime",endTime,"state",state);
+		List<WithdrawAll> withdraw=bigcontrolDao.findWithdraw(param);
+		withdraw=MyUtil.setWithdrawAll(withdraw);
+		Map<String,Object> result=MyUtil.putMapParams("state", 1,"info",withdraw);
+		return result;
+	}
+
+	public Map<String, Object> updateWithdraw(String token,Integer withdrawId, Integer state, String mark) {
+		Employee em= bigcontrolDao.findEmployeeByToken(token);
+		 Map<String,Object> result=MyUtil.putMapParams("state", 0);
+		 if(null!=em){
+			Map<String,Object> param=MyUtil.putMapParams("withdrawId", withdrawId,"state",state,"mark",mark,"employeeNo",em.getEmployeeNo());
+			bigcontrolDao.updateWithdraw(param);
+			MyUtil.putMapParams(result,"state", 1);
+		 }
+		return result;
+	}
+
+	public Map<String, Object> deleteWithdraw(Integer withdrawId) {
+		bigcontrolDao.deleteWithdraw(withdrawId);
+		Map<String,Object> result=MyUtil.putMapParams("state", 1);
+		return result;
+	}
 }

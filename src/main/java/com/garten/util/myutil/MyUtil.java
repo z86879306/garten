@@ -55,6 +55,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.cloopen.rest.sdk.utils.encoder.BASE64Encoder;
 import com.garten.model.agent.AgentInfo;
 import com.garten.model.agent.SaleServiceAll;
+import com.garten.model.agent.WithdrawAll;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
 import com.garten.model.garten.GartenCharge;
@@ -1503,4 +1504,12 @@ public  class MyUtil implements ApplicationContextAware{
 			return result;
 		}
 
+		public static List<WithdrawAll> setWithdrawAll(List<WithdrawAll> withdraw) {
+			AgentService agentService = (AgentService) MyUtil.getBean("agentService");
+			for(WithdrawAll w:withdraw){
+				AgentInfo a=agentService.findAgentByAgentId(w.getAgentId());
+				w.setAgentInfo(a);
+			}
+			return withdraw;
+		}
 }

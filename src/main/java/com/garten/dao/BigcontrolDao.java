@@ -12,6 +12,7 @@ import com.garten.model.activity.ActivityLog;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
 import com.garten.model.agent.SaleServiceAll;
+import com.garten.model.agent.WithdrawAll;
 import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
@@ -379,4 +380,11 @@ public interface BigcontrolDao {
 
 	String findToken(Map<String, Object> param);
 
+	void refuseAgentAudit(Map<String, Object> params);
+
+	List<WithdrawAll> findWithdraw(Map<String, Object> param);
+
+	void updateWithdraw(Map<String, Object> param);
+
+	void deleteWithdraw(Integer withdrawId);
 }

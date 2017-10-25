@@ -129,8 +129,8 @@ public class AgentController {
 	@RequestMapping("applyGarten")
 	@ResponseBody
 	public synchronized Map<String,Object> applyGarten(String token,String gartenName,String name,String phoneNumber,String contractNumber,String province,
-			String city, String countries,Integer count,Double money,String equipment){
-		Map<String, Object> map = agentService.applyGarten(token, gartenName, name, phoneNumber, contractNumber, province, city, countries, count, money, equipment);
+			String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money,String equipment,String remark){
+		Map<String, Object> map = agentService.applyGarten(token, gartenName, name, phoneNumber, contractNumber, province, city, countries, workerCount,babyCount, gradeCount,classCount,money, equipment,remark);
 		return map;
 	}
 	
@@ -236,4 +236,32 @@ public class AgentController {
 		Map<String, Object> map = agentService.findEquipmentNameNoPage();
 		return map;
 	}*/
+		//--------------------------------	申请提现	----------------------------------		
+		//申请提现
+		@RequestMapping("addWithdraw")//state 0   5
+		@ResponseBody
+		public synchronized Map<String,Object> addWithdraw(String token,String card,
+				String  cardName,Integer receiveType,BigDecimal price){
+			Map<String, Object> map = agentService.addWithdraw( token, card,  cardName, receiveType, price);
+			return map;
+		}
+				
+		//提现记录
+		@RequestMapping("findWithdraw")//
+		@ResponseBody
+		public synchronized Map<String,Object> findWithdraw(String token,Long startTime,
+				Long  endTime){
+			Map<String, Object> map = agentService.findWithdraw( token, startTime,  endTime);
+			return map;
+		}
+		//提现默认填空  银行卡		
+		@RequestMapping("agentMessage")//
+		@ResponseBody
+		public synchronized Map<String,Object> agentMessage(String token){
+			Map<String, Object> map = agentService.agentMessage( token);
+			return map;
+		}
+		
+
+		
 }

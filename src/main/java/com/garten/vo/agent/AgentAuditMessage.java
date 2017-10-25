@@ -22,29 +22,31 @@ public class AgentAuditMessage extends AgentAudit{
 	}
 
 	public AgentAuditMessage(Integer resource, String contractNumber, String province, String city, String countries,
-			Integer count, String equipment, BigDecimal money1, BigDecimal money2, BigDecimal money3, BigDecimal money4,
-			Integer auditId, Integer resourceId, Long registTime, Integer state, String gartenName, String name,
-			String phoneNumber) {
-		super(resource, contractNumber, province, city, countries, count, equipment, money1, money2, money3, money4, auditId,
-				resourceId, registTime, state, gartenName, name, phoneNumber);
-		// TODO Auto-generated constructor stub
+			Integer workerCount, Integer babyCount, String equipment, BigDecimal money1, BigDecimal money2,
+			BigDecimal money3, BigDecimal money4, Integer auditId, Integer resourceId, Long registTime, Integer state,
+			String gartenName, String name, String phoneNumber, String remark, Integer gradeCount, Integer classCount,
+			String reason, String agentName) {
+		super(resource, contractNumber, province, city, countries, workerCount, babyCount, equipment, money1, money2,
+				money3, money4, auditId, resourceId, registTime, state, gartenName, name, phoneNumber, remark,
+				gradeCount, classCount, reason);
+		this.agentName = agentName;
 	}
 
 	public AgentAuditMessage(Integer resource, String contractNumber, String province, String city, String countries,
-			Integer count, String equipment, BigDecimal money1, BigDecimal money2, BigDecimal money3, BigDecimal money4,
-			Integer auditId, Integer resourceId, Long registTime, Integer state, String gartenName) {
-		super(resource, contractNumber, province, city, countries, count, equipment, money1, money2, money3, money4, auditId,
-				resourceId, registTime, state, gartenName);
+			Integer workerCount, Integer babyCount, String equipment, BigDecimal money1, BigDecimal money2,
+			BigDecimal money3, BigDecimal money4, Integer auditId, Integer resourceId, Long registTime, Integer state,
+			String gartenName, String name, String phoneNumber, String remark, Integer gradeCount, Integer classCount,
+			String reason) {
+		super(resource, contractNumber, province, city, countries, workerCount, babyCount, equipment, money1, money2, money3,
+				money4, auditId, resourceId, registTime, state, gartenName, name, phoneNumber, remark, gradeCount, classCount,
+				reason);
 		// TODO Auto-generated constructor stub
 	}
 
-	public AgentAuditMessage(Integer resource, String contractNumber, String province, String city, String countries,
-			Integer count, String equipment, BigDecimal money1, BigDecimal money2, BigDecimal money3, BigDecimal money4,
-			Integer auditId, Integer resourceId, Long registTime, Integer state) {
-		super(resource, contractNumber, province, city, countries, count, equipment, money1, money2, money3, money4, auditId,
-				resourceId, registTime, state);
-		// TODO Auto-generated constructor stub
-	}
+	
+
+
+	
 	
 	
 }

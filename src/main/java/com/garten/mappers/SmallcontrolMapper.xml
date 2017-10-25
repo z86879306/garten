@@ -492,7 +492,7 @@ gartenId=1
 		select * from worker＿info
 		where phoneNumber=#{phoneNumber}	and isValid=0 
 	</select>
-	<select id="getGartenById" resultType="GartenInfo">
+	<select id="getGartenById" resultType="GartenAndAgent">
 		select * from garten_info
 		where gartenId=#{gartenId}
 		and isValid=0

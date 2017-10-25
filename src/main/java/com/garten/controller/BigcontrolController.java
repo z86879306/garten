@@ -163,6 +163,12 @@ public class BigcontrolController {
 			Map<String,Object> map=bigcontrolService.agreeAgentAudit(  token , auditId, gartenGrade, attendanceTime, monitorTime, contractStart, contractEnd, organizationCode);
 			return map;
 		}
+	//不通过开园申请
+		@RequestMapping("refuseAgentAudit")
+		public synchronized  @ResponseBody Map<String,Object> refuseAgentAudit(Integer auditId,String reason){
+			Map<String, Object> map = bigcontrolService.refuseAgentAudit(auditId, reason);
+			return map;
+		}
 //增加忽略时间(手动)
 		@RequestMapping("ignore")//
 		public synchronized  @ResponseBody void ignore(Integer gartenId) throws ParseException, IOException {
@@ -519,8 +525,8 @@ public class BigcontrolController {
 		}
 		//处理代理商的物料订单 
 		@RequestMapping("resolveWuliaoOrder")//1待发送 2已发送 3拒发送
-		public  @ResponseBody Map<String,Object> resolveWuliaoOrder(Integer wuliaoId,Integer state,String toPhoneNunmber,String remark) throws ParseException {
-			Map<String, Object> map = bigcontrolService.resolveWuliaoOrder(wuliaoId,state,toPhoneNunmber,remark);
+		public  @ResponseBody Map<String,Object> resolveWuliaoOrder(Integer wuliaoId,Integer state,String toPhoneNumber,String remark) throws ParseException {
+			Map<String, Object> map = bigcontrolService.resolveWuliaoOrder(wuliaoId,state,toPhoneNumber,remark);
 			return map;
 		}
 		
@@ -707,8 +713,8 @@ public class BigcontrolController {
 		@RequestMapping("applyGarten")
 		@ResponseBody
 		public synchronized Map<String,Object> applyGarten(String token,String gartenName,String name,String phoneNumber,String contractNumber,String province,
-				String city, String countries,Integer count,Double money,String equipment){
-			Map<String, Object> map = bigcontrolService.applyGarten(token, gartenName, name, phoneNumber, contractNumber, province, city, countries, count, money, equipment);
+				String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money,String equipment,String remark){
+			Map<String, Object> map = bigcontrolService.applyGarten(token, gartenName, name, phoneNumber, contractNumber, province, city, countries, workerCount,babyCount,gradeCount,classCount, money, equipment,remark);
 			return map;
 		}
 		
@@ -800,5 +806,31 @@ public class BigcontrolController {
 			Map<String, Object> map = bigcontrolService.deleteWuliaoOrder( token, wuliaoId);
 			return map;
 		}
+		//--------------------------------代理商提现记录-----------------------------------
+		@RequestMapping("findWithdraw")//
+		@ResponseBody
+		public synchronized Map<String,Object> findWithdraw(Long startTime,
+				Long  endTime,Integer state){
+			Map<String, Object> map = bigcontrolService.findWithdraw( startTime,  endTime,state);
+			return map;
+		}
+		
+		@RequestMapping("updateWithdraw")//
+		@ResponseBody
+		public synchronized Map<String,Object> updateWithdraw(String token,Integer withdrawId,Integer state,String mark){
+			Map<String, Object> map = bigcontrolService.updateWithdraw(token, withdrawId,state,mark);
+			return map;
+		}
+		
+		
+		@RequestMapping("deleteWithdraw")//
+		@ResponseBody
+		public synchronized Map<String,Object> deleteWithdraw(Integer withdrawId){
+			Map<String, Object> map = bigcontrolService.deleteWithdraw( withdrawId);
+			return map;
+		}
+	
 
+		
+		
 }

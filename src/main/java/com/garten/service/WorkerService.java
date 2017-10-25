@@ -105,6 +105,11 @@ public class WorkerService{
 		//如果worker为空则返回error
 		//如果worker不为空则返回uuid,并修改token为uuid
 		if(null!=worker){
+			//验证幼儿园是否冻结
+			GartenInfo gartenInfo = workerDao.findGartenInfoById(worker.getGartenId());
+			if(1==gartenInfo.getAccountState()){
+				return MyUtil.putMapParams(result, "state",2);
+			}
 			uuid=UUID.randomUUID().toString();
 			param.put("token", uuid);
 			workerDao.updateToken(param);

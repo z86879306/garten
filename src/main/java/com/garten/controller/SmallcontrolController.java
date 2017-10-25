@@ -372,8 +372,8 @@ public class SmallcontrolController {
 		//删除家长
 		@RequestMapping("deleteParent")
 		@ResponseBody
-		public synchronized Map<String,Object> deleteParent(String token,Integer parentId){
-			Map<String, Object> map = smallcontrolService.deleteParent(token, parentId);
+		public synchronized Map<String,Object> deleteParent(Integer parentId){
+			Map<String, Object> map = smallcontrolService.deleteParent( parentId);
 			return map;
 		}
 		

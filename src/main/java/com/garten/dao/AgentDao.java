@@ -12,6 +12,7 @@ import com.garten.model.activity.ActivityLog;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
 import com.garten.model.agent.SaleService;
+import com.garten.model.agent.WithdrawAll;
 import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
@@ -84,7 +85,8 @@ public interface AgentDao {
 	void cancelApply(Map<String, Object> param);
 
 	void addApplyGarten(@Param("resource")Integer resource,@Param("gartenName")String gartenName, @Param("name")String name, @Param("phoneNumber")String phoneNumber,@Param("contractNumber") String contractNumber,@Param("province") String province,
-			@Param("city")String city,@Param("countries") String countries, @Param("count")Integer count,@Param("money") Double money, @Param("equipment")String equipment,@Param("agentId")Integer agentId);
+			@Param("city")String city,@Param("countries") String countries,@Param("workerCount")Integer workerCount, @Param("babyCount")Integer babyCount, @Param("gradeCount")Integer gradeCount, @Param("classCount")Integer classCount,@Param("money") Double money,
+			@Param("equipment")String equipment,@Param("agentId")Integer agentId,@Param("remark")String remark);
 
 	List<AgentVisitDetail> getAgentVisit(@Param("agentId")Integer agentId,@Param("gartenId") Integer gartenId);
 
@@ -100,7 +102,7 @@ public interface AgentDao {
 
 	void deleteVisit(Integer visitId);
 
-	AgentInfo findAgentById(Integer agent);
+	AgentInfo findAgentById(Integer agentId);
 	
 	List<WuliaoOrder> findWuliaoOrder(Map<String, Object> param);
 
@@ -116,4 +118,9 @@ public interface AgentDao {
 
 	void deleteSaleService(Long saleServiceId);
 	
+	void addWithdraw(Map<String, Object> param);
+
+	List<WithdrawAll> findWithdraw(Map<String, Object> param);
+
+	void updateAgentCard(Map<String, Object> param);
 }

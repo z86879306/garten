@@ -99,8 +99,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</delete>
 	
 	<insert id="addApplyGarten">
-		insert into agent_audit(gartenName,name,phoneNumber,contractNumber,province,city,countries,count,money1,equipment,resource,registTime,resourceId)
-		values(#{gartenName},#{name},#{phoneNumber},#{contractNumber},#{province},#{city},#{countries},#{count},#{money},#{equipment},#{resource},now(),#{agentId})
+		insert into agent_audit(gartenName,name,phoneNumber,contractNumber,province,city,
+			countries,workerCount,babyCount,gradeCount,classCount,money1,equipment,resource,registTime,resourceId,remark)
+		values(#{gartenName},#{name},#{phoneNumber},#{contractNumber},#{province},#{city},
+			#{countries},#{workerCount},#{babyCount},#{gradeCount},#{classCount},#{money},#{equipment},#{resource},now(),#{agentId},#{remark})
 	</insert>
 	
 	<insert id="addVisit">
@@ -222,4 +224,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where 
 		saleServiceId=#{saleServiceId}
 	</delete>
+	<insert id="addWithdraw"  >
+		insert into  agent_withdraw  
+		set 
+		price=#{price},
+		agentId=#{agentId},
+		receiveType=#{receiveType},
+		card=#{card},
+		cardName=#{cardName}
+	</insert>
+	
+	<select id="findWithdraw"  resultType="WithdrawAll">
+		SELECT * FROM agent_withdraw  
+		where agentId=#{agentId}
+		and #{startTime}-1 &lt; unix_timestamp(registTime)
+		and unix_timestamp(registTime) &lt; #{endTime}+86400
+		order by registTime desc
+	</select>
+	<update id="updateAgentCard">
+		update agent_info set
+		receiveType=#{receiveType},
+		card=#{card},cardName=#{cardName}
+		where 
+		agentId=#{agentId}
+		and isValid=0
+	</update>
 </mapper> 

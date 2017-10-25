@@ -27,6 +27,7 @@ import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
 import com.garten.model.agent.SaleService;
+import com.garten.model.agent.WithdrawAll;
 import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
@@ -237,7 +238,7 @@ public class AgentService {
 		
 		//开园申请
 		public Map<String,Object> applyGarten(String token,String gartenName,String name,String phoneNumber,String contractNumber,String province,
-				String city, String countries,Integer count,Double money,String equipment){
+				String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money,String equipment,String remark){
 			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 			 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 			 if(null!=agentInfo){
@@ -246,7 +247,7 @@ public class AgentService {
 					 return MyUtil.putMapParams(result,"state", 2);			//该幼儿园联系手机号码已经被注册
 				 }
 				 agentDao.addApplyGarten(1,gartenName,name, phoneNumber, contractNumber, province,
-							 city, countries, count, money, equipment,agentInfo.getAgentId());
+							 city, countries, workerCount,babyCount,gradeCount, classCount,money, equipment,agentInfo.getAgentId(),remark);
 				 MyUtil.putMapParams(result,"state", 1,"info","操作成功" );
 			 }
 			
@@ -448,4 +449,52 @@ public class AgentService {
 		MyUtil.putMapParams(result,"info",en);
 		return result;
 	}*/
+	
+	//--------------------------------	申请提现	----------------------------------	
+	/**
+	 * 申请提现
+	 * 1余额 是否 足够    state 5 扣除余额
+	 * 2添加提现订单
+	 */
+	public Map<String, Object> addWithdraw(String token, String card, String cardName, Integer receiveType,
+			BigDecimal price) {
+		AgentInfo agentInfo=agentDao.findAgentInfoByToken(token);
+		 Map<String,Object> result=MyUtil.putMapParams("state", 0);
+		 if(null!=agentInfo){
+			 MyUtil.putMapParams(result,"state", 5);
+			 Integer compare= agentInfo.getCreditMoney().compareTo(price);
+			 if(compare>=0){//扣除余额
+				 MyUtil.putMapParams(result,"state", 1);
+				 Map<String,Object> param=MyUtil.putMapParams("agentId", agentInfo.getAgentId(),"price",price.multiply(new BigDecimal(-1)));
+				 bigcontrolDao.updateAgentCredits(param);
+				 agentDao.updateAgentCard(MyUtil.putMapParams("card",card,"cardName",cardName,"receiveType",receiveType,"agentId", agentInfo.getAgentId()));
+				 MyUtil.putMapParams(param,"price", price,"card",card,"cardName",cardName,"receiveType",receiveType);
+				 agentDao.addWithdraw(param);
+			 }
+		 }
+		 return result;
+	}
+
+	public Map<String, Object> findWithdraw(String token, Long startTime, Long endTime) {
+		AgentInfo agentInfo=agentDao.findAgentInfoByToken(token);
+		 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+		 if(null!=agentInfo){
+				 Map<String,Object> param=MyUtil.putMapParams("agentId", agentInfo.getAgentId(),"startTime",startTime,"endTime",endTime);
+				 List< WithdrawAll>  withdraw=agentDao.findWithdraw(param);
+				 withdraw=MyUtil.setWithdrawAll(withdraw);
+				 MyUtil.putMapParams(result,"state", 1,"info",withdraw);
+		 }
+		 return result;
+	}
+
+	public Map<String, Object> agentMessage(String token) {
+		AgentInfo agentInfo=agentDao.findAgentInfoByToken(token);
+		 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+		 if(null!=agentInfo){
+			 MyUtil.putMapParams(result,"state", 1,"info",agentInfo);
+		 }
+		return result;
+	}
+
+
 }

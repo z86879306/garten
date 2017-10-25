@@ -37,6 +37,7 @@ import com.garten.vo.baby.BabyLeaveLogAll;
 import com.garten.vo.baby.BabyMessageAndParent;
 import com.garten.vo.baby.UnusualAll;
 import com.garten.vo.bigcontrol.BabyMessage;
+import com.garten.vo.garent.GartenAndAgent;
 import com.garten.vo.parent.ParentInfoCharge;
 import com.garten.vo.parent.ParentInfoShort;
 import com.garten.vo.smallcontrol.BabyCheckSimple;
@@ -165,7 +166,7 @@ public interface SmallcontrolDao {
 
 	WorkerInfo findWorkerByPhoneNumber(String phoneNumber);
 
-	GartenInfo getGartenById(Integer gartenId);
+	GartenAndAgent getGartenById(Integer gartenId);
 
 	List<InfoLog> findNotifyHistory(@Param("gartenId")Integer gartenId, @Param("job")String job,@Param("startTime") Long startTime,@Param("endTime") Long endTime);
 

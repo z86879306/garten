@@ -25,6 +25,9 @@ public class AgentInfo {
 	private String[] cardFragment;
 	private String token;
 	private Long tokenTime;
+	private Integer receiveType;
+	private String card;
+	private String cardName;
 	@Override
 	public String toString() {
 		return "AgentInfo [agentId=" + agentId + ", phoneNumber=" + phoneNumber + ", pwd=" + pwd + ", agentGrade="
@@ -32,16 +35,18 @@ public class AgentInfo {
 				+ agentStartTime + ", agentEndTime=" + agentEndTime + ", registTime=" + registTime + ", name=" + name
 				+ ", agentName=" + agentName + ", rebate=" + rebate + ", frost=" + frost + ", province=" + province
 				+ ", city=" + city + ", countries=" + countries + ", cardFragment=" + Arrays.toString(cardFragment)
-				+ ", token=" + token + ", tokenTime=" + tokenTime + "]";
+				+ ", token=" + token + ", tokenTime=" + tokenTime + ", receiveType=" + receiveType + ", card=" + card
+				+ ", cardName=" + cardName + "]";
 	}
 	public AgentInfo() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
 	public AgentInfo(Integer agentId, String phoneNumber, String pwd, Integer agentGrade, BigDecimal agentMoney,
 			BigDecimal creditMoney, Long agentStartTime, Long agentEndTime, Long registTime, String name,
 			String agentName, Integer rebate, Integer frost, String province, String city, String countries,
-			String[] cardFragment, String token, Long tokenTime) {
+			String[] cardFragment, String token, Long tokenTime, Integer receiveType, String card, String cardName) {
 		super();
 		this.agentId = agentId;
 		this.phoneNumber = phoneNumber;
@@ -62,6 +67,9 @@ public class AgentInfo {
 		this.cardFragment = cardFragment;
 		this.token = token;
 		this.tokenTime = tokenTime;
+		this.receiveType = receiveType;
+		this.card = card;
+		this.cardName = cardName;
 	}
 	public Integer getAgentId() {
 		return agentId;
@@ -176,6 +184,24 @@ public class AgentInfo {
 	}
 	public void setTokenTime(Timestamp tokenTime) {
 		this.tokenTime = tokenTime.getTime()/1000;
+	}
+	public Integer getReceiveType() {
+		return receiveType;
+	}
+	public void setReceiveType(Integer receiveType) {
+		this.receiveType = receiveType;
+	}
+	public String getCard() {
+		return card;
+	}
+	public void setCard(String card) {
+		this.card = card;
+	}
+	public String getCardName() {
+		return cardName;
+	}
+	public void setCardName(String cardName) {
+		this.cardName = cardName;
 	}
 	
 }

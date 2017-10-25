@@ -10,7 +10,8 @@ public class AgentAudit {
 	private String province;
 	private String city;
 	private String countries;
-	private Integer count;
+	private Integer workerCount;
+	private Integer babyCount;
 	private String equipment;
 	private BigDecimal money1;
 	private BigDecimal money2;
@@ -23,7 +24,57 @@ public class AgentAudit {
 	private String gartenName;
 	private String name;
 	private String phoneNumber;
+	private String remark;
+	private Integer gradeCount;
+	private Integer classCount;
+	private String reason;
 	
+	
+	
+	
+	
+	public AgentAudit(Integer resource, String contractNumber, String province, String city, String countries,
+			Integer workerCount, Integer babyCount, String equipment, BigDecimal money1, BigDecimal money2,
+			BigDecimal money3, BigDecimal money4, Integer auditId, Integer resourceId, Long registTime, Integer state,
+			String gartenName, String name, String phoneNumber, String remark, Integer gradeCount, Integer classCount,
+			String reason) {
+		super();
+		this.resource = resource;
+		this.contractNumber = contractNumber;
+		this.province = province;
+		this.city = city;
+		this.countries = countries;
+		this.workerCount = workerCount;
+		this.babyCount = babyCount;
+		this.equipment = equipment;
+		this.money1 = money1;
+		this.money2 = money2;
+		this.money3 = money3;
+		this.money4 = money4;
+		this.auditId = auditId;
+		this.resourceId = resourceId;
+		this.registTime = registTime;
+		this.state = state;
+		this.gartenName = gartenName;
+		this.name = name;
+		this.phoneNumber = phoneNumber;
+		this.remark = remark;
+		this.gradeCount = gradeCount;
+		this.classCount = classCount;
+		this.reason = reason;
+	}
+	public Integer getWorkerCount() {
+		return workerCount;
+	}
+	public void setWorkerCount(Integer workerCount) {
+		this.workerCount = workerCount;
+	}
+	public Integer getBabyCount() {
+		return babyCount;
+	}
+	public void setBabyCount(Integer babyCount) {
+		this.babyCount = babyCount;
+	}
 	public String getName() {
 		return name;
 	}
@@ -36,89 +87,29 @@ public class AgentAudit {
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
-	public AgentAudit(Integer resource, String contractNumber, String province, String city, String countries,
-			Integer count, String equipment, BigDecimal money1, BigDecimal money2, BigDecimal money3, BigDecimal money4,
-			Integer auditId, Integer resourceId, Long registTime, Integer state, String gartenName, String name,
-			String phoneNumber) {
-		super();
-		this.resource = resource;
-		this.contractNumber = contractNumber;
-		this.province = province;
-		this.city = city;
-		this.countries = countries;
-		this.count = count;
-		this.equipment = equipment;
-		this.money1 = money1;
-		this.money2 = money2;
-		this.money3 = money3;
-		this.money4 = money4;
-		this.auditId = auditId;
-		this.resourceId = resourceId;
-		this.registTime = registTime;
-		this.state = state;
-		this.gartenName = gartenName;
-		this.name = name;
-		this.phoneNumber = phoneNumber;
-	}
+	
 	public String getGartenName() {
 		return gartenName;
 	}
 	public void setGartenName(String gartenName) {
 		this.gartenName = gartenName;
 	}
-	public AgentAudit(Integer resource, String contractNumber, String province, String city, String countries,
-			Integer count, String equipment, BigDecimal money1, BigDecimal money2, BigDecimal money3, BigDecimal money4,
-			Integer auditId, Integer resourceId, Long registTime, Integer state, String gartenName) {
-		super();
-		this.resource = resource;
-		this.contractNumber = contractNumber;
-		this.province = province;
-		this.city = city;
-		this.countries = countries;
-		this.count = count;
-		this.equipment = equipment;
-		this.money1 = money1;
-		this.money2 = money2;
-		this.money3 = money3;
-		this.money4 = money4;
-		this.auditId = auditId;
-		this.resourceId = resourceId;
-		this.registTime = registTime;
-		this.state = state;
-		this.gartenName = gartenName;
-	}
+	
 	@Override
 	public String toString() {
 		return "AgentAudit [resource=" + resource + ", contractNumber=" + contractNumber + ", province=" + province
-				+ ", city=" + city + ", countries=" + countries + ", count=" + count + ", equipment=" + equipment
-				+ ", money1=" + money1 + ", money2=" + money2 + ", money3=" + money3 + ", money4=" + money4
-				+ ", auditId=" + auditId + ", resourceId=" + resourceId + ", registTime=" + registTime + ", state="
-				+ state + "]";
+				+ ", city=" + city + ", countries=" + countries + ", workerCount=" + workerCount + ", babyCount="
+				+ babyCount + ", equipment=" + equipment + ", money1=" + money1 + ", money2=" + money2 + ", money3="
+				+ money3 + ", money4=" + money4 + ", auditId=" + auditId + ", resourceId=" + resourceId
+				+ ", registTime=" + registTime + ", state=" + state + ", gartenName=" + gartenName + ", name=" + name
+				+ ", phoneNumber=" + phoneNumber + ", remark=" + remark + ", gradeCount=" + gradeCount + ", classCount="
+				+ classCount + ", reason=" + reason + "]";
 	}
 	public AgentAudit() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public AgentAudit(Integer resource, String contractNumber, String province, String city, String countries,
-			Integer count, String equipment, BigDecimal money1, BigDecimal money2, BigDecimal money3, BigDecimal money4,
-			Integer auditId, Integer resourceId, Long registTime, Integer state) {
-		super();
-		this.resource = resource;
-		this.contractNumber = contractNumber;
-		this.province = province;
-		this.city = city;
-		this.countries = countries;
-		this.count = count;
-		this.equipment = equipment;
-		this.money1 = money1;
-		this.money2 = money2;
-		this.money3 = money3;
-		this.money4 = money4;
-		this.auditId = auditId;
-		this.resourceId = resourceId;
-		this.registTime = registTime;
-		this.state = state;
-	}
+	
 	public Integer getResource() {
 		return resource;
 	}
@@ -149,12 +140,7 @@ public class AgentAudit {
 	public void setCountries(String countries) {
 		this.countries = countries;
 	}
-	public Integer getCount() {
-		return count;
-	}
-	public void setCount(Integer count) {
-		this.count = count;
-	}
+	
 	public String getEquipment() {
 		return equipment;
 	}
@@ -208,6 +194,30 @@ public class AgentAudit {
 	}
 	public void setState(Integer state) {
 		this.state = state;
+	}
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	public Integer getGradeCount() {
+		return gradeCount;
+	}
+	public void setGradeCount(Integer gradeCount) {
+		this.gradeCount = gradeCount;
+	}
+	public Integer getClassCount() {
+		return classCount;
+	}
+	public void setClassCount(Integer classCount) {
+		this.classCount = classCount;
+	}
+	public String getReason() {
+		return reason;
+	}
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 	
 

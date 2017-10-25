@@ -105,13 +105,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	<select id="findTeacherLinkMan"  resultType="WorkerInfoShort">
-		select * from worker＿info wi where wi.gartenId=
-		(SELECT b.gartenId FROM
-		 baby_info b
-		WHERE
-		b.babyId = #{babyId} and b.isValid=0 )
+		select * from worker＿info wi where
+		FIND_IN_SET(wi.workerId,(
+		SELECT b.teacherId FROM baby_info b
+		WHERE b.babyId = #{babyId} and b.isValid=0 ))
 		and wi.isValid=0
 	</select>
+
 	
 	<select id="findPhoneNameByInfoId"  resultType="String">
 		select c.commentName name from garten_photos p,comment c 
