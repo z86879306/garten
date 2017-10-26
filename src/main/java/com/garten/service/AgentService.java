@@ -2,22 +2,32 @@ package com.garten.service;
 
 
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.internal.util.AlipaySignature;
 import com.garten.dao.AgentDao;
 import com.garten.dao.BigcontrolDao;
 import com.garten.dao.ParentDao;
@@ -26,6 +36,7 @@ import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.AgentOrder;
 import com.garten.model.agent.SaleService;
 import com.garten.model.agent.WithdrawAll;
 import com.garten.model.agent.WuliaoOrder;
@@ -39,6 +50,7 @@ import com.garten.model.other.Order;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.util.lxcutil.MyParamAll;
+import com.garten.util.lxcutil.MyUtilAll;
 import com.garten.util.md5.CryptographyUtil;
 import com.garten.util.myutil.MyUtil;
 import com.garten.util.page.MyPage;
@@ -98,7 +110,7 @@ public class AgentService {
 		if(null!=agent&&!"".equals(agent)){
 			uuid=agentDao.findToken(param);
 			MyUtil.putMapParams(result,"state", 1, "info", uuid,"province",agent.getProvince(),"city",agent.getCity(),"countries",agent.getCountries());
-			MyUtil.putMapParams(result,"agentName",agent.getAgentName());
+			MyUtil.putMapParams(result,"agentName",agent.getAgentName(),"receiveType",agent.getReceiveType(),"card",agent.getCard(),"cardName",agent.getCardName());
 		}
 		return result;
 	}
@@ -120,17 +132,21 @@ public class AgentService {
 				return result;
 		}
 
-		//获取子代理列表
-		public Map<String, Object> childAgent(String token, Integer pageNo) {
+		//获取子代理列表			type  1为市级子代理 2位区县子代理
+		public Map<String, Object> childAgent(String token, Integer pageNo,Integer type) {
 			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",agentInfo);
 			List<AgentInfoAndGarten> list = new ArrayList<AgentInfoAndGarten>();
 			long now = new Date().getTime();
 			if(null!=agentInfo){//验证用户
-				if(agentInfo.getAgentGrade()==1){	//省级代理商
+				if(2==type){	//区县子代理
+					List<AgentInfoAndGarten> cityList = agentDao.findProChildAgent(agentInfo.getProvince());
+					for(AgentInfoAndGarten a : cityList){
+						List<AgentInfoAndGarten> countriesAgent = agentDao.findCityChildAgent(a.getCity());
+						list.addAll(countriesAgent);		//遍历每个市级 子代理  加入list
+					}
+				}else if(1==type){	//市级子代理 
 					list = agentDao.findProChildAgent(agentInfo.getProvince());
-				}else if(agentInfo.getAgentGrade()==2){	//市级代理商
-					list = agentDao.findCityChildAgent(agentInfo.getCity());
 				}
 				//遍历每一个代理商
 				for(AgentInfoAndGarten ag : list){
@@ -154,6 +170,27 @@ public class AgentService {
 			return result;
 		}
 		
+		/*public Map<String,Object> cityChildAgent(String token,Integer pageNo){
+			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
+			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",agentInfo);
+			List<AgentInfoAndGarten> list = new ArrayList<AgentInfoAndGarten>();
+			if(null!=agentInfo){//验证用户
+				list = agentDao.findProChildAgent(agentInfo.getProvince());
+				MyUtil.putMapParams(result,"info", list,"state",1);
+			}
+			return result;
+		}
+		
+		public Map<String,Object> countriesChildAgent(String token,Integer pageNo){
+			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
+			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",agentInfo);
+			List<AgentInfoAndGarten> list = new ArrayList<AgentInfoAndGarten>();
+			if(null!=agentInfo){//验证用户
+				list = agentDao.findCityChildAgent(agentInfo.getCity());
+				MyUtil.putMapParams(result,"info", list,"state",1);
+			}
+			return result;
+		}*/
 		//获取子代理列表(不分页）
 				public Map<String, Object> childAgentNoPage(String token) {
 					AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
@@ -238,7 +275,7 @@ public class AgentService {
 		
 		//开园申请
 		public Map<String,Object> applyGarten(String token,String gartenName,String name,String phoneNumber,String contractNumber,String province,
-				String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money,String equipment,String remark){
+				String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money1,String equipment,String remark){
 			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 			 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 			 if(null!=agentInfo){
@@ -247,7 +284,7 @@ public class AgentService {
 					 return MyUtil.putMapParams(result,"state", 2);			//该幼儿园联系手机号码已经被注册
 				 }
 				 agentDao.addApplyGarten(1,gartenName,name, phoneNumber, contractNumber, province,
-							 city, countries, workerCount,babyCount,gradeCount, classCount,money, equipment,agentInfo.getAgentId(),remark);
+							 city, countries, workerCount,babyCount,gradeCount, classCount,money1, equipment,agentInfo.getAgentId(),remark);
 				 MyUtil.putMapParams(result,"state", 1,"info","操作成功" );
 			 }
 			
@@ -277,8 +314,8 @@ public class AgentService {
 			 return result;
 		}
 		
-		//子代理业绩统计
-		public Map<String,Object> childAgentBusiness(String token,Integer agentId,Integer pageNo){
+		//子代理业绩统计		1为市级子代理业绩  2为 区县子代理业绩
+		public Map<String,Object> childAgentBusiness(String token,Integer agentId,Integer pageNo,Integer type){
 			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 			 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 			 List<AgentAudit> list = new ArrayList<AgentAudit>();
@@ -287,10 +324,14 @@ public class AgentService {
 					 list = agentDao.getChildAgentBusiness(agentId);
 				 }else{					//该代理商下子代理业绩
 					 List<AgentInfoAndGarten> ChildAgent = new ArrayList<AgentInfoAndGarten>();
-					 if(agentInfo.getAgentGrade()==1){	//省级代理商
+					 if(2==type){	//区县子代理商
+						 List<AgentInfoAndGarten> cityChildAgent = agentDao.findProChildAgent(agentInfo.getProvince());
+							for(AgentInfoAndGarten a : cityChildAgent){
+								List<AgentInfoAndGarten> countriesAgent = agentDao.findCityChildAgent(a.getCity());
+								ChildAgent.addAll(countriesAgent);		//遍历每个市级 子代理  加入list
+							}
+						}else if(1==type){	//市级子代理商
 							ChildAgent = agentDao.findProChildAgent(agentInfo.getProvince());
-						}else if(agentInfo.getAgentGrade()==2){	//市级代理商
-							ChildAgent = agentDao.findCityChildAgent(agentInfo.getCity());
 						}
 					 for(AgentInfoAndGarten a:ChildAgent){
 						 List<AgentAudit> agentsList = agentDao.getChildAgentBusiness(a.getAgentId());
@@ -496,5 +537,85 @@ public class AgentService {
 		return result;
 	}
 
+	//支付宝支付 
+	/**
+	 * 1 创建未支付订单
+	 */
+		public Map<String, Object> alipay(String token,BigDecimal price,HttpServletRequest httpRequest,
+	            HttpServletResponse httpResponse ) throws IOException {
+			AgentInfo agentInfo=agentDao.findAgentInfoByToken(token);
+			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+			if(null!=agentInfo){//验证用户
+				Long orderNumber=System.currentTimeMillis();
+				String orderDetail="代理商购买信用额度";
+				AgentOrder a=new AgentOrder(orderNumber,price,orderDetail,0,0,agentInfo.getAgentId());
+				agentDao.addAgentOrder(a);
+				Map<String,Object> payResult=MyUtilAll.myAlipayAgentCredit(orderNumber+"", orderDetail,price.toString() , httpRequest,
+			             httpResponse);
+				MyUtil.putMapParams(result,"state", 1,"info",payResult.get("result"));
+			}
+			return result;
+		}
+			
+		
+		public String alipayyz() throws AlipayApiException, UnsupportedEncodingException, ParseException, APIConnectionException, APIRequestException {
+		//获取支付宝POST过来反馈信息
+		HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();  
+		Map<String,String> params = new HashMap<String,String>();
+		Map<String, String[]> requestParams = request.getParameterMap();
+		System.err.println("进入回调");
+		System.err.println("进入回调");
+		System.err.println("进入回调");
+		String orderNumber="";
+		String type="";
+		for (Iterator<String> iter = requestParams.keySet().iterator(); iter.hasNext();) {
+		    String name = (String) iter.next();
+		    String[] values = (String[]) requestParams.get(name);
+		    String valueStr = "";
+		    for (int i = 0; i < values.length; i++) {
+		        valueStr = (i == values.length - 1) ? valueStr + values[i]
+		                    : valueStr + values[i] + ",";
+		       if(name.equals("out_trade_no")){
+		    	   orderNumber=values[i];
+		       }else if(name.equals("subject")){
+		    	   type=values[i];
+		       }
+		    }
+		  //乱码解决，这段代码在出现乱码时使用。    	valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+		    params.put(name, valueStr);	
+		}
+		//切记alipaypublickey是支付宝的公钥，请去open.alipay.com对应应用下查看。
+		//boolean AlipaySignature.rsaCheckV1(Map<String, String> params, String publicKey, String charset, String sign_type)
+		boolean flag = AlipaySignature.rsaCheckV1(params, MyParamAll.MYALIPAY_ALIPAYPUBLICKEY, "utf-8", "RSA2")	;
+		System.err.println("flagflag"+flag);
+		System.err.println("flagflag"+flag);
+		System.err.println("flagflag"+flag);
+		Map<String,Object> param=new HashMap<String,Object>(); 
+		param.put("orderNumber", orderNumber);
+		if(flag==true){
+			// 1完成订单  2增加余额
+			AgentOrder a=agentDao.findAgentOrderByOrderNumber(orderNumber);
+			MyUtil.putMapParams(param,"price",a.getPrice(),"agentId",a.getAgentId());
+			agentDao.updateAgentCredit(param);
+			agentDao.updateAgentOrder(orderNumber);
+		}
+		return "success";
+	}
+
+		public Map<String, Object> findAgentOrder(String token,Integer pageNo) {
+			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
+			Map<String,Object> result=MyUtil.putMapParams("state",0,"info",null);
+			if(null!=agentInfo){
+				List<AgentOrder> a=agentDao.findAgentOrderByAgentId(agentInfo.getAgentId());
+				MyUtil.putMapParams(result,"state",1,"info",MyPage.listPage16(a, pageNo));
+			}
+			return result;
+		}
+
+		public Map<String, Object> deleteAgentOrder(Long orderNumber) {
+			Map<String,Object> result=MyUtil.putMapParams("state",1);
+				agentDao.deleteAgentOrderByOrderNumber(orderNumber);
+			return result;
+		}
 
 }

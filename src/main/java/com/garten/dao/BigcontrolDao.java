@@ -11,6 +11,7 @@ import com.garten.model.activity.ActivityDetail;
 import com.garten.model.activity.ActivityLog;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.AgentOrderAll;
 import com.garten.model.agent.SaleServiceAll;
 import com.garten.model.agent.WithdrawAll;
 import com.garten.model.agent.WuliaoOrder;
@@ -20,6 +21,7 @@ import com.garten.model.baby.BabyPerformanceLog;
 import com.garten.model.company.CpActivity;
 import com.garten.model.company.Department;
 import com.garten.model.company.Employee;
+import com.garten.model.company.EmployeeAudit;
 import com.garten.model.company.Jobs;
 import com.garten.model.company.Report;
 import com.garten.model.garten.GartenCharge;
@@ -387,4 +389,11 @@ public interface BigcontrolDao {
 	void updateWithdraw(Map<String, Object> param);
 
 	void deleteWithdraw(Integer withdrawId);
+
+	List<EmployeeAudit> findEmployeePerformance(Map<String, Object> params);
+	
+	List<AgentOrderAll> findAgentOrder(Map<String, Object> param);
+
+	List<WuliaoOrder> findDepartmentWuliaoOrder(Map<String, Object> params);
+
 }

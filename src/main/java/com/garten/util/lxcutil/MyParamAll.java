@@ -64,7 +64,11 @@ public class MyParamAll {
 	public static final String MYALIPAY_NOTIFYURL_CONTROL = "http://cms.ahczjy.cc/smallcontrol/alipayyz.do";
 	//幼儿园后台主页面
 	public static final String MYALIPAY_NOTIFYURL_MANAGE = "http://cms.ahczjy.cc/smallcontrol/manage.html#/payQuery";
-	
+	//代理商购买信用额度的回调
+	public static final String MYALIPAY_NOTIFYURL_AGENT = "http://cms.ahczjy.cc:8081/agent/alipayyz.do";
+	//代理商购买信用额度完成的会跳
+	public static final String MYALIPAY_NOTIFYURL_MANAGE_AGENT = "http://cms.ahczjy.cc:8081/agentcontrol/manage.html";
+
 	//Wxin 微信appid
 	public static final String MYWXIN_APPID = "wx5016949865cc41f1";
 	//Wxin mch_id微信商户ID					   

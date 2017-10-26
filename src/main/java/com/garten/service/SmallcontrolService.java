@@ -1866,4 +1866,16 @@ public class SmallcontrolService {
 			}
 			return result;
 		}
+		public Map<String, Object> feedback(String token, String content) {
+			WorkerInfo workerInfo= smallcontrolDao.findUnknownInfoByToken( token);
+			Map<String,Object> result=MyUtil.putMapParams("state", 0);
+			if(null!=workerInfo){//验证用户
+				Map<String,Object> param=MyUtil.putMapParams("token", token, "content", content,"gartenId",workerInfo.getGartenId(),"job",workerInfo.getJob(),"name",workerInfo.getWorkerName());
+				MyUtil.putMapParams(param,"jobId", workerInfo.getWorkerId(),"phoneNumber", workerInfo.getPhoneNumber());
+				 workerDao.createFeadbackByToken(param);
+				 result.put("state", 1);
+			}
+			return result;
+		}
+
 }

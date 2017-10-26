@@ -262,4 +262,7 @@ public interface SmallcontrolDao {
 	List<WorkerNameMessage> findMessageMore(Integer workerId);
 
 	Integer findMostEarlyApply(Integer workerId);
+	
+	WorkerInfo findUnknownInfoByToken(String token);
+
 }

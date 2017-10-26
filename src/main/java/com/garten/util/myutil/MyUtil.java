@@ -54,10 +54,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.cloopen.rest.sdk.utils.encoder.BASE64Encoder;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.AgentOrderAll;
 import com.garten.model.agent.SaleServiceAll;
 import com.garten.model.agent.WithdrawAll;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
+import com.garten.model.company.Employee;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
@@ -79,6 +81,7 @@ import com.garten.util.duanxin.CCPRestSDK;
 import com.garten.util.lxcutil.MyParamAll;
 import com.garten.util.lxcutil.MyUtilAll;
 import com.garten.util.page.MyPage;
+import com.garten.vo.agent.AgentAuditMessage;
 import com.garten.vo.baby.BabyLeaveLogAll;
 import com.garten.vo.baby.UnusualAll;
 import com.garten.vo.parent.ParentInfoShort;
@@ -1512,4 +1515,22 @@ public  class MyUtil implements ApplicationContextAware{
 			}
 			return withdraw;
 		}
+		public static List<AgentAuditMessage> auditChange2Emloyee(List<AgentAuditMessage> agentAudit) {
+			BigcontrolService big = (BigcontrolService) MyUtil.getBean("bigcontrolService");
+			for(AgentAuditMessage a :agentAudit){
+				Employee employee = big.findEmployeeById(a.getResourceId());
+				a.setAgentName(employee.getName());
+			}
+			return agentAudit;
+		}
+		
+		public static List<AgentOrderAll> setFindAgentOrder(List<AgentOrderAll> ao) {
+			AgentService agentService = (AgentService) MyUtil.getBean("agentService");
+			for(AgentOrderAll a:ao){
+				AgentInfo aOne=agentService.findAgentByAgentId(a.getAgentId());
+				a.setAgentInfo(aOne);
+			}
+			return ao;
+		}
+
 }

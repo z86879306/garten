@@ -262,8 +262,8 @@ public class BigcontrolController {
 		
 		//代理商管理-代理商业绩统计    (暂时记录代理商签单的幼儿园)
 		@RequestMapping("agentPerformance")//
-		public  @ResponseBody Map<String,Object> agentPerformance(String token,String agentId,String province,String city,String countries,Integer state,Integer pageNo ) throws ParseException {
-			Map<String,Object> map=bigcontrolService.agentPerformance(  token, agentId , province, city, countries, state,pageNo );
+		public  @ResponseBody Map<String,Object> agentPerformance(String token,String agentId,String province,String city,String countries,Integer state,Integer pageNo ,Integer resource) throws ParseException {
+			Map<String,Object> map=bigcontrolService.agentPerformance(  token, agentId , province, city, countries, state,pageNo,resource );
 			return map;
 		}
 
@@ -592,10 +592,10 @@ public class BigcontrolController {
 		@RequestMapping("updateEmployee")
 		public  @ResponseBody Map<String,Object> updateEmployee(Integer employeeNo,String name,Long departmentNo,
 				Long jobsNo,String permission,String province,String city,String countries,
-				String phoneNumebr,String pwd) throws ParseException {
+				String phoneNumebr,String pwd,Integer sex,Long entryTime,String token) throws ParseException {
 			Map<String, Object> map = bigcontrolService.updateEmployee( employeeNo, name, departmentNo,
 					 jobsNo, permission, province, city, countries,
-					 phoneNumebr, pwd);
+					 phoneNumebr, pwd,sex,entryTime,token);
 					return map;
 			}  
 		
@@ -603,10 +603,10 @@ public class BigcontrolController {
 		@RequestMapping("addEmployee")
 		public  @ResponseBody Map<String,Object> addEmployee(String name,Long departmentNo,
 				Long jobsNo,String permission,String province,String city,String countries,
-				String phoneNumebr,String pwd) throws ParseException {
+				String phoneNumebr,String pwd,Integer sex,Long entryTime,String token ) throws ParseException {
 			Map<String, Object> map = bigcontrolService.addEmployee( name, departmentNo,
 					 jobsNo, permission, province, city, countries,
-					 phoneNumebr, pwd);
+					 phoneNumebr, pwd,sex,entryTime,token);
 			return map;
 		}  
 					
@@ -717,6 +717,12 @@ public class BigcontrolController {
 			Map<String, Object> map = bigcontrolService.applyGarten(token, gartenName, name, phoneNumber, contractNumber, province, city, countries, workerCount,babyCount,gradeCount,classCount, money, equipment,remark);
 			return map;
 		}
+		/*//员工业绩统计(开园业绩统计）
+		@RequestMapping("employeePerformance")
+		@ResponseBody
+		public synchronized Map<String,Object> employeePerformance(String token,String province,String city,String countries,Integer state,Integer pageNo){
+			
+		}*/
 		
 
 		/**
@@ -806,6 +812,14 @@ public class BigcontrolController {
 			Map<String, Object> map = bigcontrolService.deleteWuliaoOrder( token, wuliaoId);
 			return map;
 		}
+		
+		//查看本部门的物料订单
+		@RequestMapping("departmentWuliaoOrder")
+		@ResponseBody
+		public synchronized Map<String,Object> departmentWuliaoOrder(String token,Integer pageNo ,Integer state){
+			Map<String, Object> map = bigcontrolService.departmentWuliaoOrder(token, pageNo, state);
+			return map;
+		}
 		//--------------------------------代理商提现记录-----------------------------------
 		@RequestMapping("findWithdraw")//
 		@ResponseBody
@@ -830,6 +844,15 @@ public class BigcontrolController {
 			return map;
 		}
 	
+		//-------------------------------代理商信用额度-----------------------------	
+		
+		//查询代理商购买信用额度的记录
+		   	@RequestMapping(value="findAgentOrder")
+			public  @ResponseBody Map<String, Object> findAgentOrder(Integer pageNo,Long startTime,Long endTime,Integer agentId,Integer state) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+		    	Map<String, Object> map = bigcontrolService.findAgentOrder(pageNo,startTime,endTime,agentId,state);
+				return map;
+			}
+		  //删除代理商购买信用额度的记录	agent/deleteAgentOrder
 
 		
 		

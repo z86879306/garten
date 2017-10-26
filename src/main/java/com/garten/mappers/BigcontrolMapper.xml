@@ -189,7 +189,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<select id="agentPerformance"  resultType="AgentAudit">
 		SELECT  * from agent_audit  a where 
-		resourceId=resourceId
+		resource=#{resource}
 		<if test="	agentId!=null and agentId!=''" >
 				and a.resourceId=#{agentId}
 			</if>
@@ -209,7 +209,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			
 	</select>
 	
-	
+	<select id="findEmployeePerformance" resultType="EmployeeAudit">
+		select * from agent_audit  a where 
+		
+	</select>
 	
 	<select id="findParentMessage"  resultType="ParentInfo">
 		SELECT * FROM parent_info  p 
@@ -1359,7 +1362,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		city=#{city},
 		countries=#{countries},
 		phoneNumebr=#{phoneNumebr},
-		pwd=#{pwd}
+		pwd=#{pwd},
+		sex=#{sex},
+		entryTime=FROM_UNIXTIME(#{entryTime},  '%Y-%m-%d %H:%i:%s'),
+		lastEmployeeNo=#{lastEmployeeNo}
+		
 		where employeeNo=#{employeeNo}
 	</update>
 	
@@ -1375,7 +1382,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		countries=#{countries},
 		phoneNumebr=#{phoneNumebr},
 		pwd=#{pwd},
-		token=#{token}
+		token=#{token},
+		sex=#{sex},
+		entryTime=FROM_UNIXTIME(#{entryTime},  '%Y-%m-%d %H:%i:%s'),
+		lastEmployeeNo=#{lastEmployeeNo}
+		
 	</insert>
 	
 	<select id="findCpActivity" resultType="CpActivity">
@@ -1574,5 +1585,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<delete id="deleteWithdraw" >
 		delete from    agent_withdraw    where  withdrawId=#{withdrawId}
 	</delete>
-	
+	<select id="findAgentOrder" resultType="AgentOrderAll">
+		select * from agent_order   
+		where  #{startTime}-1 &lt; orderNumber/1000
+		and  orderNumber/1000 &lt;  #{endTime}+86400
+		<if test=" state!=null ">
+			and state=#{state}
+		</if>
+		<if test=" agentId!=null ">
+			and agentId=#{agentId}
+		</if>
+	</select>
+	<select id="findDepartmentWuliaoOrder" resultType="WuliaoOrder">
+		select * from wuliao_order
+		where 
+		resource=0
+		<if test=" state!=null and state!='' ">
+			and state=#{state}
+		</if>
+		and FIND_IN_SET(agentId,#{departmentIds})
+		
+	</select>
 </mapper> 

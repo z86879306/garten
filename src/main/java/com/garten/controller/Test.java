@@ -42,7 +42,6 @@ public class Test {
 	
 	public static void main(String[] args) throws ParseException, UnsupportedEncodingException, APIConnectionException, APIRequestException {
 
-		//t11111(null, null);
 		System.out.println(LyParam.PRINCIPAL_QX);
 		
 	}
@@ -195,5 +194,9 @@ public class Test {
 	        }
 	    }
 	 
-	  
+	  public static boolean isEqeal(Integer intt){
+		  boolean flag = (0==intt);
+		  return flag;
+		  
+	  }
 }

@@ -11,6 +11,7 @@ import com.garten.model.activity.ActivityDetail;
 import com.garten.model.activity.ActivityLog;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.AgentOrder;
 import com.garten.model.agent.SaleService;
 import com.garten.model.agent.WithdrawAll;
 import com.garten.model.agent.WuliaoOrder;
@@ -85,7 +86,7 @@ public interface AgentDao {
 	void cancelApply(Map<String, Object> param);
 
 	void addApplyGarten(@Param("resource")Integer resource,@Param("gartenName")String gartenName, @Param("name")String name, @Param("phoneNumber")String phoneNumber,@Param("contractNumber") String contractNumber,@Param("province") String province,
-			@Param("city")String city,@Param("countries") String countries,@Param("workerCount")Integer workerCount, @Param("babyCount")Integer babyCount, @Param("gradeCount")Integer gradeCount, @Param("classCount")Integer classCount,@Param("money") Double money,
+			@Param("city")String city,@Param("countries") String countries,@Param("workerCount")Integer workerCount, @Param("babyCount")Integer babyCount, @Param("gradeCount")Integer gradeCount, @Param("classCount")Integer classCount,@Param("money1") Double money1,
 			@Param("equipment")String equipment,@Param("agentId")Integer agentId,@Param("remark")String remark);
 
 	List<AgentVisitDetail> getAgentVisit(@Param("agentId")Integer agentId,@Param("gartenId") Integer gartenId);
@@ -123,4 +124,17 @@ public interface AgentDao {
 	List<WithdrawAll> findWithdraw(Map<String, Object> param);
 
 	void updateAgentCard(Map<String, Object> param);
+	
+	void addAgentOrder(AgentOrder a);
+
+	void updateAgentOrder(String orderNumber);
+
+	AgentOrder findAgentOrderByOrderNumber(String orderNumber);
+
+	void updateAgentCredit(Map<String, Object> param);
+
+	List<AgentOrder> findAgentOrderByAgentId(Integer agentId);
+
+	void deleteAgentOrderByOrderNumber(Long orderNumber);
+
 }

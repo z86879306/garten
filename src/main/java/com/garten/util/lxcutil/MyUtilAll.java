@@ -587,5 +587,40 @@ public class MyUtilAll {
 	        return "image/jpeg";  
 	    }  
 	  
+	    /**
+		 * 代理商购买信用额度
+		 */
+		public static Map<String, Object> myAlipayAgentCredit(String orderNumber, String orderDetail,String price,HttpServletRequest httpRequest,
+	            HttpServletResponse httpResponse) throws IOException {
+			Map<String,Object> map=new HashMap<String,Object>(); 
+
+			AlipayClient alipayClient = new DefaultAlipayClient(MyParamAll.MYALIPAY_CLIENTADDRESS, MyParamAll.MYALIPAY_APPID_CONTROL, MyParamAll.MYALIPAY_APPPRIVATEKEY_CONTROL,"json","utf-8", MyParamAll.MYALIPAY_ALIPAYPUBLICKEY, "RSA2"); //获得初始化的AlipayClient
+			    AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();//创建API对应的request
+			    alipayRequest.setReturnUrl(MyParamAll.MYALIPAY_NOTIFYURL_MANAGE_AGENT);
+			    alipayRequest.setNotifyUrl(MyParamAll.MYALIPAY_NOTIFYURL_AGENT);//在公共参数中设置回跳和通知地址
+			    alipayRequest.setBizContent("{" +
+			        "    \"out_trade_no\":\""+orderNumber+"\"," +
+			        "    \"product_code\":\"FAST_INSTANT_TRADE_PAY\"," +
+			        "    \"total_amount\":"+price+"," +
+			        "    \"subject\":\""+orderDetail+"\"," +
+			        "    \"body\":\""+orderDetail+"\"," +
+			        "    \"passback_params\":\"merchantBizType%3d3C%26merchantBizNo%3d2016010101111\"," +
+			        "    \"extend_params\":{" +
+			        "    \"sys_service_provider_id\":\"2088511833207846\"" +
+			        "    }"+
+			        "  }");//填充业务参数
+			    String form="";
+			    try {
+			        form = alipayClient.pageExecute(alipayRequest).getBody(); //调用SDK生成表单
+			        map.put("result", form);
+			    } catch (AlipayApiException e) {
+			        e.printStackTrace();
+			    }
+			    httpResponse.setContentType("text/html;charset=" + "UTF-8");
+			    httpResponse.getWriter().write(form);//直接将完整的表单html输出到页面
+			    httpResponse.getWriter().flush();
+			    httpResponse.getWriter().close();
+			    return map;
+		}
 
 }

@@ -102,7 +102,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		insert into agent_audit(gartenName,name,phoneNumber,contractNumber,province,city,
 			countries,workerCount,babyCount,gradeCount,classCount,money1,equipment,resource,registTime,resourceId,remark)
 		values(#{gartenName},#{name},#{phoneNumber},#{contractNumber},#{province},#{city},
-			#{countries},#{workerCount},#{babyCount},#{gradeCount},#{classCount},#{money},#{equipment},#{resource},now(),#{agentId},#{remark})
+			#{countries},#{workerCount},#{babyCount},#{gradeCount},#{classCount},#{money1},#{equipment},#{resource},now(),#{agentId},#{remark})
 	</insert>
 	
 	<insert id="addVisit">
@@ -249,4 +249,35 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		agentId=#{agentId}
 		and isValid=0
 	</update>
+	<insert id="addAgentOrder" >
+		insert into agent_order set 
+		orderNumber=#{orderNumber},
+		price=#{price},
+		orderDetail=#{orderDetail},
+		payType=#{payType},
+		state=#{state},
+		agentId=#{agentId}
+	</insert>
+	
+		<update id="updateAgentOrder" >
+		update  agent_order set state=1 where orderNumber=#{orderNumber}
+	</update>
+	
+	<select id="findAgentOrderByOrderNumber"  resultType="AgentOrder">
+		SELECT * FROM agent_order   where orderNumber=#{orderNumber}
+	</select>
+	
+	<update id="updateAgentCredit" >
+		update  agent_info set creditMoney=creditMoney+#{price} 
+		where agentId=#{agentId}
+	</update>
+	<select id="findAgentOrderByAgentId"  resultType="AgentOrder">
+		SELECT * FROM agent_order   where agentId=#{agentId} order by orderNumber desc
+	</select>
+	
+	<delete id="deleteAgentOrderByOrderNumber"  >
+		delete  FROM agent_order   where orderNumber=#{orderNumber}
+	</delete>
+	
+	
 </mapper> 

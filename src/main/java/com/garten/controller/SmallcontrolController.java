@@ -514,4 +514,16 @@ public class SmallcontrolController {
 			Map<String, Object> map = smallcontrolService.applyMessageList(token, pageNo);
 			return map;
 		}
+		
+		//--------------------------------------------意见反馈  ---------
+		  //意见反馈
+			
+		 @RequestMapping(value="feedback")
+			@ResponseBody
+			public synchronized Map<String, Object> feedback(String token,String content ) throws ParseException, InterruptedException{
+				Map<String,Object> result=smallcontrolService.feedback( token,content);
+				return result;
+			}
+
+		 
 }

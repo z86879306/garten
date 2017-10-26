@@ -759,4 +759,12 @@ gartenId=1
 	<select id="findMostEarlyApply" resultType="Integer">
 		select MIN(messageId) from worker_message_log where isValid=0 and workerId=#{workerId} 
 	</select>
+	<select id="findUnknownInfoByToken"  resultType="WorkerInfo">
+		SELECT * FROM
+		   worker＿info w
+		WHERE
+		w.token = #{token}
+		and w.isValid=0
+	</select>
+	
 </mapper> 

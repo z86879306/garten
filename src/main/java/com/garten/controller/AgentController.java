@@ -1,16 +1,23 @@
 package com.garten.controller;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alipay.api.AlipayApiException;
 import com.garten.model.garten.GartenInfo;
 import com.garten.service.AgentService;
 import com.garten.service.BigcontrolService;
@@ -41,12 +48,26 @@ public class AgentController {
 	
 	//子代理列表
 	@RequestMapping("childAgent")
-	public  @ResponseBody Map<String,Object> childAgent(String token,Integer pageNo) throws ParseException {
-		Map<String,Object> result=agentService.childAgent( token, pageNo);
+	public  @ResponseBody Map<String,Object> childAgent(String token,Integer pageNo,Integer type) throws ParseException {
+		Map<String,Object> result=agentService.childAgent( token, pageNo,type);
 		return result;
 	}
 	
+	/*//市级子代理列表
+	@RequestMapping("cityChildAgent")
+	@ResponseBody
+	public Map<String,Object> cityChildAgent(String token,Integer pageNo){
+		Map<String, Object> map = agentService.cityChildAgent(token, pageNo);
+		return map;
+	}
 	
+	//区县级子代理列表
+	@RequestMapping("countriesChildAgent")
+	@ResponseBody
+	public Map<String,Object> countriesChildAgent(String token,Integer pageNo){
+		Map<String, Object> map = agentService.countriesChildAgent(token, pageNo);
+		return map;
+	}*/
 	//子代理列表（不分页）
 	@RequestMapping("childAgentNoPage")
 	public  @ResponseBody Map<String,Object> childAgentNoPage(String token) throws ParseException {
@@ -129,8 +150,8 @@ public class AgentController {
 	@RequestMapping("applyGarten")
 	@ResponseBody
 	public synchronized Map<String,Object> applyGarten(String token,String gartenName,String name,String phoneNumber,String contractNumber,String province,
-			String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money,String equipment,String remark){
-		Map<String, Object> map = agentService.applyGarten(token, gartenName, name, phoneNumber, contractNumber, province, city, countries, workerCount,babyCount, gradeCount,classCount,money, equipment,remark);
+			String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money1,String equipment,String remark){
+		Map<String, Object> map = agentService.applyGarten(token, gartenName, name, phoneNumber, contractNumber, province, city, countries, workerCount,babyCount, gradeCount,classCount,money1, equipment,remark);
 		return map;
 	}
 	
@@ -154,10 +175,12 @@ public class AgentController {
 	//子代理业绩统计
 	@RequestMapping("childAgentBusiness")
 	@ResponseBody
-	public Map<String,Object> childAgentBusiness(String token,Integer agentId,Integer pageNo){
-		Map<String, Object> map = agentService.childAgentBusiness(token, agentId, pageNo);
+	public Map<String,Object> childAgentBusiness(String token,Integer agentId,Integer pageNo,Integer type){
+		Map<String, Object> map = agentService.childAgentBusiness(token, agentId, pageNo,type);
 		return map;
 	}
+	//市级子代理上业绩统计
+	//@RequestMapping("CitychildAgentBusiness")
 	
 	//代理商代理幼儿园 （名字 id）
 	@RequestMapping("/agentGarten")
@@ -262,6 +285,35 @@ public class AgentController {
 			return map;
 		}
 		
+
+		//------------------------------购买信用额度-------------------------------------------		
+		//支付宝支付
+			@RequestMapping(value="alipay")
+			public  synchronized @ResponseBody Map<String, Object> alipay(String token,BigDecimal price,HttpServletRequest httpRequest,
+		            HttpServletResponse httpResponse  ) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException {
+		    	Map<String, Object> map = agentService.alipay(token,price, httpRequest,
+		                 httpResponse);
+				return null;
+			}
+			//支付宝验证
+		   	@RequestMapping(value="alipayyz")
+			public  @ResponseBody String alipayyz() throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+		    	String map = agentService.alipayyz();
+				return map;
+			}
+		  //删除购买的信用额度记录
+			@RequestMapping(value="deleteAgentOrder")
+			public  synchronized @ResponseBody Map<String, Object> deleteAgentOrder(Long  orderNumber ){
+		    	Map<String, Object> map = agentService.deleteAgentOrder(orderNumber);
+				return map;
+			}
+			//查询购买的信用额度记录
+		   	@RequestMapping(value="findAgentOrder")
+			public  @ResponseBody Map<String, Object> findAgentOrder(String token,Integer pageNo) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+		    	Map<String, Object> map = agentService.findAgentOrder(token,pageNo);
+				return map;
+			}
+			
 
 		
 }
