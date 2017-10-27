@@ -279,5 +279,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		delete  FROM agent_order   where orderNumber=#{orderNumber}
 	</delete>
 	
+	<select id="findWithdrawById"  resultType="Withdraw">
+		SELECT * FROM agent_withdraw   where withdrawId=#{withdrawId} 
+	</select>
 	
 </mapper> 

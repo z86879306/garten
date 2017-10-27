@@ -13,6 +13,7 @@ import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
 import com.garten.model.agent.AgentOrder;
 import com.garten.model.agent.SaleService;
+import com.garten.model.agent.Withdraw;
 import com.garten.model.agent.WithdrawAll;
 import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.baby.BabyInfo;
@@ -136,5 +137,8 @@ public interface AgentDao {
 	List<AgentOrder> findAgentOrderByAgentId(Integer agentId);
 
 	void deleteAgentOrderByOrderNumber(Long orderNumber);
+	
+	Withdraw findWithdrawById(Integer withdrawId);
+
 
 }

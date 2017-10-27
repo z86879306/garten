@@ -396,4 +396,6 @@ public interface BigcontrolDao {
 
 	List<WuliaoOrder> findDepartmentWuliaoOrder(Map<String, Object> params);
 
+	void deleteJobs(Long jobsNo);
+
 }

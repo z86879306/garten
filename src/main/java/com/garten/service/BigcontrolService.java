@@ -54,6 +54,7 @@ import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
 import com.garten.model.agent.AgentOrderAll;
 import com.garten.model.agent.SaleServiceAll;
+import com.garten.model.agent.Withdraw;
 import com.garten.model.agent.WithdrawAll;
 import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.baby.BabyInfo;
@@ -2087,6 +2088,7 @@ public class BigcontrolService {
 					if(!ifDeleteEmployee(employeeNo)){
 						bigcontrolDao.deleteEmployee(param);
 						MyUtil.putMapParams(result,"state", 1,"info","成功");
+						
 					}
 					
 					return result;
@@ -2098,6 +2100,7 @@ public class BigcontrolService {
 				 */
 				private boolean ifDeleteEmployee(Integer employeeNo) {
 					Boolean b=bigcontrolDao.findIfDeleteEmployee(employeeNo);
+					
 					return b;
 				}
 
@@ -2120,17 +2123,17 @@ public class BigcontrolService {
 				}
 
 				public Map<String, Object> addEmployee(String name, Long departmentNo, Long jobsNo, String permission,
-						String province, String city, String countries, String phoneNumebr, String pwd,Integer sex,Long entryTime,String token) {
+						String province, String city, String countries, String phoneNumber, String pwd,Integer sex,Long entryTime,String token) {
 					Employee em=bigcontrolDao.findEmployeeByToken(token);
 					Map<String,Object> result=MyUtil.putMapParams("state",0);
 					if(null!=em){
-						Employee employee = bigcontrolDao.findEmployeeByPhoneNumber(phoneNumebr);
+						Employee employee = bigcontrolDao.findEmployeeByPhoneNumber(phoneNumber);
 						if(null!=employee){
 							return MyUtil.putMapParams("state", 2);		//该手机号码已经注册
 						}
 						String uuid=UUID.randomUUID().toString();
 						Map<String,Object> param=MyUtil.putMapParams( "name",name,"departmentNo",departmentNo,"jobsNo",jobsNo,"permission",permission,"token",uuid);
-						MyUtil.putMapParams(param,"province",province,"city",city,"countries",countries,"phoneNumebr",phoneNumebr,"pwd",pwd);
+						MyUtil.putMapParams(param,"province",province,"city",city,"countries",countries,"phoneNumber",phoneNumber,"pwd",pwd);
 						MyUtil.putMapParams(param,"sex",sex,"entryTime",entryTime, "lastEmployeeNo",em.getEmployeeNo());
 						bigcontrolDao.addEmployee(param);
 						MyUtil.putMapParams(result,"state",1);
@@ -2304,8 +2307,9 @@ public class BigcontrolService {
 			Map<String,Object> param=MyUtil.putMapParams("departmentName", departmentName,"mark",mark);
 			if(!ifExistDepartment(departmentName)){
 				bigcontrolDao.addDepartment(param);
+				MyUtil.putMapParams(result,"state", 1);
 			}
-			MyUtil.putMapParams(result,"state", 1);
+			
 			return result;
 		}
 		/**
@@ -2325,7 +2329,7 @@ public class BigcontrolService {
 		public Map<String, Object> deleteJobs(Long jobsNo) {
 			Map<String,Object> result=MyUtil.putMapParams("state", 3);//此数据在其他地方有用
 			if(!ifExistJobsEmployee(jobsNo)){
-				bigcontrolDao.deleteDepartment(jobsNo);
+				bigcontrolDao.deleteJobs(jobsNo);
 				MyUtil.putMapParams(result,"state", 1);
 			}
 			return result;
@@ -2428,6 +2432,13 @@ public class BigcontrolService {
 		 if(null!=em){
 			Map<String,Object> param=MyUtil.putMapParams("withdrawId", withdrawId,"state",state,"mark",mark,"employeeNo",em.getEmployeeNo());
 			bigcontrolDao.updateWithdraw(param);
+			//如果state 2拒绝 返回余额
+			if(2==state){
+				Withdraw w=agentDao.findWithdrawById(withdrawId);
+				MyUtil.putMapParams(param,"price", w.getPrice(),"agentId",w.getAgentId());
+				agentDao.updateAgentCredit(param);
+			}
+
 			MyUtil.putMapParams(result,"state", 1);
 		 }
 		return result;

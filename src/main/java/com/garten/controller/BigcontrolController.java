@@ -603,10 +603,10 @@ public class BigcontrolController {
 		@RequestMapping("addEmployee")
 		public  @ResponseBody Map<String,Object> addEmployee(String name,Long departmentNo,
 				Long jobsNo,String permission,String province,String city,String countries,
-				String phoneNumebr,String pwd,Integer sex,Long entryTime,String token ) throws ParseException {
+				String phoneNumber,String pwd,Integer sex,Long entryTime,String token ) throws ParseException {
 			Map<String, Object> map = bigcontrolService.addEmployee( name, departmentNo,
 					 jobsNo, permission, province, city, countries,
-					 phoneNumebr, pwd,sex,entryTime,token);
+					 phoneNumber, pwd,sex,entryTime,token);
 			return map;
 		}  
 					
