@@ -2,7 +2,11 @@ package com.garten.service;
 
 
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -17,8 +21,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
 import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import javax.servlet.ServletOutputStream;
@@ -26,8 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
+import org.jdom.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -73,6 +77,8 @@ import com.garten.util.lxcutil.MyParamAll;
 import com.garten.util.lxcutil.MyUtilAll;
 import com.garten.util.md5.CryptographyUtil;
 import com.garten.util.myutil.MyUtil;
+import com.garten.util.mywxpay.MyXMLUtil;
+import com.garten.util.mywxpay.PayCommonUtil;
 import com.garten.util.page.DividePage;
 import com.garten.util.page.MyPage;
 import com.garten.vo.attendance.BabySimpleInfo;
@@ -92,7 +98,9 @@ import com.garten.vo.smallcontrol.GartenClassName;
 import com.garten.vo.smallcontrol.GartenLessonDetail;
 import com.garten.vo.smallcontrol.MachineDetail;
 import com.garten.vo.smallcontrol.OrderAll;
+import com.garten.vo.teacher.ActivityDetailAll;
 import com.garten.vo.teacher.BabyCheckLogAll;
+import com.garten.vo.teacher.ClassManage;
 import com.garten.vo.teacher.WorkerLeaveLogPrin;
 import com.garten.vo.teacher.WorkerNameMessage;
 
@@ -133,6 +141,7 @@ public class SmallcontrolService {
 		if(null!=worker&&!"".equals(worker)){
 			uuid=smallcontrolDao.findToken(param);
 			String gartenName = smallcontrolDao.getGartenNameById(worker.getGartenId());
+			
 			MyUtil.putMapParams(result,"state", 1, "info", worker,"gartenName",gartenName);
 		}
 		return result;
@@ -288,7 +297,7 @@ public class SmallcontrolService {
 					//添加一个完整的家长宝宝信息
 					parentMessages.add(new ParentMessage(p,classManageBigList));
 				}
-				MyUtil.putMapParams(result,"state", 1,"info",parentMessages, "pageCount",pageCount,"count",parentMessages.size());
+				MyUtil.putMapParams(result,"state", 1,"info",parentMessages, "pageCount",pageCount,"count",count);
 		}
 			
 	return result;
@@ -593,26 +602,18 @@ public class SmallcontrolService {
 			}
 	return result;
 	}
-	public Map<String, Object> order(String token, Long startTime, Long endTime, String name, String phoneNumber,Integer pageNo) {
-		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-		 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
-			if(null!=workerInfo){
-				Map<String,Object> param=MyUtil.putMapParams("gartenId", workerInfo.getGartenId(), "startTime", startTime,"endTime",endTime);
-				List<OrderAll> order=smallcontrolDao.findOrder(param);
-				order=MyUtil.appendOrderName(order,name,phoneNumber);
-				Collections.sort(order,new Comparator<Object>() {
-
-					@Override
-					public int compare(Object o1, Object o2) {
-						OrderAll a1 = (OrderAll)o1;
-						OrderAll a2 = (OrderAll)o2;
-						return a2.getOrderTime().compareTo(a1.getOrderTime());
-					}
-				});
-				MyUtil.putMapParams(result, "state",1,"info",MyPage.listPage16(order, pageNo));
+	public Map<String, Object> order(String token,Integer pageNo,String province,String city,String countries
+			,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,String orderDetail,String babyName) {
+		 			Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号//根据账号查找到用户,手机号
+		  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+			if(null!=em){
+				List<OrderAll> order=bigcontrolDao.findOrder(state,type, province, city, countries, gartenId,orderDetail);
+				order=MyUtil.appendOrderName(order,name,phoneNumber,babyName);
+					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(order, pageNo));
 			}
-	return result;
+			return result;
 	}
+
 	
 	
 	/*
@@ -658,7 +659,7 @@ public class SmallcontrolService {
 		return result;
 	}
 	
-	public void exporeAttendance(String token , String job,Integer classId,HttpServletResponse response){
+	public void exportAttendance(String token , String job,Integer classId,HttpServletResponse response){
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
 		ArrayList<CardNoDetail> list = new ArrayList<CardNoDetail>();	
@@ -1000,7 +1001,7 @@ public class SmallcontrolService {
 							//拼接新幼儿园id
 						newGarten=""+workerInfo.getGartenId();
 							//拼接新身份
-						newIdentity=identity;
+						newIdentity=""+identity;
 							//拼接新的监控直播时间
 						newMonitorTime ="2000-01-01";
 							//拼接新的考勤时间
@@ -1083,56 +1084,53 @@ public class SmallcontrolService {
 	}
 	
 	//删除老师
-	public Map<String,Object> deleteTeacher(String token,Integer workerId){
-		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
-			if(null!=workerInfo){
-				WorkerInfo worker = smallcontrolDao.findworkerById(workerId);
-				Integer classId = worker.getClassId();
-				Integer[] teachers = smallcontrolDao.getTeacherByClassId(classId);
-				if(teachers.length==1){
-					return MyUtil.putMapParams(result, "state",2);		//不能删除班级最后一个老师
-				}
-				smallcontrolDao.deleteTeacher(workerId);
-				teachers = smallcontrolDao.getTeacherByClassId(classId);
-				smallcontrolDao.updateBaByTeacher(LyUtils.intChangeToStr(teachers), classId);
-				
-				//开启删除老师相关信息线程
-				DeleteTeacherThread deleteTeacherThread = new DeleteTeacherThread(workerId);
-				Thread thread = new Thread(deleteTeacherThread);
-				thread.start();
-				
-				smallcontrolDao.updateRebootFlag(workerInfo.getGartenId());	//重启标识
-				MyUtil.putMapParams(result, "state",1);
+	public Map<String,Object> deleteTeacher(Integer workerId){
+			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+		
+			WorkerInfo worker = smallcontrolDao.findworkerById(workerId);
+			Integer classId = worker.getClassId();
+			Integer[] teachers = smallcontrolDao.getTeacherByClassId(classId);
+			if(teachers.length==1){
+				return MyUtil.putMapParams(result, "state",2);		//不能删除班级最后一个老师
 			}
+			smallcontrolDao.deleteTeacher(workerId);
+			teachers = smallcontrolDao.getTeacherByClassId(classId);
+			smallcontrolDao.updateBaByTeacher(LyUtils.intChangeToStr(teachers), classId);
+			
+			//开启删除老师相关信息线程
+			DeleteTeacherThread deleteTeacherThread = new DeleteTeacherThread(workerId);
+			Thread thread = new Thread(deleteTeacherThread);
+			thread.start();
+			
+			smallcontrolDao.updateRebootFlag(worker.getGartenId());	//重启标识
+			MyUtil.putMapParams(result, "state",1);
+		
 			return result;
 	}
 	
 	//删除宝宝
-	public Map<String,Object> deleteBaby(String token,Integer babyId){
+	public Map<String,Object> deleteBaby(Integer babyId){
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-		WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
-			if(null!=workerInfo){
-				List<ParentInfo> parents = smallcontrolDao.findParentByBabyId(babyId);
-				for(ParentInfo p : parents){			//该宝宝对应的家长清除该宝宝的记录
-					Integer index = Arrays.binarySearch(p.getBabyId(),babyId.toString());
-					String[] newBabyId = LyUtils.ArrayRemoveIndex(p.getBabyId(), index);
-					String[] newIdentity = LyUtils.ArrayRemoveIndex(p.getIdentity(), index);
-					String[] newAttendanceTime = LyUtils.ArrayRemoveIndex(p.getAttendanceTime(), index);
-					String[] newMonitorTime = LyUtils.ArrayRemoveIndex(p.getMonitorTime(), index);
-					String[] newGarten = LyUtils.ArrayRemoveIndex(p.getGartenId().split(","), index);
-					smallcontrolDao.updateParentIsExist(p.getParentId(), LyUtils.StrChangeToStr(newBabyId), LyUtils.StrChangeToStr(newGarten), 
-							LyUtils.StrChangeToStr(newIdentity), LyUtils.StrChangeToStr(newMonitorTime), LyUtils.StrChangeToStr(newAttendanceTime));
-				}
-				
-				//开启删除宝宝相关信息线程
-				DeleteBabyThread babyThread = new DeleteBabyThread(babyId);
-				Thread thread = new Thread(babyThread);
-				thread.start();
-				
-				smallcontrolDao.updateRebootFlag(workerInfo.getGartenId());	//重启标识
-				MyUtil.putMapParams(result, "state",1);
-			}
+		
+		List<ParentInfo> parents = smallcontrolDao.findParentByBabyId(babyId);
+		for(ParentInfo p : parents){			//该宝宝对应的家长清除该宝宝的记录
+			Integer index = Arrays.binarySearch(p.getBabyId(),babyId.toString());
+			String[] newBabyId = LyUtils.ArrayRemoveIndex(p.getBabyId(), index);
+			String[] newIdentity = LyUtils.ArrayRemoveIndex(p.getIdentity(), index);
+			String[] newAttendanceTime = LyUtils.ArrayRemoveIndex(p.getAttendanceTime(), index);
+			String[] newMonitorTime = LyUtils.ArrayRemoveIndex(p.getMonitorTime(), index);
+			String[] newGarten = LyUtils.ArrayRemoveIndex(p.getGartenId().split(","), index);
+			smallcontrolDao.updateParentIsExist(p.getParentId(), LyUtils.StrChangeToStr(newBabyId), LyUtils.StrChangeToStr(newGarten), 
+					LyUtils.StrChangeToStr(newIdentity), LyUtils.StrChangeToStr(newMonitorTime), LyUtils.StrChangeToStr(newAttendanceTime));
+		}
+		
+		//开启删除宝宝相关信息线程
+		DeleteBabyThread babyThread = new DeleteBabyThread(babyId);
+		Thread thread = new Thread(babyThread);
+		thread.start();
+		ClassManage baby = parentDao.findBabyById(babyId);
+		smallcontrolDao.updateRebootFlag(baby.getGartenId());	//重启标识
+		MyUtil.putMapParams(result, "state",1);
 			return result;
 	}
 	
@@ -1387,6 +1385,234 @@ public class SmallcontrolService {
 	return "success";
 }
 
+	
+	//微信支付 
+			public Map<String, Object> wxpay(String token,Integer type,Integer monthCount,HttpServletRequest httpRequest,
+		            HttpServletResponse httpResponse ) throws IOException {
+				
+				 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+				  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+				if(null!=workerInfo){//验证用户
+					//创建未支付订单
+					/**
+					 * 每种类型的支付分别是什么价格
+					 * 0幼儿园本身视频1幼儿园本身考勤2幼儿园家长视频3幼儿园家长考勤4家长视频5家长考勤6:2+3
+					 * 目前type只有2+3+6 帮家长买的3种支付
+					 * 这里传过来的type本来是0-5的后来6需要分解为:2+3
+					 */
+					Map<String, Object> getPrice=null;
+					Map<String, Object> getPrice1=null;
+					if(6==type){
+						getPrice=getPrice( token, 2, monthCount,workerInfo.getGartenId());//获取幼儿园要帮家长购买的月份
+						getPrice1=getPrice( token, 3, monthCount,workerInfo.getGartenId());//获取幼儿园要帮家长购买的月份
+					}else{
+						getPrice=getPrice( token, type, monthCount,workerInfo.getGartenId());//获取幼儿园要帮家长购买的月份
+					}
+					BigDecimal big= (BigDecimal)getPrice.get("price");
+					System.err.println(big);
+					if(null!=getPrice1){
+						BigDecimal big1= (BigDecimal)getPrice1.get("price");
+						big=big.add(big1);
+					}
+					List<ParentInfoCharge>  parentInfoCharge=bigcontrolDao.findParentInfoCharge(workerInfo.getGartenId());//9.9新增
+					big=big.multiply(new BigDecimal(parentInfoCharge.size()));
+
+					Long orderNumber=System.currentTimeMillis();
+					String orderDetail=2==type?"购买幼儿园所有家长视频":(3==type?"购买幼儿园所有家长考勤":"购买幼儿园所有家长考勤和视频");
+					Order o=new Order(orderNumber,new Date().getTime()/1000,null,"园长",big,orderDetail,workerInfo.getWorkerId(),type,1,0,monthCount,null,workerInfo.getGartenId());
+					parentDao.insertOrdr(o);//创建未支付订单
+					Map<String,Object> payResult=MyUtilAll.myWxpayControl(orderNumber+"", orderDetail,big.multiply(new BigDecimal(100)).toString() , httpRequest,
+				             httpResponse);
+					MyUtil.putMapParams(result,"state", 1,"info",payResult);
+				}
+				return result;
+			}
+				
+			
+			public String wxpayyz(HttpServletRequest httpRequest,HttpServletResponse httpResponse) throws AlipayApiException, ParseException, APIConnectionException, APIRequestException, IOException, JDOMException {
+			    
+		        //读取参数  
+		        InputStream inputStream ;  
+		        StringBuffer sb = new StringBuffer();  
+		        inputStream = httpRequest.getInputStream();  
+		        String s ;  
+		        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));  
+		        while ((s = in.readLine()) != null){  
+		            sb.append(s);  
+		        }  
+		        in.close();  
+		        inputStream.close();  
+		  
+		        //解析xml成map  
+		        Map<String, String> m = new HashMap<String, String>();  
+		        m = MyXMLUtil.doXMLParse(sb.toString());  
+		          
+		        //过滤空 设置 TreeMap  
+		        SortedMap<Object,Object> packageParams = new TreeMap<Object,Object>();        
+		        Iterator it = m.keySet().iterator();  
+		        while (it.hasNext()) {  
+		            String parameter = (String) it.next();  
+		            String parameterValue = m.get(parameter);  
+		              
+		            String v = "";  
+		            if(null != parameterValue) {  
+		                v = parameterValue.trim();  
+		            }  
+		            packageParams.put(parameter, v);  
+		        }  
+		          
+		        // 账号信息  
+		        String key = MyParamAll.MYWXIN_PARENT_API_KEY; // key  
+		  
+		        //判断签名是否正确  
+		        if(PayCommonUtil.isTenpaySign("UTF-8", packageParams)) {
+		            //------------------------------  
+		            //处理业务开始  
+		            //------------------------------  
+		            String resXml = "";  
+		            if("SUCCESS".equals((String)packageParams.get("result_code"))){  
+		                // 这里是支付成功  
+		                //////////执行自己的业务逻辑////////////////  
+		                String mch_id = (String)packageParams.get("mch_id");  
+		                String openid = (String)packageParams.get("openid");  
+		                String is_subscribe = (String)packageParams.get("is_subscribe");  
+		                String out_trade_no = (String)packageParams.get("out_trade_no");  
+		                String total_fee = (String)packageParams.get("total_fee");  
+		                //////////执行自己的业务逻辑////////////////  
+		                  System.err.println("支付成功");
+		                 Map<String,Object> param=MyUtil.putMapParams("orderNumber",out_trade_no);
+		  				parentDao.zforder(param);
+		  				System.err.println("回调成功");
+		  				System.err.println("回调成功");
+		  				System.err.println("回调成功");
+		  				//处理到期时间
+		  				Order order=parentDao.findOrder(out_trade_no);
+		  				WorkerInfo workerInfo=workerDao.findWorkerInfoById(order.getId());
+		  				GartenInfo gartenInfo=workerDao.findGartenInfoById(workerInfo.getGartenId());
+		  				SimpleDateFormat sim=new SimpleDateFormat("yyyy-MM-dd");
+		  				Date day=new Date();
+		  				Date date=new Date();
+		  				Long monitorTime=gartenInfo.getMonitorTime();
+		  				Long attendanceTime=gartenInfo.getAttendanceTime();
+		  			    Calendar calendar = Calendar.getInstance();  
+		  				Integer  orderType=order.getType();
+		  						if(0==orderType||1==orderType){
+		  							if(0==orderType){//幼儿园购买本身视频
+		  								if(gartenInfo.getMonitorTime()>day.getTime()/1000){
+		  									System.err.println("monitorTime前"+monitorTime);
+		  									  calendar.setTime(sim.parse(sim.format(gartenInfo.getMonitorTime()*1000))); 
+		  									  calendar.add(Calendar.MONTH, order.getMonthCount()); 
+		  									monitorTime=calendar.getTime().getTime()/1000;  
+		  									System.err.println("monitorTime后"+monitorTime);
+		  								}else{
+		  									calendar.setTime(day); 
+		  									  calendar.add(Calendar.MONTH, order.getMonthCount()); 
+		  									  monitorTime=calendar.getTime().getTime()/1000;  
+		  								}
+		  							}
+		  							if(1==orderType){//幼儿园购买本身考勤
+		  								if(gartenInfo.getAttendanceTime()>day.getTime()/1000){
+		  									  calendar.setTime(sim.parse(sim.format(gartenInfo.getAttendanceTime()*1000))); 
+		  									  calendar.add(Calendar.MONTH, order.getMonthCount()); 
+		  									  attendanceTime=calendar.getTime().getTime()/1000;  
+		  								}else{
+		  									calendar.setTime(day); 
+		  									  calendar.add(Calendar.MONTH, order.getMonthCount()); 
+		  									  attendanceTime=calendar.getTime().getTime()/1000;  
+		  								}
+		  							}
+		  							System.err.println("monitorTime最终"+monitorTime);
+		  							bigcontrolDao.updateGartenTime(MyUtil.putMapParams("monitorTime", monitorTime, "attendanceTime", attendanceTime,"gartenId",gartenInfo.getGartenId()));
+		  						}else{
+		  							 // 1找到这个幼儿园所有的宝宝的主要监护人+附加宝宝主键
+		  							List<ParentInfoCharge>  parentInfoCharge=bigcontrolDao.findParentInfoCharge(gartenInfo.getGartenId());
+		  							if(2==orderType||6==orderType){//修改幼儿园表里面的到期时间
+		  								bigcontrolService.changeGartenDredge(  order.getMonthCount() ,  0,  order.getGartenId());
+		  							}
+		  							if(3==orderType||6==orderType){
+		  								bigcontrolService.changeGartenDredge(  order.getMonthCount() ,  1,  order.getGartenId());
+		  							}
+
+		  							for(ParentInfoCharge p:parentInfoCharge){//为每个家长找到自己的主宝宝添加对应的时间
+		  							String[] babyIds=p.getBabyId();
+		  							for(int i=0;i<babyIds.length;i++){
+		  								if(babyIds[i].equals(p.getMainBabyId()+"")){
+		  									
+		  									String[] attendanceTimeParent=p.getAttendanceTime();
+		  									String[] monitorTimeParent=p.getMonitorTime();
+		  									System.err.println(LyUtils.StrChangeToStr(attendanceTimeParent));
+		  									System.err.println(LyUtils.StrChangeToStr(attendanceTimeParent));
+		  									System.err.println(LyUtils.StrChangeToStr(attendanceTimeParent));
+		  									if(2==orderType||6==orderType){
+		  										if(sim.parse(monitorTimeParent[i]).getTime()>day.getTime()){
+		  											System.err.println(monitorTimeParent[i]+"前");
+		  											calendar.setTime(sim.parse(monitorTimeParent[i])); 
+		  											  calendar.add(Calendar.MONTH, order.getMonthCount()); 
+		  											  date = calendar.getTime();  
+		  											  monitorTimeParent[i]=sim.format(date);
+		  											System.err.println(monitorTimeParent[i]+"后");
+		  										}else{
+		  											System.err.println(monitorTimeParent[i]);
+		  											calendar.setTime(day); 
+		  											  calendar.add(Calendar.MONTH, order.getMonthCount()); 
+		  											  date = calendar.getTime();  
+		  											  monitorTimeParent[i]=sim.format(date);	
+		  												System.err.println(monitorTimeParent[i]+"后");
+		  										}
+		  									}
+		  									if(3==orderType||6==orderType){
+		  										if(sim.parse(attendanceTimeParent[i]).getTime()>day.getTime()){
+		  											System.err.println(attendanceTimeParent[i]+"前");
+		  											  calendar.setTime(sim.parse(attendanceTimeParent[i])); 
+		  											  calendar.add(Calendar.MONTH, order.getMonthCount()); 
+		  											  date = calendar.getTime();  
+		  											  attendanceTimeParent[i]=sim.format(date);	
+		  											  System.err.println(attendanceTimeParent[i]+"后");
+		  										}else{
+		  											System.err.println(attendanceTimeParent[i]+"前");
+		  											calendar.setTime(day); 
+		  											  calendar.add(Calendar.MONTH, order.getMonthCount()); 
+		  											  date = calendar.getTime();  
+		  											  attendanceTimeParent[i]=sim.format(date);
+		  											  System.err.println(attendanceTimeParent[i]+"后");
+		  										}
+		  									}
+		  									String attendanceTimeStr=MyUtil.changeArrayToString(attendanceTimeParent);
+		  									String monitorTimeStr=MyUtil.changeArrayToString(monitorTimeParent);
+		  									System.err.println("attendanceTimeStr"+attendanceTimeStr);
+		  									System.err.println("monitorTimeStr"+monitorTimeStr);
+		  									System.err.println("parentId"+p.getParentId());
+		  									parentDao.updateChargeTime(MyUtil.putMapParams("monitorTime", monitorTimeStr, "attendanceTime", attendanceTimeStr,"parentId",p.getParentId()));
+		  									}
+		  								}
+		  							
+		  							}
+		  						}
+		  				
+		                //通知微信.异步确认成功.必写.不然会一直通知后台.八次之后就认为交易失败了.  
+		                resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"  
+		                        + "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";  
+		                  return "1.html";
+		            } else {  
+		                System.err.println("支付失败,错误信息：" + packageParams.get("err_code"));
+		                System.err.println();
+		                resXml = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>"  
+		                        + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";  
+		            }  
+		            //------------------------------  
+		            //处理业务完毕  
+		            //------------------------------  
+		            BufferedOutputStream out = new BufferedOutputStream(  
+		            		httpResponse.getOutputStream());  
+		            out.write(resXml.getBytes());  
+		            out.flush();  
+		            out.close();  
+		        } else{  
+		            System.err.println("通知签名验证失败");
+		        }  
+		          return null;
+		    
+		}
 	
 	/**
 	 * 1遍历所有type	
@@ -1876,6 +2102,22 @@ public class SmallcontrolService {
 				 result.put("state", 1);
 			}
 			return result;
+		}
+
+		public Map<String, Object> ActivityLogAll(Integer activityId,Integer pageNo) {
+			List<com.garten.model.activity.ActivityLogAll> ac=smallcontrolDao.ActivityLogAllByactivityId(activityId);
+			Map<String,Object> result=MyUtil.putMapParams("state", 1,"info",MyPage.listPage16(ac, pageNo));
+			return result;
+		}
+		public Map<String, Object> findActivity(String token,Integer pageNo) {
+			 WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
+			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+				if(null!=workerInfo){
+					List<ActivityDetailAll> activituLog= workerDao.findIntroduceActivityByToken(workerInfo.getGartenId());//这个幼儿园所有的活动
+					 //这个幼儿园的活动
+					MyUtil.putMapParams(result,"state",1,"info", MyPage.listPage16(activituLog, pageNo));
+				}
+				return result;
 		}
 
 }

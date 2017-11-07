@@ -83,7 +83,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		update garten_info 
 		set
 		gartenName=#{gartenName}, name=#{name}, phoneNumber=#{phoneNumber},contractNumber=#{contractNumber},
-		contractStart=#{contractStart} ,contractEnd=#{contractEnd}, organizationCode=#{organizationCode},
+		contractStart=#{contractStart} ,contractEnd=#{contractEnd},
 		province=#{province} ,city=#{city},countries=#{countries}, address=#{address},charge=#{charge}
 		where gartenId=#{gartenId}
 	</update>
@@ -100,9 +100,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<insert id="addApplyGarten">
 		insert into agent_audit(gartenName,name,phoneNumber,contractNumber,province,city,
-			countries,workerCount,babyCount,gradeCount,classCount,money1,equipment,resource,registTime,resourceId,remark)
+			countries,workerCount,babyCount,gradeCount,classCount,money1,equipment,resource,registTime,resourceId,remark,gartenType)
 		values(#{gartenName},#{name},#{phoneNumber},#{contractNumber},#{province},#{city},
-			#{countries},#{workerCount},#{babyCount},#{gradeCount},#{classCount},#{money1},#{equipment},#{resource},now(),#{agentId},#{remark})
+			#{countries},#{workerCount},#{babyCount},#{gradeCount},#{classCount},#{money1},#{equipment},#{resource},now(),#{agentId},#{remark},#{gartenType})
 	</insert>
 	
 	<insert id="addVisit">
@@ -187,7 +187,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		agentId=#{agentId},
 		fromPhonenumber=#{fromPhoneNumber},
 		totalPrice=#{totalPrice},
-		resource=#{resource}
+		resource=#{resource},
+		remark=#{remark}
 	</insert>
 	
 	<update id="deleteWuliaoOrder"  >

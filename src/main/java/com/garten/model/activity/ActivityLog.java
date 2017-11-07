@@ -9,22 +9,25 @@ public class ActivityLog {
 	private String phoneNumber;
 	private Integer activityId;
 	private Integer id;
+	private Long registTime;
 	@Override
 	public String toString() {
 		return "ActivityLog [babyId=" + babyId + ", parentName=" + parentName + ", phoneNumber=" + phoneNumber
-				+ ", activityId=" + activityId + ", id=" + id + "]";
+				+ ", activityId=" + activityId + ", id=" + id + ", registTime=" + registTime + "]";
 	}
 	public ActivityLog() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public ActivityLog(Integer babyId, String parentName, String phoneNumber, Integer activityId, Integer id) {
+	public ActivityLog(Integer babyId, String parentName, String phoneNumber, Integer activityId, Integer id,
+			Long registTime) {
 		super();
 		this.babyId = babyId;
 		this.parentName = parentName;
 		this.phoneNumber = phoneNumber;
 		this.activityId = activityId;
 		this.id = id;
+		this.registTime = registTime;
 	}
 	public Integer getBabyId() {
 		return babyId;
@@ -55,6 +58,12 @@ public class ActivityLog {
 	}
 	public void setId(Integer id) {
 		this.id = id;
+	}
+	public Long getRegistTime() {
+		return registTime;
+	}
+	public void setRegistTime(Timestamp registTime) {
+		this.registTime = registTime.getTime()/1000;
 	}
 	
 	

@@ -10,7 +10,9 @@ import org.apache.ibatis.annotations.Param;
 import com.garten.model.activity.ActivityDetail;
 import com.garten.model.activity.ActivityLog;
 import com.garten.model.agent.AgentAudit;
+import com.garten.model.agent.AgentAuditDetail;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.AgentMessageAll;
 import com.garten.model.agent.AgentOrderAll;
 import com.garten.model.agent.SaleServiceAll;
 import com.garten.model.agent.WithdrawAll;
@@ -24,14 +26,19 @@ import com.garten.model.company.Employee;
 import com.garten.model.company.EmployeeAudit;
 import com.garten.model.company.Jobs;
 import com.garten.model.company.Report;
+import com.garten.model.company.ReportAll;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.garten.GartenLesson;
 import com.garten.model.garten.GartenPhotos;
 import com.garten.model.garten.GartenRecipe;
+import com.garten.model.garten.GartenType;
 import com.garten.model.garten.GartenVideo;
 import com.garten.model.garten.PhotoDianZan;
+import com.garten.model.other.AttendanceNo;
+import com.garten.model.other.Card;
+import com.garten.model.other.CardReturn;
 import com.garten.model.other.CheckNumber;
 import com.garten.model.other.Comment;
 import com.garten.model.other.Equipment;
@@ -142,7 +149,7 @@ public interface BigcontrolDao {
 
 	List<AgentInfo> findAgentName(Map<String, Object> putMapParams);
 
-	List<AgentAudit> agentPerformance(Map<String, Object> putMapParams);
+	List<AgentAuditDetail> agentPerformance(Map<String, Object> putMapParams);
 
 	List<GartenCharge> gartenCharge(Map<String, Object> putMapParams);
 
@@ -156,7 +163,7 @@ public interface BigcontrolDao {
 
 	AgentInfo findAgentMessgeOne(Map<String, Object> putMapParams);
 
-	List<OrderAll> findOrder(@Param("state")Integer state, @Param("type")Integer type,@Param("province") String province, @Param("city")String city,@Param("countries") String countries,@Param("gartenId") Integer gartenId);
+	List<OrderAll> findOrder(@Param("state")Integer state, @Param("type")Integer type,@Param("province") String province, @Param("city")String city,@Param("countries") String countries,@Param("gartenId") Integer gartenId,@Param("orderDetail")String orderDetail);
 
 	void insertGartenInfo(Map<String, Object> param);
 
@@ -338,9 +345,9 @@ public interface BigcontrolDao {
 
 	Employee findEmployeeByToken(String token);
 
-	List<Report> findDepartmentReport(Map<String, Object> param);
+	List<ReportAll> findDepartmentReport(Map<String, Object> param);
 
-	void deleteReport(Long departmentNo);
+	void deleteReport(Integer reportId);
 
 	void addReport(Map<String, Object> param);
 	
@@ -390,12 +397,44 @@ public interface BigcontrolDao {
 
 	void deleteWithdraw(Integer withdrawId);
 
-	List<EmployeeAudit> findEmployeePerformance(Map<String, Object> params);
+	List<AgentAuditDetail> findEmployeePerformance(Map<String, Object> params);
 	
 	List<AgentOrderAll> findAgentOrder(Map<String, Object> param);
 
 	List<WuliaoOrder> findDepartmentWuliaoOrder(Map<String, Object> params);
 
 	void deleteJobs(Long jobsNo);
+
+	void addCard(List<Card> list);
+
+	Integer findCardCount(@Param("agentId")Integer agentId, @Param("agentType")Integer agentType,@Param("gartenId")Integer gartenId);
+
+	List<Card> findCard(@Param("agentId")Integer agentId, @Param("agentType")Integer agentType,@Param("gartenId")Integer gartenId);
+
+	void addGartentype(Map<String, Object> param);
+
+	void deleteGartentype(Integer gartenType);
+
+	List<GartenType> findGartentype();
+
+	void updateAttendanceNoAll(List<AttendanceNo> list);
+
+	Card findCardById(Integer cardId);
+
+	void updateCardReturnMoney(Integer cardId);
+
+	void addcardReturn(Map<String, Object> params);
+
+	List<CardReturn> findCardReturnByName(String name);
+
+	List<CardReturn> findCardReturn(Map<String, Object> params);
+
+	void deleteCardReturn(Integer returnId);
+
+	List<AgentMessageAll> findAgentMessage(Map<String, Object> param);
+
+	void addAgentMessage(Map<String, Object> param);
+
+	void deleteAgentMessage(Integer agentMessageId);
 
 }

@@ -54,6 +54,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.cloopen.rest.sdk.utils.encoder.BASE64Encoder;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.AgentMessageAll;
 import com.garten.model.agent.AgentOrderAll;
 import com.garten.model.agent.SaleServiceAll;
 import com.garten.model.agent.WithdrawAll;
@@ -1365,13 +1366,15 @@ public  class MyUtil implements ApplicationContextAware{
 				return MyPage.listPage16(babyLeave, pageNo);
 				
 	}
-	public static List<OrderAll> appendOrderName(List<OrderAll> order,String name,String phoneNumber) {
+	public static List<OrderAll> appendOrderName(List<OrderAll> order,String name,String phoneNumber,String babyName) {
 		PrincipalService principal = (PrincipalService) MyUtil.getBean("principalService");
 		ParentService parent = (ParentService) MyUtil.getBean("parentService");
 
 		List<OrderAll> result=new ArrayList<OrderAll>();
 		for(OrderAll o:order){
-			if("园长".equals(o.getJob())){
+			
+			//是否输入了宝宝名字来查询
+			if("园长".equals(o.getJob())&&null==o.getBabyName()){
 				System.err.println("测试"+o.getGartenId());
 				WorkerInfo workerInfo= principal.findPrincipalInfoById( o.getId());
 				System.err.println("测试"+workerInfo);
@@ -1396,10 +1399,22 @@ public  class MyUtil implements ApplicationContextAware{
 				}
 			}else if("家长".equals(o.getJob())){
 				ParentInfo parentInfo= parent.findParentById( o.getId());
+				ClassManage baby=null;
+				if(null!=o.getRelateId()&&0!=o.getRelateId()){
+					baby=parent.findBaby(o.getRelateId());
+				}
+				if(null!=baby){
+					o.setBabyName(baby.getBabyName());
+					System.err.println(baby.getBabyName()+"测试99");
+					o.setBabyHead(baby.getBabyHead());
+				}
 				if(null!=parentInfo){
 					o.setName(parentInfo.getParentName());
 					o.setPhoneNumber(parentInfo.getPhoneNumber());
 					o.setHead(parentInfo.getParentHead());
+					
+					
+					
 					if(null!=name&&!"".equals(name)){
 						if(!o.getName().equals(name)){
 							continue;
@@ -1410,13 +1425,20 @@ public  class MyUtil implements ApplicationContextAware{
 							continue;
 						}
 					}
+					//是否输入了宝宝名字来查询
+					if(null!=babyName&&!"".equals(babyName)&&null!=o.getBabyName()){
+						System.err.println(o.getBabyName()+"===="+babyName);
+						if(!o.getBabyName().equals(babyName)){
+							continue;
+						}
+					}
 					//有选择name和phoneNumber过滤后就添加
 						result.add(o);
 				}
 			}
 		}
 		return result;
-	}   
+	} 
 	
 	//云家洁86583用户注册成功
 	 public static  void register(String phoneNumber,String modelId,String[] datas){
@@ -1531,6 +1553,19 @@ public  class MyUtil implements ApplicationContextAware{
 				a.setAgentInfo(aOne);
 			}
 			return ao;
+		}
+
+		public static List<AgentMessageAll> setFindAgentMessage(List<AgentMessageAll> am) {
+			BigcontrolService bigcontrolService = (BigcontrolService) MyUtil.getBean("bigcontrolService");
+			AgentService agentService = (AgentService) MyUtil.getBean("agentService");
+
+			for(AgentMessageAll a:am){
+				Employee e=bigcontrolService.findEmployeeById(a.getEmployeeNo());
+				AgentInfo ai=agentService.findAgentByAgentId(a.getAgentId());
+				a.setEmployee(e);
+				a.setAgentInfo(ai);
+			}
+			return am;
 		}
 
 }

@@ -43,6 +43,7 @@ public class AgentInfo {
 		// TODO Auto-generated constructor stub
 	}
 	
+	
 	public AgentInfo(Integer agentId, String phoneNumber, String pwd, Integer agentGrade, BigDecimal agentMoney,
 			BigDecimal creditMoney, Long agentStartTime, Long agentEndTime, Long registTime, String name,
 			String agentName, Integer rebate, Integer frost, String province, String city, String countries,

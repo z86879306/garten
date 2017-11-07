@@ -28,7 +28,7 @@ public class AgentAudit {
 	private Integer gradeCount;
 	private Integer classCount;
 	private String reason;
-	
+	private Integer gartenType;
 	
 	
 	
@@ -37,7 +37,7 @@ public class AgentAudit {
 			Integer workerCount, Integer babyCount, String equipment, BigDecimal money1, BigDecimal money2,
 			BigDecimal money3, BigDecimal money4, Integer auditId, Integer resourceId, Long registTime, Integer state,
 			String gartenName, String name, String phoneNumber, String remark, Integer gradeCount, Integer classCount,
-			String reason) {
+			String reason, Integer gartenType) {
 		super();
 		this.resource = resource;
 		this.contractNumber = contractNumber;
@@ -62,6 +62,7 @@ public class AgentAudit {
 		this.gradeCount = gradeCount;
 		this.classCount = classCount;
 		this.reason = reason;
+		this.gartenType = gartenType;
 	}
 	public Integer getWorkerCount() {
 		return workerCount;
@@ -103,7 +104,7 @@ public class AgentAudit {
 				+ money3 + ", money4=" + money4 + ", auditId=" + auditId + ", resourceId=" + resourceId
 				+ ", registTime=" + registTime + ", state=" + state + ", gartenName=" + gartenName + ", name=" + name
 				+ ", phoneNumber=" + phoneNumber + ", remark=" + remark + ", gradeCount=" + gradeCount + ", classCount="
-				+ classCount + ", reason=" + reason + "]";
+				+ classCount + ", reason=" + reason + ", gartenType=" + gartenType + "]";
 	}
 	public AgentAudit() {
 		super();
@@ -218,6 +219,12 @@ public class AgentAudit {
 	}
 	public void setReason(String reason) {
 		this.reason = reason;
+	}
+	public Integer getGartenType() {
+		return gartenType;
+	}
+	public void setGartenType(Integer gartenType) {
+		this.gartenType = gartenType;
 	}
 	
 

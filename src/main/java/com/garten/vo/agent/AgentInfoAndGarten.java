@@ -1,5 +1,6 @@
 package com.garten.vo.agent;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.garten.model.agent.AgentInfo;
@@ -45,6 +46,16 @@ public class AgentInfoAndGarten extends AgentInfo{
 	}
 	public AgentInfoAndGarten() {
 		super();
+	}
+	public AgentInfoAndGarten(Integer agentId, String phoneNumber, String pwd, Integer agentGrade,
+			BigDecimal agentMoney, BigDecimal creditMoney, Long agentStartTime, Long agentEndTime, Long registTime,
+			String name, String agentName, Integer rebate, Integer frost, String province, String city,
+			String countries, String[] cardFragment, String token, Long tokenTime, Integer receiveType, String card,
+			String cardName) {
+		super(agentId, phoneNumber, pwd, agentGrade, agentMoney, creditMoney, agentStartTime, agentEndTime, registTime, name,
+				agentName, rebate, frost, province, city, countries, cardFragment, token, tokenTime, receiveType, card,
+				cardName);
+		// TODO Auto-generated constructor stub
 	}
 	
 }

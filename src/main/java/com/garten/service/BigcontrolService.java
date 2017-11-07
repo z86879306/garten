@@ -2,6 +2,7 @@ package com.garten.service;
 
 
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -14,34 +15,23 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.plaf.basic.BasicGraphicsUtils;
 
-import org.codehaus.jackson.map.util.Comparators;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.server.ServletServerHttpAsyncRequestControl;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.alipay.api.AlipayApiException;
-import com.alipay.api.internal.util.AlipaySignature;
 import com.garten.Thread.BigControlSendNotify;
 import com.garten.Thread.DeleteGartenAll;
 import com.garten.Thread.DeleteGartenBaby;
 import com.garten.Thread.DeleteGartenTeacher;
-import com.garten.Thread.DeleteTeacherThread;
 import com.garten.Thread.GartenRegisteNotify;
-import com.garten.Thread.HuanXinThread;
 import com.garten.Thread.XxxThread;
 import com.garten.dao.AgentDao;
 import com.garten.dao.AttendanceDao;
@@ -51,6 +41,7 @@ import com.garten.dao.PrincipalDao;
 import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
+import com.garten.model.agent.AgentAuditDetail;
 import com.garten.model.agent.AgentInfo;
 import com.garten.model.agent.AgentOrderAll;
 import com.garten.model.agent.SaleServiceAll;
@@ -63,13 +54,16 @@ import com.garten.model.company.Department;
 import com.garten.model.company.Employee;
 import com.garten.model.company.Jobs;
 import com.garten.model.company.Report;
+import com.garten.model.company.ReportAll;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
-import com.garten.model.garten.GartenVideo;
+import com.garten.model.garten.GartenType;
+import com.garten.model.other.AttendanceNo;
+import com.garten.model.other.Card;
+import com.garten.model.other.CardReturn;
 import com.garten.model.other.Equipment;
 import com.garten.model.other.EquipmentName;
-import com.garten.model.other.Feedback;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.MessageLog;
 import com.garten.model.other.Order;
@@ -79,8 +73,8 @@ import com.garten.model.worker.WorkerInfo;
 import com.garten.util.LyParam;
 import com.garten.util.LyUtils;
 import com.garten.util.excel.ExcelUtil;
+import com.garten.util.excel.ExcelUtils;
 import com.garten.util.lxcutil.MyParamAll;
-import com.garten.util.lxcutil.MyUtilAll;
 import com.garten.util.md5.CryptographyUtil;
 import com.garten.util.myutil.MyUtil;
 import com.garten.util.page.DividePage;
@@ -89,7 +83,7 @@ import com.garten.vo.agent.AgentAuditMessage;
 import com.garten.vo.attendance.TeacherAndBabyInfo;
 import com.garten.vo.baby.BabyMessageAndParent;
 import com.garten.vo.bigcontrol.AddDetail;
-import com.garten.vo.bigcontrol.BabyMessage;
+import com.garten.vo.bigcontrol.CardSimple;
 import com.garten.vo.bigcontrol.ClassManageBig;
 import com.garten.vo.bigcontrol.DakaCamera;
 import com.garten.vo.bigcontrol.FeedbackDetail;
@@ -102,8 +96,6 @@ import com.garten.vo.smallcontrol.CardNoDetail;
 import com.garten.vo.smallcontrol.MachineDetail;
 import com.garten.vo.smallcontrol.OrderAll;
 import com.garten.vo.teacher.BabyCheckLogAll;
-import com.garten.vo.teacher.ClassManage;
-import com.mysql.fabric.xmlrpc.base.Array;
 
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
@@ -113,7 +105,6 @@ import cn.jpush.api.push.model.Platform;
 import cn.jpush.api.push.model.PushPayload;
 import cn.jpush.api.push.model.audience.Audience;
 import cn.jpush.api.push.model.notification.Notification;
-import io.netty.handler.codec.http.HttpResponse;
 
 
 
@@ -330,10 +321,13 @@ public class BigcontrolService {
 				return result;
 		}
 			
-		public Map<String, Object> parentMessage(String token, String name, String phoneNumber,String province,String city,String countries,Integer pageNo,Integer gartenId, Integer monitorState, Integer attendanceState) {
+		public Map<String, Object> parentMessage(String token, String name, String phoneNumber,String province,String city,String countries,Integer pageNo,Integer gartenId, Integer monitorState, Integer attendanceState) throws ParseException {
 			 Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 				if(null!=em){
+					Long nowTime = new Date().getTime();
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+					
 					//根据 可变参数 筛选出符合条件的家长
 					Map<String, Object> params = MyUtil.putMapParams("name", name, "phoneNumber", phoneNumber, "province", province, "city", city, "countries", countries,"gartenId",gartenId,"pageNo",(pageNo-1)*16);
 					List<ParentInfo> parents=bigcontrolDao.findParentMessage(params);
@@ -343,6 +337,9 @@ public class BigcontrolService {
 					ClassManageBig classManageBig=new ClassManageBig();
 					for(ParentInfo p:parents){
 						System.err.println(p);
+						Boolean attendanceFlag = false;
+						Boolean monitorFlag = false;
+						
 						List<ClassManageBig>  classManageBigList=new ArrayList<ClassManageBig>();
 						if("".equals(LyUtils.StrChangeToStr(p.getBabyId()))){
 							continue;
@@ -356,10 +353,43 @@ public class BigcontrolService {
 							classManageBig=findBaby(Integer.valueOf(babyIds[i]));
 							if(null!=classManageBig){
 								classManageBig.setMonitorTime(monitor[i]);
+								if(sdf.parse(monitor[i]).getTime()>nowTime){
+									monitorFlag=true;
+								}
 								classManageBig.setAttendanceTime(attendance[i]);
+								if(sdf.parse(attendance[i]).getTime()>nowTime){
+									attendanceFlag=true;
+								}
 								classManageBigList.add(classManageBig);
 							}
 							
+						}
+						
+						//全部未开通
+						if(1==attendanceState&&1==monitorState){			//全部未开通
+							if(monitorFlag||attendanceFlag)
+								continue;						//跳出循环  不添加该家长
+						}else if(2==attendanceState&&1==monitorState){		//考勤开通，视频未开通
+							if(!attendanceFlag||monitorFlag)
+								continue;
+						}else if(1==attendanceState&&2==monitorState){		//考勤未开通，视频开通
+							if(attendanceFlag||!monitorFlag)
+								continue;
+						}else if(2==attendanceState&&2==monitorState){		//全部开通状态
+							if(!monitorFlag||!attendanceFlag)
+								continue;
+						}else if(3==attendanceState&&1==monitorState){		//考勤未选择   视频未开通
+							if(monitorFlag)
+								continue;
+						}else if(3==attendanceState&&2==monitorState){		//考勤未选择   视频已开通
+							if(!monitorFlag)
+								continue;
+						}else if(1==attendanceState&&3==monitorState){		//考勤未开通，视频未选择
+							if(attendanceFlag)
+								continue;
+						}else if(2==attendanceState&&3==monitorState){		//考勤已开通，视频未选择
+							if(!attendanceFlag)
+								continue;
 						}
 						parentMessages.add(new ParentMessage(p,classManageBigList));
 						
@@ -372,6 +402,64 @@ public class BigcontrolService {
 		}
 		
 		
+		public void exportParent(String name,String phoneNumber,String province,String city,String countries ,Integer gartenId,Integer monitorState,Integer attendanceState,HttpServletResponse response) throws IOException, Exception{
+			Map<String, Object> params = MyUtil.putMapParams("name", name, "phoneNumber", phoneNumber, "province", province, "city", city, "countries", countries,"gartenId",gartenId);
+			List<ParentInfo> parents=bigcontrolDao.findParentMessage(params);
+			Long nowTime = new Date().getTime();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			
+			for(ParentInfo p : parents){
+				Boolean attendanceFlag = false;
+				Boolean monitorFlag = false;
+				for(int i=0; i<p.getBabyId().length ;i++){
+					if(sdf.parse(p.getMonitorTime()[i]).getTime()>nowTime){
+						monitorFlag=true;
+					}
+					if(sdf.parse(p.getAttendanceTime()[i]).getTime()>nowTime){
+						attendanceFlag=true;
+					}
+				}
+				//全部未开通
+				if(1==attendanceState&&1==monitorState){			//全部未开通
+					if(monitorFlag||attendanceFlag)
+						continue;						//跳出循环  不添加该家长
+				}else if(2==attendanceState&&1==monitorState){		//考勤开通，视频未开通
+					if(!attendanceFlag||monitorFlag)
+						continue;
+				}else if(1==attendanceState&&2==monitorState){		//考勤未开通，视频开通
+					if(attendanceFlag||!monitorFlag)
+						continue;
+				}else if(2==attendanceState&&2==monitorState){		//全部开通状态
+					if(!monitorFlag||!attendanceFlag)
+						continue;
+				}else if(3==attendanceState&&1==monitorState){		//考勤未选择   视频未开通
+					if(monitorFlag)
+						continue;
+				}else if(3==attendanceState&&2==monitorState){		//考勤未选择   视频已开通
+					if(!monitorFlag)
+						continue;
+				}else if(1==attendanceState&&3==monitorState){		//考勤未开通，视频未选择
+					if(attendanceFlag)
+						continue;
+				}else if(2==attendanceState&&3==monitorState){		//考勤已开通，视频未选择
+					if(!attendanceFlag)
+						continue;
+				}
+			}
+			String [] titles= {"家长ID","家长名字","联系方式","地址"};
+	   		String [] fields = {"parentid","parentname","phonenumber","address"};
+	   		
+	   		
+	   		response.setContentType("application/x-execl");
+			response.setHeader("Content-Disposition", "attachment;filename=" + new String("家长列表.xls".getBytes(), "ISO-8859-1"));
+	   		
+	   		
+	   		ServletOutputStream outputStream = response.getOutputStream();
+			ExcelUtils.Export_(titles, fields, parents, outputStream);
+			
+			
+		}
+		
 		
 		public Map<String, Object> babyMessage(String token, String name ,String province,String city,String countries,Integer pageNo,Integer gartenId,String leadGrade,String leadClass) {
 			 Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
@@ -382,6 +470,22 @@ public class BigcontrolService {
 				}
 				//验证码错误返回  验证错误信息
 				return result;
+		}
+		
+		public  void exportBaby(String name ,String province,String city,String countries,Integer gartenId,String leadGrade,String leadClass,HttpServletResponse response) throws IOException{
+			List<BabyMessageAndParent> babyMessages=bigcontrolDao.findBabyMessage(MyUtil.putMapParams("name", name , "province", province, "city", city, "countries", countries,"gartenId",gartenId,"leadGrade",leadGrade,"leadClass",leadClass));
+			
+			String [] titles= {"宝宝ID","宝宝名字","年级","班级","身高","体重","性别","健康状态","爱好","特长","过敏史","主监护人","监护人联系方式","身份证号码"};
+	   		String [] fields = {"babyid","babyname","leadgrade","leadclass","height","weight","sex","health","hobby","specialty","allergy","parentname","phonenumber","cardid"};
+	   		
+	   		
+	   		response.setContentType("application/x-execl");
+			response.setHeader("Content-Disposition", "attachment;filename=" + new String("宝宝列表.xls".getBytes(), "ISO-8859-1"));
+	   		
+	   		
+	   		ServletOutputStream outputStream = response.getOutputStream();
+			ExcelUtils.Export_(titles, fields, babyMessages, outputStream);
+			
 		}
 		
 		
@@ -402,6 +506,23 @@ public class BigcontrolService {
 				return result;
 		}
 
+		
+		public  void exportWorker(String name ,String province,String city,String countries,String phoneNumber,Integer gartenId,HttpServletResponse response) throws IOException{
+		
+			List<WorkerMessage> workerMessage=bigcontrolDao.findWorkerMessage(MyUtil.putMapParams("name", name , "province", province, "city", city, "countries", countries,"phoneNumber",phoneNumber,"gartenId", gartenId));
+			
+			String [] titles= {"老师ID","老师名字","所属幼儿园","联系方式","年级","班级","性别","年龄","学历","普通话等级","证书","红花数量","职称"};
+	   		String [] fields = {"workerid","workername","gartenname","phonenumber","leadgrade","leadclass","sex","age","education","chinese","certificate","flowers","jobcall"};
+	   		
+	   		
+	   		response.setContentType("application/x-execl");
+			response.setHeader("Content-Disposition", "attachment;filename=" + new String("老师列表.xls".getBytes(), "ISO-8859-1"));
+	   		
+	   		
+	   		ServletOutputStream outputStream = response.getOutputStream();
+			ExcelUtils.Export_(titles, fields, workerMessage, outputStream);
+			
+		}
 		public Map<String, Object> gartenMessage(String token, String name, String province, String city,
 				String countries, String phoneNumber,Integer pageNo,Integer gartenId,Integer monitorState,Integer attendanceState) {
 			 Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
@@ -465,14 +586,14 @@ public class BigcontrolService {
 
 		public Map<String, Object> updateGarten(String token, Integer gartenId, String gartenName, String name,
 				String phoneNumber, String contractNumber, Long contractStart, Long contractEnd,
-				String organizationCode, String province, String city, String countries, String address,
+				 String province, String city, String countries, String address,
 				Integer accountState, BigDecimal charge, Long attendanceTime, Long monitorTime) {
 			 Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0);
 				if(null!=em){
 					Map<String,Object> param=new HashMap<String,Object>();
 					MyUtil.putMapParams( param, "gartenId", gartenId, "gartenName", gartenName, "name", name,"phoneNumber",phoneNumber,"contractNumber",contractNumber);
-					MyUtil.putMapParams( param, "organizationCode", organizationCode, "province", province, "city", city,"countries",countries,"address",address);
+					MyUtil.putMapParams( param, "province", province, "city", city,"countries",countries,"address",address);
 					MyUtil.putMapParams( param, "charge", charge, "attendanceTime", attendanceTime, "monitorTime", monitorTime,"contractEnd",contractEnd,"accountState",accountState);
 					MyUtil.putMapParams( param,"contractStart",contractStart);
 					WorkerInfo principal = smallcontrolDao.findPrincipalByGartenId(gartenId);
@@ -516,7 +637,7 @@ public class BigcontrolService {
 				return result;
 		}		
 //-----------------------------------------开园处理
-		public Map<String, Object> agreeAgentAudit(String token ,Integer auditId,Integer gartenGrade,Long attendanceTime,Long monitorTime,Long contractStart,Long contractEnd,String organizationCode) throws ParseException, IOException {
+		public Map<String, Object> agreeAgentAudit(String token ,Integer auditId,Integer gartenGrade,Long attendanceTime,Long monitorTime,Long contractStart,Long contractEnd) throws ParseException, IOException {
 			 Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0);
 				if(null!=em){
@@ -526,7 +647,7 @@ public class BigcontrolService {
 						creation( audit.getPhoneNumber(), gartenGrade, audit.getGartenName(),
 								 attendanceTime, monitorTime,audit.getResourceId(),
 								 audit.getProvince(), audit.getCity(), audit.getCountries(), audit.getContractNumber(), contractStart, contractEnd,
-								 organizationCode, audit.getName(),audit,1);
+								  audit.getName(),audit,1,audit.getGartenType());
 //						String[] datas=new String[]{audit.getGartenName(),audit.getPhoneNumber(),"123456"};
 //						MyUtil.register(audit.getPhoneNumber(),MyParamAll.YTX_DUANXIN_ZC, datas);
 //						GartenRegisteNotify gartenRegisteNotify = new GartenRegisteNotify(audit.getPhoneNumber(), datas);
@@ -546,9 +667,9 @@ public class BigcontrolService {
 		
 		
 		
-		public Map<String, Object> addGarten(String token  ,Integer gartenGrade,Long attendanceTime,Long monitorTime,Long contractStart,Long contractEnd,String organizationCode,String jobcall,String phoneNumber,
+		public Map<String, Object> addGarten(String token  ,Integer gartenGrade,Long attendanceTime,Long monitorTime,Long contractStart,Long contractEnd,String jobcall,String phoneNumber,
 				String gartenName,String name,String contractNumber,String province,
-				String city,String countries) throws ParseException, IOException {
+				String city,String countries,Integer gartenType) throws ParseException, IOException {
 			 Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0);
 				if(null!=em){
@@ -560,7 +681,7 @@ public class BigcontrolService {
 						creation(phoneNumber, gartenGrade, gartenName, 
 								 attendanceTime, monitorTime, em.getEmployeeNo(),
 								 province, city, countries,contractNumber, contractStart, contractEnd,
-								 organizationCode, name, null,0);
+								  name, null,0,gartenType);
 						
 						String[] datas=new String[]{gartenName,phoneNumber,"123456"};
 						//MyUtil.register(phoneNumber,MyParamAll.YTX_DUANXIN_ZC,datas);
@@ -585,12 +706,12 @@ public class BigcontrolService {
 				String phoneNumber,Integer gartenGrade,String gartenName,
 				Long attendanceTime,Long monitorTime,Integer agent,
 				String province,String city,String countries,String contractNumber,Long contractStart,Long contractEnd,
-				String organizationCode,String name ,AgentAudit agentAudit,Integer agentType) throws ParseException, IOException{
+				String name ,AgentAudit agentAudit,Integer agentType,Integer gartenType) throws ParseException, IOException{
 			Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber, "gartenGrade", gartenGrade, "gartenName", gartenName);
 			MyUtil.putMapParams(param,"attendanceTime", attendanceTime, "monitorTime", monitorTime, "agent", agent);
 			MyUtil.putMapParams(param,"province", province, "city", city, "countries", countries,"agentType",agentType);
 			MyUtil.putMapParams(param, "contractNumber", contractNumber, "contractStart", contractStart, "contractEnd", contractEnd);
-			MyUtil.putMapParams(param,"organizationCode", organizationCode, "name", name,"token",UUID.randomUUID().toString());
+			MyUtil.putMapParams(param, "name", name,"token",UUID.randomUUID().toString(),"gartenType",gartenType);
 			MyUtil.putMapParams(param,"leadClass", "一班","pwd",CryptographyUtil.md5("123456", "lxc"),"agentAudit",agentAudit);
 			bigcontrolDao.insertGartenInfo(param);
 			Integer gartenId=bigcontrolDao.fingMaxGartenId();
@@ -687,6 +808,8 @@ public class BigcontrolService {
 				return result;
 		}
 		
+		
+		
 		public Map<String, Object> getAgentName(String token,String province,String city,String countries) {
 			 Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
@@ -759,11 +882,16 @@ public class BigcontrolService {
 		
 		
 		public Map<String, Object> agentPerformance(String token, String agentId, String province, String city,
-				String countries, Integer state,Integer pageNo,Integer resource) {
+				String countries, Integer state,Integer pageNo) {
 			 Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 				if(null!=em){
-					List<AgentAudit> agentPerformance=bigcontrolDao.agentPerformance(MyUtil.putMapParams("agentId", agentId, "province", province, "city", city, "countries", countries, "state", state,"resource",resource));
+					List<AgentAuditDetail> agentPerformance=bigcontrolDao.agentPerformance(MyUtil.putMapParams("agentId", agentId, "province", province, "city", city, "countries", countries, "state", state));
+					for(AgentAuditDetail a :agentPerformance){
+						
+						AgentInfo agentInfo = agentDao.findAgentById(a.getResourceId());
+						a.setAgentInfo(agentInfo);
+					}
 					MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(agentPerformance, pageNo));
 				}
 				return result;
@@ -892,7 +1020,7 @@ public class BigcontrolService {
 						Integer agentGrade=null==countries?(null==city?1:2):3;
 						Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber, "pwd", CryptographyUtil.md5("123456", "lxc"), "agentMoney", agentMoney, "creditMoney", creditMoney, "agentStartTime", agentStartTime);
 						MyUtil.putMapParams(param,"agentEndTime", agentEndTime,"name",name,"agentName",agentName,"rebate",rebate,"province",province);
-						MyUtil.putMapParams(param,"city", city,"countries",countries,"agentGrade",agentGrade,"token",UUID.randomUUID().toString());
+						MyUtil.putMapParams(param,"city", city,"countries",countries,"agentGrade",agentGrade,"token",UUID.randomUUID().toString(),"operator",em.getName());
 						bigcontrolDao.insertAgent(param);
 						MyUtil.putMapParams(result,"state", 1);
 					}else{//state 2有人代理了  不能注册
@@ -903,23 +1031,24 @@ public class BigcontrolService {
 		}
 
 		public Map<String, Object> order(String token,Integer pageNo,String province,String city,String countries
-				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type) {
-			 Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
+				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,String orderDetail,String babyName) {
+			 			Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号//根据账号查找到用户,手机号
 			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 				if(null!=em){
-					List<OrderAll> order=bigcontrolDao.findOrder(state,type, province, city, countries, gartenId);
-					order=MyUtil.appendOrderName(order,name,phoneNumber);
+					List<OrderAll> order=bigcontrolDao.findOrder(state,type, province, city, countries, gartenId,orderDetail);
+					order=MyUtil.appendOrderName(order,name,phoneNumber,babyName);
 						MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(order, pageNo));
 				}
 				return result;
 		}
 
-		public Map<String,Object> exporeOrder(String token,String province,String city,String countries
-				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,HttpServletResponse response){
+
+		public Map<String,Object> exportOrder(String token,String province,String city,String countries
+				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,HttpServletResponse response,String orderDetail,String babyName){
 			Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
 				if(null!=em){
-					List<OrderAll> order=bigcontrolDao.findOrder(state,type, province, city, countries, gartenId);
-					order=MyUtil.appendOrderName(order,name,phoneNumber);
+					List<OrderAll> order=bigcontrolDao.findOrder(state,type, province, city, countries, gartenId,orderDetail);
+					order=MyUtil.appendOrderName(order,name,phoneNumber,babyName);
 					
 					try {
 						response.setContentType("application/x-execl");
@@ -1731,7 +1860,7 @@ public class BigcontrolService {
 			for(int i=0;i<gartenIds.length;i++){
 				GartenInfo g=workerDao.findGartenInfoById(gartenIds[i]);
 				if(null!=g){
-					toGartenName+=","+g.getGartenName();
+					toGartenName+=toGartenName+","+g.getGartenName();
 				}
 
 				WorkerInfo principal=new WorkerInfo();//准备好给谁发通知
@@ -1784,7 +1913,6 @@ public class BigcontrolService {
 				}
 				
 			}
-			toGartenName=toGartenName.substring(1,toGartenName.length());
 			//----------------------------------新增发送历史记录---------------
 			String targetName="";//拼接目标人群
 			targetName+=0==type?"老师和家长和园长":(1==type?"园长":(2==type?"家长":"老师"));
@@ -2024,8 +2152,8 @@ public class BigcontrolService {
 			return result;
 		}
 
-		public void exporeAttendance(String token,String province,String city, String countries ,Integer gartenId, String job, Integer classId,
-				HttpServletResponse response) {
+		public void exportAttendance(String token,String province,String city, String countries ,Integer gartenId, String job, Integer classId,
+				HttpServletResponse response) throws Exception {
 			Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 			ArrayList<CardNoDetail> list = new ArrayList<CardNoDetail>();	
@@ -2059,14 +2187,16 @@ public class BigcontrolService {
 					}
 				}
 				
-				try {
-					response.setContentType("application/x-execl");
-					response.setHeader("Content-Disposition", "attachment;filename=" + new String(((title==null?"":title)+"考勤卡列表.xls").getBytes(), "ISO-8859-1"));
-					ServletOutputStream outputStream = response.getOutputStream();
-					ExcelUtil.exportAttendanceNoExcel(list, outputStream);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				String titles[]= {"id","类型","持卡人姓名","考勤卡号1","考勤卡号2","考勤卡号3"};
+				String fields[]= {"jobid","job","name","cardno1","cardno2","cardno3"};
+				
+				response.setContentType("application/x-execl");
+				response.setHeader("Content-Disposition", "attachment;filename=" + new String(((title==null?"":title)+"考勤卡列表.xls").getBytes(), "ISO-8859-1"));
+				ServletOutputStream outputStream = response.getOutputStream();
+				
+				ExcelUtils.Export_(titles, fields, list, outputStream);
+					
+			
 			}
 			
 		}
@@ -2105,16 +2235,16 @@ public class BigcontrolService {
 				}
 
 				public Map<String, Object> updateEmployee(Integer employeeNo, String name, Long departmentNo, Long jobsNo,
-						String permission, String province, String city, String countries, String phoneNumebr, String pwd,Integer sex,Long entryTime,String token) {
+						String permission, String province, String city, String countries, String phoneNumber, String pwd,Integer sex,Long entryTime,String token) {
 					Employee em=bigcontrolDao.findEmployeeByToken(token);
 					Map<String,Object> result=MyUtil.putMapParams("state",0);
 					if(null!=em){
-						Employee employee = bigcontrolDao.findEmployeeByPhoneNumber(phoneNumebr);
-						if(!em.getPhoneNumber().equals(phoneNumebr)&&null!=employee){
+						Employee employee = bigcontrolDao.findEmployeeByPhoneNumber(phoneNumber);
+						if(!em.getPhoneNumber().equals(phoneNumber)&&null!=employee){
 							return MyUtil.putMapParams("state", 2);				//手机号码与原来不同,且新修改的手机号码已经存在
 						}
 						Map<String,Object> param=MyUtil.putMapParams( "employeeNo", employeeNo,"name",name,"departmentNo",departmentNo,"jobsNo",jobsNo,"permission",permission);
-						MyUtil.putMapParams(param,"province",province,"city",city,"countries",countries,"phoneNumebr",phoneNumebr,"pwd",pwd);
+						MyUtil.putMapParams(param,"province",province,"city",city,"countries",countries,"phoneNumber",phoneNumber,"pwd",pwd);
 						MyUtil.putMapParams(param,"sex",sex,"entryTime",entryTime,"lastEmployeeNo",em.getEmployeeNo());
 						bigcontrolDao.updateEmployee(param);
 						MyUtil.putMapParams(result,"state",1);
@@ -2122,94 +2252,116 @@ public class BigcontrolService {
 					return result;
 				}
 
-				public Map<String, Object> addEmployee(String name, Long departmentNo, Long jobsNo, String permission,
-						String province, String city, String countries, String phoneNumber, String pwd,Integer sex,Long entryTime,String token) {
-					Employee em=bigcontrolDao.findEmployeeByToken(token);
-					Map<String,Object> result=MyUtil.putMapParams("state",0);
-					if(null!=em){
-						Employee employee = bigcontrolDao.findEmployeeByPhoneNumber(phoneNumber);
-						if(null!=employee){
-							return MyUtil.putMapParams("state", 2);		//该手机号码已经注册
-						}
-						String uuid=UUID.randomUUID().toString();
-						Map<String,Object> param=MyUtil.putMapParams( "name",name,"departmentNo",departmentNo,"jobsNo",jobsNo,"permission",permission,"token",uuid);
-						MyUtil.putMapParams(param,"province",province,"city",city,"countries",countries,"phoneNumber",phoneNumber,"pwd",pwd);
-						MyUtil.putMapParams(param,"sex",sex,"entryTime",entryTime, "lastEmployeeNo",em.getEmployeeNo());
-						bigcontrolDao.addEmployee(param);
-						MyUtil.putMapParams(result,"state",1);
+			public Map<String, Object> addEmployee(String name, Long departmentNo, Long jobsNo, String permission,
+					String province, String city, String countries, String phoneNumber, String pwd,Integer sex,Long entryTime,String token) {
+				Employee em=bigcontrolDao.findEmployeeByToken(token);
+				Map<String,Object> result=MyUtil.putMapParams("state",0);
+				if(null!=em){
+					Employee employee = bigcontrolDao.findEmployeeByPhoneNumber(phoneNumber);
+					if(null!=employee){
+						return MyUtil.putMapParams("state", 2);		//该手机号码已经注册
 					}
-					return result;
+					String uuid=UUID.randomUUID().toString();
+					Map<String,Object> param=MyUtil.putMapParams( "name",name,"departmentNo",departmentNo,"jobsNo",jobsNo,"permission",permission,"token",uuid);
+					MyUtil.putMapParams(param,"province",province,"city",city,"countries",countries,"phoneNumber",phoneNumber,"pwd",pwd);
+					MyUtil.putMapParams(param,"sex",sex,"entryTime",entryTime, "lastEmployeeNo",em.getEmployeeNo());
+					bigcontrolDao.addEmployee(param);
+					MyUtil.putMapParams(result,"state",1);
 				}
-
-				public Map<String, Object> findCpActivity(Integer pageNo, String state, Integer employeeNo) {
-					Map<String,Object> param=MyUtil.putMapParams( "state",state,"employee",employeeNo);
-					List<CpActivity> cpActivity=bigcontrolDao.findCpActivity(param);
-					Map<String,Object> result=MyUtil.putMapParams("state",1,"info",MyPage.listPage16(cpActivity, pageNo));
-					return result;
-				}
-				public Map<String, Object> findDepartmentCpActivity(Integer pageNo, String state, String token) {
-					
-					Map<String,Object> result=MyUtil.putMapParams("state",0,"info",null);
-					Employee em=bigcontrolDao.findEmployeeByToken(token);
-					if(null!=em){
-						Map<String,Object> param=MyUtil.putMapParams( "state",state,"departmentNo",em.getDepartmentNo());
-						List<CpActivity> cpActivity=bigcontrolDao.findDepartmentCpActivity(param);
-						MyUtil.putMapParams(result,"state",1,"info",MyPage.listPage16(cpActivity, pageNo));
-					}
-					
-					return result;
-				}
-				
-				
-				public Map<String, Object> deleteCpActivity(Integer cpActivityId) {
-					bigcontrolDao.deleteCpActivity(cpActivityId);
-					Map<String,Object> result=MyUtil.putMapParams("state",1);
-					return result;
-				}
-
-				public Map<String, Object> addCpActivity(String token, String content,  String reason,String title) {
-					Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号//根据账号查找到用户,手机号
-		 			Map<String,Object> result=MyUtil.putMapParams("state",0);
-		 			if(null!=em){
-						Map<String,Object> param=MyUtil.putMapParams( "employeeNo",em.getEmployeeNo(),"content",content,"reason",reason,"title",title);
-						bigcontrolDao.addCpActivity(param);
-						MyUtil.putMapParams(result,"state",1);
-		 			}
-					return result;
-				}
-
-				public Map<String, Object> updateCpActivity(Integer cpActivityId, String state) {
-					Map<String,Object> param=MyUtil.putMapParams( "cpActivityId",cpActivityId,"state",state);
-					bigcontrolDao.updateCpActivity(param);
-					Map<String,Object> result=MyUtil.putMapParams("state",1);
-					return result;
-				}
-
-				public Map<String, Object> findDepartmentReport(Integer pageNo, String token, Integer type, Long startTime,
-						Long endTime) {
-					Employee em=bigcontrolDao.findEmployeeByToken(token);
-					Map<String,Object> result=MyUtil.putMapParams("state",0,"info",null);
-					if(null!=em){
-						Map<String,Object> param=MyUtil.putMapParams( "type",type,"startTime",startTime,"endTime",endTime,"departmentNo",em.getDepartmentNo());
-						List<Report> report=bigcontrolDao.findDepartmentReport(param);
-						MyUtil.putMapParams(result,"state",1,"info",MyPage.listPage16(report, pageNo));
-					}
-					
-					return result;
-				}
-
-				public Map<String, Object> findReport(Integer pageNo,  Integer type, Long startTime, Long endTime,Long departmentNo) {
-						Map<String,Object> param=MyUtil.putMapParams( "type",type,"startTime",startTime,"endTime",endTime,"departmentNo",departmentNo);
-						List<Report> report=bigcontrolDao.findDepartmentReport(param);
-						Map<String,Object> result=MyUtil.putMapParams("state",1,"info",MyPage.listPage16(report, pageNo));
-					return result;
-				}
-
-				public Map<String, Object> deleteReport(Long departmentNo) {
-					bigcontrolDao.deleteReport(departmentNo);
-					Map<String,Object> result=MyUtil.putMapParams("state",1);
 				return result;
-				}
+			}
+
+		public   Map<String,Object> getEmployee(Long departmentNo,Long jobsNo){
+			Map<String, Object> params = MyUtil.putMapParams("departmentNo", departmentNo, "jobsNo", jobsNo);
+			List<Employee> list = bigcontrolDao.findEmployee(params);
+			
+			
+			return MyUtil.putMapParams("state", 1,"info",list);
+		}
+		
+		
+		public Map<String,Object> employeePerformance(Long departmentNo,Long jobsNo,Integer employeeNo,Integer pageNo){
+			
+		
+			Map<String, Object> params = MyUtil.putMapParams("departmentNo", departmentNo, "jobsNo", jobsNo, "employeeNo", employeeNo);
+			List<AgentAuditDetail> employeePerformance = bigcontrolDao.findEmployeePerformance(params);
+			
+			for(AgentAuditDetail a : employeePerformance){
+				Employee employee = bigcontrolDao.findEmployeeById(a.getResourceId());
+				a.setEmployee(employee);
+			}
+			return MyUtil.putMapParams("state", 1, "info", MyPage.listPage16(employeePerformance, pageNo));
+		}
+		
+		public Map<String, Object> findCpActivity(Integer pageNo, String state, Integer employeeNo) {
+			Map<String,Object> param=MyUtil.putMapParams( "state",state,"employee",employeeNo);
+			List<CpActivity> cpActivity=bigcontrolDao.findCpActivity(param);
+			Map<String,Object> result=MyUtil.putMapParams("state",1,"info",MyPage.listPage16(cpActivity, pageNo));
+			return result;
+		}
+		public Map<String, Object> findDepartmentCpActivity(Integer pageNo, String state, String token) {
+			
+			Map<String,Object> result=MyUtil.putMapParams("state",0,"info",null);
+			Employee em=bigcontrolDao.findEmployeeByToken(token);
+			if(null!=em){
+				Map<String,Object> param=MyUtil.putMapParams( "state",state,"departmentNo",em.getDepartmentNo());
+				List<CpActivity> cpActivity=bigcontrolDao.findDepartmentCpActivity(param);
+				MyUtil.putMapParams(result,"state",1,"info",MyPage.listPage16(cpActivity, pageNo));
+			}
+			
+			return result;
+		}
+				
+		
+		public Map<String, Object> deleteCpActivity(Integer cpActivityId) {
+			bigcontrolDao.deleteCpActivity(cpActivityId);
+			Map<String,Object> result=MyUtil.putMapParams("state",1);
+			return result;
+		}
+
+		public Map<String, Object> addCpActivity(String token, String content,  String reason,String title) {
+			Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号//根据账号查找到用户,手机号
+ 			Map<String,Object> result=MyUtil.putMapParams("state",0);
+ 			if(null!=em){
+				Map<String,Object> param=MyUtil.putMapParams( "employeeNo",em.getEmployeeNo(),"content",content,"reason",reason,"title",title);
+				bigcontrolDao.addCpActivity(param);
+				MyUtil.putMapParams(result,"state",1);
+ 			}
+			return result;
+		}
+
+		public Map<String, Object> updateCpActivity(Integer cpActivityId, String state) {
+			Map<String,Object> param=MyUtil.putMapParams( "cpActivityId",cpActivityId,"state",state);
+			bigcontrolDao.updateCpActivity(param);
+			Map<String,Object> result=MyUtil.putMapParams("state",1);
+			return result;
+		}
+
+		public Map<String, Object> findDepartmentReport(Integer pageNo, String token, Integer type, Long startTime,
+				Long endTime) {
+			Employee em=bigcontrolDao.findEmployeeByToken(token);
+			Map<String,Object> result=MyUtil.putMapParams("state",0,"info",null);
+			if(null!=em){
+				Map<String,Object> param=MyUtil.putMapParams( "type",type,"startTime",startTime,"endTime",endTime,"departmentNo",em.getDepartmentNo());
+				List<ReportAll> report=bigcontrolDao.findDepartmentReport(param);
+				MyUtil.putMapParams(result,"state",1,"info",MyPage.listPage16(report, pageNo));
+			}
+			
+			return result;
+		}
+
+		public Map<String, Object> findReport(Integer pageNo,  Integer type, Long startTime, Long endTime,Long departmentNo) {
+				Map<String,Object> param=MyUtil.putMapParams( "type",type,"startTime",startTime,"endTime",endTime,"departmentNo",departmentNo);
+				List<ReportAll> report=bigcontrolDao.findDepartmentReport(param);
+				Map<String,Object> result=MyUtil.putMapParams("state",1,"info",MyPage.listPage16(report, pageNo));
+			return result;
+		}
+
+		public Map<String, Object> deleteReport(Integer reportId) {
+			bigcontrolDao.deleteReport(reportId);
+			Map<String,Object> result=MyUtil.putMapParams("state",1);
+		return result;
+		}
 
 		public Map<String, Object> addReport(String token, Long startTime, Long endTime, String workContent,
 				String workSummary, String harmonizeContent, String plan, Integer type) {
@@ -2238,12 +2390,12 @@ public class BigcontrolService {
 
 		//-------------------------- ---- 开园申请     ----------------         ----------------			
 				
-		public Map<String, Object> findMyApplyGarten(String token) {
+		public Map<String, Object> findMyApplyGarten(String token,Integer pageNo) {
 			Employee em=bigcontrolDao.findEmployeeByToken(token);
 			Map<String,Object> result=MyUtil.putMapParams("state",0,"info",null);
 			if(null!=em){
 				List<AgentAudit> aa= bigcontrolDao.findMyApplyGarten(em.getEmployeeNo());
-				MyUtil.putMapParams(result,"state",1,"info",aa);
+				MyUtil.putMapParams(result,"state",1,"info",MyPage.listPage16(aa, pageNo));
 			}
 			return result;
 		}
@@ -2252,7 +2404,7 @@ public class BigcontrolService {
 
 		//开园申请
 		public Map<String,Object> applyGarten(String token,String gartenName,String name,String phoneNumber,String contractNumber,String province,
-				String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money,String equipment,String remark){
+				String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money1,String equipment,String remark,Integer gartenType){
 			Employee em=bigcontrolDao.findEmployeeByToken(token);
 			Map<String,Object> result=MyUtil.putMapParams("state",0,"info",null);
 			 if(null!=em){
@@ -2261,7 +2413,7 @@ public class BigcontrolService {
 					 return MyUtil.putMapParams(result,"state", 4,"info","该参数已被注册");			//该幼儿园联系手机号码已经被注册
 				 }
 				 agentDao.addApplyGarten(0,gartenName,name, phoneNumber, contractNumber, province,
-							 city, countries, workerCount,babyCount,gradeCount,classCount, money, equipment,em.getEmployeeNo(),remark);
+							 city, countries, workerCount,babyCount,gradeCount,classCount, money1, equipment,em.getEmployeeNo(),remark,gartenType);
 				 MyUtil.putMapParams(result,"state", 1,"info","操作成功" );
 			 }
 			
@@ -2369,12 +2521,13 @@ public class BigcontrolService {
 		}
 		
 	public synchronized Map<String, Object> addWuliaoOrder(String token, String equipmentAll, String address, String postalcode,
-			String fromPhoneNumber,BigDecimal totalPrice) {
+			String fromPhoneNumber,BigDecimal totalPrice,String remark) {
 		Employee em= bigcontrolDao.findEmployeeByToken(token);
 		 Map<String,Object> result=MyUtil.putMapParams("state", 0);
 		 if(null!=em){
 			 Map<String,Object> param=MyUtil.putMapParams("agentId",em.getEmployeeNo(),"equipmentAll",equipmentAll,"address",address,"postalcode",postalcode,"fromPhoneNumber",fromPhoneNumber,"totalPrice",totalPrice,"resource",0);
-			agentDao.addWuliaoOrder(param);
+			 MyUtil.putMapParams(param, "remark", remark);
+			 agentDao.addWuliaoOrder(param);
 			 MyUtil.putMapParams(result,"state", 1);
 		 }
 		 return result;
@@ -2462,4 +2615,193 @@ public class BigcontrolService {
 		return result;
 	}
 
+	
+	//--------------考勤卡信息-------
+	public Map<String, Object> employeeCard(Long departmentNo,Long jobsNo,Integer employeeNo,Integer pageNo){
+   		
+		Map<String,Object> param=MyUtil.putMapParams("departmentNo", departmentNo,"jobsNo",jobsNo,"employeeNo",employeeNo);
+		List<Employee> employee = bigcontrolDao.findEmployee(param);
+		ArrayList<CardSimple> list = new  ArrayList<CardSimple>();
+		for(Employee e : employee){
+			CardSimple c = new CardSimple();
+			Integer count = bigcontrolDao.findCardCount(e.getEmployeeNo(),0,null);
+			c.setAgentId(e.getEmployeeNo());
+			c.setName(e.getName());
+			c.setCount(count);
+			list.add(c);
+		}
+		return MyUtil.putMapParams("state", 1, "info", MyPage.listPage16(list, pageNo));
+   	}
+	
+	public Map<String, Object> agentCard(String province ,String city ,String countries,Integer agentId,Integer pageNo){
+		Map<String,Object> param=MyUtil.putMapParams("province", province,"city",city,"countries",countries,"agentId",agentId);
+		List<AgentInfo> agent = bigcontrolDao.findAgentMessge(param);
+		ArrayList<CardSimple> list = new  ArrayList<CardSimple>();
+		for( AgentInfo a : agent){
+			CardSimple c = new CardSimple();
+			Integer count = bigcontrolDao.findCardCount(a.getAgentId(),1,null);
+			c.setAgentId(a.getAgentId());
+			c.setName(a.getName());
+			c.setCount(count);
+			list.add(c);
+		}
+   		return MyUtil.putMapParams("state", 1, "info", MyPage.listPage16(list, pageNo));
+   	}
+	
+	public Map<String, Object> cardList(Integer id,Integer agentType,Integer pageNo){	//0是员工 1是代理商
+   		
+		
+		List<Card> list = bigcontrolDao.findCard(id, agentType, null);
+			
+		return MyUtil.putMapParams("state", 1,"count", list.size() ,"info", MyPage.listPage16(list, pageNo));
+   	}
+	
+	public Map<String,Object> importCard(String token , String str,Integer agentId,Integer agentType,Integer returnMoney,String fileName){
+		Employee em= bigcontrolDao.findEmployeeByToken(token);
+		Map<String,Object> result=MyUtil.putMapParams("state", 0);
+		if(null!=em){
+			if(str != null){
+				//是否是excel
+				//if(file.getOriginalFilename().matches("^.+\\.(?i)((xls)|(xlsx))$")){
+				if(fileName.matches("^.+\\.(?i)((xls)|(xlsx))$")){
+					File file = LyUtils.base64ToFile(str,fileName);
+					List<Card> list = ExcelUtil.importCard(file,fileName);
+					file = new File("D:/", fileName);
+					file.delete();
+					for(Card c : list){
+						c.setAgentId(agentId);
+						c.setAgentType(agentType);
+						c.setReturnMoney(returnMoney);
+					}
+					bigcontrolDao.addCard(list);
+					MyUtil.putMapParams(result,"state", 1);
+				}
+			}
+		}
+		return result;
+		
+	}
+	
+	public Map<String,Object> downloadCardTemplate(HttpServletResponse response) throws IOException{
+   		
+		ArrayList<Object> list = new ArrayList<>();
+		String [] titles= {"外卡号","内卡号"};
+   		String [] fields = null;
+   		
+   		
+   		response.setContentType("application/x-execl");
+		response.setHeader("Content-Disposition", "attachment;filename=" + new String("考勤卡列表.xls".getBytes(), "ISO-8859-1"));
+   		
+   		
+   		ServletOutputStream outputStream = response.getOutputStream();
+		ExcelUtils.Export_(titles, fields, list, outputStream);
+		
+   		return  null;
+   	}
+	
+	public void exportCard(Integer agentId,Integer agentType,HttpServletResponse response) throws IOException{
+		List<Card> card = bigcontrolDao.findCard(agentId,agentType,null);
+   		String [] titles= {"id","内卡号","外卡号","是否可退押金"};
+   		String [] fields = {"id","incard","outcard","isreturnable"};
+   		
+   		
+   		response.setContentType("application/x-execl");
+		response.setHeader("Content-Disposition", "attachment;filename=" + new String("考勤卡列表.xls".getBytes(), "ISO-8859-1"));
+   		
+   		
+   		ServletOutputStream outputStream = response.getOutputStream();
+		ExcelUtils.Export_(titles, fields, card, outputStream);
+		
+   	}
+	
+	
+	public Map<String,Object> cardReturnMoney(String token, Integer cardId ){
+		Employee em= bigcontrolDao.findEmployeeByToken(token);
+		Map<String,Object> result=MyUtil.putMapParams("state", 0);
+		if(null!=em){
+			Card card = bigcontrolDao.findCardById(cardId);
+			Employee e = bigcontrolDao.findEmployeeById(card.getAgentId());
+			//先生成押金退还记录,再更新卡的押金
+			Map<String, Object> params = MyUtil.putMapParams("cardId", card.getId(), "outCard",card.getOutCard(), "returnMoney",card.getReturnMoney(), "name",e.getName());
+			bigcontrolDao.addcardReturn(params);
+			bigcontrolDao.updateCardReturnMoney(cardId);
+			MyUtil.putMapParams(result, "state", 1);
+		}
+		return result;
+   	}
+	
+	public Map<String,Object> cardReturnList(String name ,Integer pageNo,Long startTime, Long endTime){
+		Map<String, Object> params = MyUtil.putMapParams("name", name, "startTime",startTime, "endTime", endTime);
+		List<CardReturn> list = bigcontrolDao.findCardReturn(params);
+		
+   		return MyUtil.putMapParams("state", 1, "info", MyPage.listPage16(list, pageNo));
+   	}
+	
+	public Map<String,Object> deleteCardReturn(Integer returnId){
+   		
+   		bigcontrolDao.deleteCardReturn(returnId);
+   		return MyUtil.putMapParams("state",1);
+   	}
+	//---------------------------------幼儿园类型-----------------------	
+		public Map<String, Object> addGartentype(String token, String mark, String typeName) {
+			Employee em= bigcontrolDao.findEmployeeByToken(token);
+			 Map<String,Object> result=MyUtil.putMapParams("state", 0);
+			 if(null!=em){
+					Map<String,Object> param=MyUtil.putMapParams("operator",em.getName(),"mark", mark,"typeName",typeName);
+					bigcontrolDao.addGartentype(param);
+					MyUtil.putMapParams(result,"state", 1);
+			 }
+			return result;
+		}
+
+		public Map<String, Object> deleteGartentype(Integer gartenType) {
+			 Map<String,Object> result=MyUtil.putMapParams("state", 1);
+			bigcontrolDao.deleteGartentype(gartenType);
+			return result;
+		}
+
+		public Map<String, Object> findGartentype(Integer pageNo) {
+			List<GartenType> g=bigcontrolDao.findGartentype();
+			 Map<String,Object> result=MyUtil.putMapParams("state", 1,"info",g);
+			return result;
+		}
+			
+			
+		public  Map<String, Object> importAttendanceNo(String str , String fileName){
+			
+			Map<String, Object> result = MyUtil.putMapParams("state",0);
+			if(str != null){
+				//是否是excel
+				//if(file.getOriginalFilename().matches("^.+\\.(?i)((xls)|(xlsx))$")){
+				if(fileName.matches("^.+\\.(?i)((xls)|(xlsx))$")){
+					File file = LyUtils.base64ToFile(str,fileName);
+					List<AttendanceNo> list = ExcelUtil.importAttendanceNo(file, fileName);
+					file = new File("D:/", fileName);
+					file.delete();
+					
+					bigcontrolDao.updateAttendanceNoAll(list);
+					MyUtil.putMapParams(result,"state", 1);
+				}
+			}
+			return result;
+		}	
+
+		
+		public  Map<String, Object> downloadAttendanceNoTemplate(HttpServletResponse response) throws Exception{
+			
+			ArrayList<Object> list = new ArrayList<>();
+			String [] titles= {"id","考勤卡号1","考勤卡号2","考勤卡号3"};
+	   		String [] fields = null;
+	   		
+	   		
+	   		response.setContentType("application/x-execl");
+			response.setHeader("Content-Disposition", "attachment;filename=" + new String("考勤卡列表.xls".getBytes(), "ISO-8859-1"));
+	   		
+	   		
+	   		ServletOutputStream outputStream = response.getOutputStream();
+			ExcelUtils.Export_(titles, fields, list, outputStream);
+			
+			
+			return  null;
+		}
 }

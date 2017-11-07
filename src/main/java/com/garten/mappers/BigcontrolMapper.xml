@@ -69,8 +69,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		 <if test=" countries!=null and countries!='' ">
 		 	and g.countries=#{countries}
 		 </if>
+		  <if test=" orderDetail!=null and orderDetail!='' ">
+		 	and o.orderDetail like '%${orderDetail}%'
+		 </if>
 		 order by o.orderTime desc
 	</select>
+
 	
 	<select id="findFeedback"  resultType="FeedbackDetail">
 		SELECT * FROM feedback  b
@@ -187,9 +191,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT  * from agent_audit where auditId=#{auditId} and isvalid=0
 	</select>
 	
-	<select id="agentPerformance"  resultType="AgentAudit">
+	<select id="agentPerformance"  resultType="AgentAuditDetail">
 		SELECT  * from agent_audit  a where 
-		resource=#{resource}
+		resource=1
 		<if test="	agentId!=null and agentId!=''" >
 				and a.resourceId=#{agentId}
 			</if>
@@ -209,10 +213,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			
 	</select>
 	
-	<select id="findEmployeePerformance" resultType="EmployeeAudit">
-		select * from agent_audit  a where 
-		
+	<select id="findEmployeePerformance" resultType="AgentAuditDetail">
+		select * from agent_audit a 
+		left join employee e on e.employeeNo=a.resourceId
+		where
+		a.resource=0
+		<if test=" departmentNo!=null and departmentNo!='' ">
+			and e.departmentNo=#{departmentNo}
+		</if>
+		<if test=" jobsNo!=null and jobsNo!='' ">
+			and e.jobsNo=#{jobsNo}
+		</if>
+		<if test=" employeeNo!=null and employeeNo!='' ">
+			and e.employeeNo=#{employeeNo}
+		</if>		
 	</select>
+	
 	
 	<select id="findParentMessage"  resultType="ParentInfo">
 		SELECT * FROM parent_info  p 
@@ -237,7 +253,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="	gartenId!=null and gartenId!=''" >
 				and g.gartenId=#{gartenId}
 			</if>
-			limit #{pageNo},16
+			<if test=" pageNo!=null and pageNo!='' or pageNo==0 ">
+				limit #{pageNo},16
+			</if>
+			
 	</select>
 	
 	<select id="findParentMessageCount"  resultType="Integer">
@@ -267,8 +286,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	<select id="findBabyMessage"  resultType="BabyMessageAndParent">
 		SELECT * FROM 
-		baby_info  b left join worker＿info w on FIND_IN_SET(w.workerId, b.teacherId)
+		baby_info  b 
 		left join  parent_info p on   FIND_IN_SET(b.babyId,p.babyId)
+		left join worker＿info w on FIND_IN_SET(w.workerId, b.teacherId)
 		left join  garten_class c on w.classId=c.classId
 		left join  attendance_no n on n.jobId=b.babyId and n.job='宝宝'
 		left join  garten_info g on   g.gartenId =w.gartenId
@@ -434,32 +454,32 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<select id="addtongjiBaby"  resultType="Integer">
 		select count(1)  from baby_info  b where UNIX_TIMESTAMP(b.registTime)>#{start} and b.isvalid=0
-	and  #{end}>UNIX_TIMESTAMP(b.registTime)
+	and  #{end}+86400>UNIX_TIMESTAMP(b.registTime)
 	</select>
 	
 	<select id="addtongjiWorker"  resultType="Integer">
 		select count(1)  from worker＿info  w where UNIX_TIMESTAMP(w.registTime)>#{start} and w.isvalid=0
-	and  #{end}>UNIX_TIMESTAMP(w.registTime)
+	and  #{end}+86400>UNIX_TIMESTAMP(w.registTime)
 	</select>
 	
 	<select id="addtongjiParent"  resultType="Integer">
 		select count(1)  from parent_info  p where UNIX_TIMESTAMP(p.registTime)>#{start} and p.isvalid=0
-		and  #{end}>UNIX_TIMESTAMP(p.registTime)
+		and  #{end}+86400>UNIX_TIMESTAMP(p.registTime)
 	</select>
 	
 	
 	
 	<select id="deletetongjiBaby"  resultType="Integer">
 		select count(1)  from baby_info  b where UNIX_TIMESTAMP(b.registTime)>#{start} and b.isvalid=1
-			and  #{end}>UNIX_TIMESTAMP(b.registTime)
+			and  #{end}+86400>UNIX_TIMESTAMP(b.registTime)
 	</select>
 	<select id="deletetongjiWorker"  resultType="Integer">
 		select count(1)  from worker＿info  w where UNIX_TIMESTAMP(w.registTime)>#{start} and w.isvalid=1
-			and  #{end}>UNIX_TIMESTAMP(w.registTime)
+			and  #{end}+86400>UNIX_TIMESTAMP(w.registTime)
 	</select>
 	<select id="deletetongjiParent"  resultType="Integer">
 		select count(1)  from parent_info  p where UNIX_TIMESTAMP(p.registTime)>#{start} and p.isvalid=1
-			and  #{end}>UNIX_TIMESTAMP(p.registTime)
+			and  #{end}+86400>UNIX_TIMESTAMP(p.registTime)
 	</select>
 	
 	
@@ -471,7 +491,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			garten_info g
 		WHERE
 			UNIX_TIMESTAMP(b.registTime) > #{start}
-			and #{end}>UNIX_TIMESTAMP(b.registTime) 
+			and #{end}+86400>UNIX_TIMESTAMP(b.registTime) 
 			<if test="	province!=null and province!=''" >
 				and g.province=#{province}
 			</if>
@@ -496,7 +516,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		garten_info g
 	WHERE
 		UNIX_TIMESTAMP(w.registTime) > #{start}
-			and #{end}>UNIX_TIMESTAMP(w.registTime) 
+			and #{end}+86400>UNIX_TIMESTAMP(w.registTime) 
 	and w.gartenId=g.gartenId
 	and w.job='老师'
 	<if test="	province!=null and province!=''" >
@@ -525,7 +545,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			garten_info g
 		WHERE
 			UNIX_TIMESTAMP(p.registTime) > #{start}
-				and #{end}>UNIX_TIMESTAMP(p.registTime) 
+				and #{end}+86400>UNIX_TIMESTAMP(p.registTime) 
 		and g.gartenId=substring_index(p.gartenId,',', 1)<!--对家长的幼儿园ID分割取第一个,这里如果是2是取前2个和的意思'1,2'  -->
 		
 		<if test="	province!=null and province!=''" >
@@ -559,7 +579,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			garten_info g
 		WHERE
 			UNIX_TIMESTAMP(b.registTime) > #{start}
-			and #{end}>UNIX_TIMESTAMP(b.registTime)
+			and #{end}+86400>UNIX_TIMESTAMP(b.registTime)
 			<if test="	province!=null and province!=''" >
 				and g.province=#{province}
 			</if>
@@ -585,7 +605,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		garten_info g
 	WHERE
 		UNIX_TIMESTAMP(w.registTime) > #{start}
-		and #{end}>UNIX_TIMESTAMP(w.registTime)
+		and #{end}+86400>UNIX_TIMESTAMP(w.registTime)
 	and w.gartenId=g.gartenId
 	<if test="	province!=null and province!=''" >
 				and g.province=#{province}
@@ -612,7 +632,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			garten_info g
 		WHERE
 			UNIX_TIMESTAMP(p.registTime) > #{start}
-			and #{end}>UNIX_TIMESTAMP(p.registTime)
+			and #{end}+86400>UNIX_TIMESTAMP(p.registTime)
 		and g.gartenId=substring_index(p.gartenId,',', 1)<!--对家长的幼儿园ID分割取第一个,这里如果是2是取前2个和的意思'1,2'  -->
 		
 		<if test="	province!=null and province!=''" >
@@ -730,9 +750,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="	contractEnd!=null and contractEnd!=''" >
 				g.contractEnd=FROM_UNIXTIME(#{contractEnd},  '%Y-%m-%d %H:%i:%s'),
 			</if>
-			<if test="	organizationCode!=null and organizationCode!=''" >
-				g.organizationCode=#{organizationCode},
-			</if>
 			<if test="	province!=null and province!=''" >
 				g.province=#{province},
 			</if>
@@ -813,10 +830,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		 contractNumber=#{contractNumber}, 
 		 contractStart=FROM_UNIXTIME(#{contractStart},  '%Y-%m-%d %H:%i:%s'), 
 		 contractEnd=FROM_UNIXTIME(#{contractEnd},  '%Y-%m-%d %H:%i:%s'), 
-		 organizationCode=#{organizationCode}, 
 		  name=#{name},
 		  token=#{token},
-		  agentType=#{agentType}
+		  agentType=#{agentType},
+		  operator=#{operator}
 	</insert>
 	
 	<insert id="insertWorkerInfo"  >
@@ -892,7 +909,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		province=#{province},
 		city=#{city},
 		countries=#{countries},
-		token=#{token}
+		token=#{token},
+		operator=#{operator}
 	</insert>
 	
 		<select id="getMachine" resultType="MachineDetail">
@@ -1363,7 +1381,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		province=#{province},
 		city=#{city},
 		countries=#{countries},
-		phoneNumebr=#{phoneNumebr},
+		phoneNumber=#{phoneNumber},
 		pwd=#{pwd},
 		sex=#{sex},
 		entryTime=FROM_UNIXTIME(#{entryTime},  '%Y-%m-%d %H:%i:%s'),
@@ -1445,13 +1463,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	
-	<select id="findDepartmentReport" resultType="Report">
+	<select id="findDepartmentReport" resultType="ReportAll">
 		select * from company_report r 
 		left join employee e  on  r.employeeNo=e.employeeNo
 		where  #{startTime}-1 &lt; unix_timestamp(r.registTime)
 		and  unix_timestamp(r.registTime) &lt;  #{endTime}+86400
-		and e.departmentNo=#{departmentNo}
-		
+		<if test=" departmentNo!=null and departmentNo!='' ">
+			and e.departmentNo=#{departmentNo}
+		</if>
 		order by r.registTime desc
 
 	</select>
@@ -1459,12 +1478,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<delete id="deleteReport" >
 		delete  from company_report 
 		where
-		 departmentNo=#{departmentNo}
+		reportId=#{reportId}
 	</delete>
 	
 	<insert id="addReport" >
 		insert  into company_report 
-		where
+		set
 		startTime=#{startTime},
 		endTime=#{endTime},
 		workContent=#{workContent},
@@ -1610,4 +1629,130 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		and FIND_IN_SET(agentId,#{departmentIds})
 		
 	</select>
+	
+	<insert id="addCard" parameterType="java.util.List">
+		insert into card(inCard,outCard,agentId,agentType,returnMoney)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.inCard},#{item.outCard},#{item.agentId},#{item.agentType},#{item.returnMoney})
+		</foreach>
+	</insert>
+	
+	<select id="findCardCount" resultType="Integer">
+		select count(*) from card
+		where 
+		id=id
+		<if test=" agentId!=null and agentId!='' ">
+			and agentId=#{agentId}
+		</if>
+		<if test=" agentType!=null and agentType!='' or agentType=0 ">
+			and agentType=#{agentType}
+		</if>
+		<if test=" gartenId!=gartenId and gartenId!='' ">
+			and gartenId=#{gartenId}
+		</if>
+	</select>
+	
+	<select id="findCard" resultType="Card">
+		select * from card
+		where 
+		id=id
+		<if test=" agentId!=null and agentId!='' ">
+			and agentId=#{agentId}
+		</if>
+		<if test=" agentType!=null and agentType!='' or agentType=0 ">
+			and agentType=#{agentType}
+		</if>
+		<if test=" gartenId!=gartenId and gartenId!='' ">
+			and gartenId=#{gartenId}
+		</if>
+	</select>
+	
+	<insert id="addGartentype" >
+		insert into    garten_type    set
+		typeName=#{typeName},
+		operator=#{operator},
+		mark=#{mark}
+	</insert>
+	
+	
+	<delete id="deleteGartentype" >
+		delete from    garten_type    where  gartenType=#{gartenType}
+	</delete>
+	
+	<select id="findGartentype" resultType="GartenType">
+		select  * from    garten_type   order by registTime desc
+	</select>
+	
+	<update id="updateAttendanceNoAll" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index" open="" close="" separator=";" >
+			update attendance_no 
+			<set>
+				cardNo1=cardNo1
+				<if test=" item.cardNo1!=null and item.cardNo1!=''">
+					,cardNo1=${item.cardNo1}
+				</if>
+				<if test=" item.cardNo2!=null and item.cardNo2!='' ">
+					,cardNo2=${item.cardNo2}
+				</if>
+				<if test=" item.cardNo3!=null and item.cardNo3!=''">
+					,cardNo3=${item.cardNo3}
+				</if>
+			</set>
+			where jobId=${item.jobId}
+		</foreach>
+	</update>
+	<select id="findCardById" resultType="Card">
+		select * from card
+		where id=#{cardId}
+	</select>
+	<update id="updateCardReturnMoney">
+		update card set returnMoney=0
+		where 
+		id=#{cardId}
+	</update>
+	<insert id="addcardReturn">
+		insert into card_return 
+		set
+		cardId=#{cardId},outCard=#{outCard},returnMoney=#{returnMoney},name=#{name}
+	</insert>
+	<select id="findCardReturn" resultType="CardReturn">
+		select * from card_return 
+		where 
+		returnId=returnId
+		<if test=" name!=null and name!='' ">
+			and name=#{name}
+		</if>
+		and UNIX_TIMESTAMP(returnTime) &lt; #{endTime}+86400
+		and UNIX_TIMESTAMP(returnTime) &gt; #{startTime}
+	</select>
+	<delete id="deleteCardReturn">
+		delete from card_return
+		where returnId=#{returnId}
+	</delete>
+	<select id="findAgentMessage" resultType="AgentMessageAll">
+		select  * from    agent_message  where
+		#{startTime} &lt; unix_timestamp(registTime)
+		and unix_timestamp(registTime) &lt; #{endTime}
+		<if test=" agentId!=null  and agentId!='' ">
+			and agentId=#{agentId}
+		</if>
+		<if test="  state!=null  and state!='' ">
+			and state=#{state}
+		</if>
+		 order by registTime desc
+	</select>
+	
+	<delete id="deleteAgentMessage" >
+		delete from    agent_message    where  agentMessageId=#{agentMessageId}
+	</delete>
+	<insert id="addAgentMessage" >
+		insert into    agent_message    set  
+		title=#{title},
+		message=#{agentMessage},
+		employeeNo=#{employeeNo},
+		agentId=#{agentId}
+		
+	</insert>
+	
 </mapper> 

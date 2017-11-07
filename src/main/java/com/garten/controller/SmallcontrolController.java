@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.jdom.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -239,8 +240,9 @@ public class SmallcontrolController {
 		
 		@RequestMapping("order")
 	  	@ResponseBody
-	  	public Map<String, Object> order(String token,Long startTime,Long endTime,String name,String phoneNumber,Integer pageNo) throws ParseException{
-	  		Map<String,Object> result=smallcontrolService.order(  token, startTime ,endTime, name, phoneNumber,pageNo);
+	  	public Map<String, Object> order(String token,Integer pageNo,String province,String city,String countries
+				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,String orderDetail,String babyName) {
+	  		Map<String,Object> result=smallcontrolService.order(  token, pageNo ,province, city, countries,gartenId,state,name,phoneNumber,type,orderDetail,babyName);
 	  		return result;
 	  	}
 		
@@ -269,10 +271,10 @@ public class SmallcontrolController {
 		}
 		
 		//导出考勤卡信息
-		@RequestMapping("exporeAttendance")
+		@RequestMapping("exportAttendance")
 		@ResponseBody
-		public Map<String,Object> exporeAttendance(String token , String job,Integer classId,HttpServletResponse response){
-			smallcontrolService.exporeAttendance(token, job, classId, response);
+		public Map<String,Object> exportAttendance(String token , String job,Integer classId,HttpServletResponse response){
+			smallcontrolService.exportAttendance(token, job, classId, response);
 			return null;
 		}
 		//绑定考勤卡
@@ -356,16 +358,16 @@ public class SmallcontrolController {
 		//删除老师
 		@RequestMapping("deleteTeacher")
 		@ResponseBody
-		public synchronized Map<String,Object> deleteTeacher(String token,Integer workerId){
-			Map<String, Object> map = smallcontrolService.deleteTeacher(token, workerId);
+		public synchronized Map<String,Object> deleteTeacher(Integer workerId){
+			Map<String, Object> map = smallcontrolService.deleteTeacher( workerId);
 			return map;
 		}
 		
 		//删除宝宝
 		@RequestMapping("deleteBaby")
 		@ResponseBody
-		public synchronized Map<String,Object> deleteBaby(String token,Integer babyId){
-			Map<String, Object> map = smallcontrolService.deleteBaby(token, babyId);
+		public synchronized Map<String,Object> deleteBaby(Integer babyId){
+			Map<String, Object> map = smallcontrolService.deleteBaby( babyId);
 			return map;
 		}
 		
@@ -418,6 +420,23 @@ public class SmallcontrolController {
 	    	String map = smallcontrolService.alipayyz();
 			return map;
 		}
+	   	
+	   	
+	    //微信支付   
+		@RequestMapping(value="wxpay")
+		public  synchronized @ResponseBody Map<String, Object> wxpay(String token,Integer type,Integer monthCount,HttpServletRequest httpRequest,
+	            HttpServletResponse httpResponse  ) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException {
+	    	Map<String, Object> map = smallcontrolService.wxpay(token,type,monthCount, httpRequest,
+	                 httpResponse);
+			return map;
+		}
+		//微信支付验证
+	   	@RequestMapping(value="wxpayyz")
+		public  @ResponseBody String wxpayyz(HttpServletRequest httpRequest,HttpServletResponse httpResponse) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException, JDOMException {
+	    	String map = smallcontrolService.wxpayyz( httpRequest, httpResponse);
+			return map;
+		}
+
 	   	
 	  //修改主监护人
 	  	@RequestMapping("updateMainParent")
@@ -525,5 +544,22 @@ public class SmallcontrolController {
 				return result;
 			}
 
-		 
+	//10.31------------------------------------活动报名情况
+	 //根据活动Id查询活动报名的列表
+	 @RequestMapping(value="findActivityLogAll")
+		@ResponseBody
+		public synchronized Map<String, Object> ActivityLogAll(Integer  activityId,Integer pageNo) throws ParseException, InterruptedException{
+			Map<String,Object> result=smallcontrolService.ActivityLogAll( activityId,pageNo);
+			return result;
+		}
+	 
+	 
+	 //(幼儿园端)活动列表
+	 @RequestMapping(value="findActivity")
+		@ResponseBody
+		public synchronized Map<String, Object> findActivity(String token,Integer pageNo) throws ParseException, InterruptedException{
+			Map<String,Object> result=smallcontrolService.findActivity( token,pageNo);
+			return result;
+		}
+
 }

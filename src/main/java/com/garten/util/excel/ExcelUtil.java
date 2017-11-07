@@ -1,25 +1,41 @@
 package com.garten.util.excel;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletOutputStream;
 
+import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.garten.model.garten.GartenInfo;
+import com.garten.model.other.AttendanceNo;
+import com.garten.model.other.Card;
 import com.garten.vo.smallcontrol.CardNoDetail;
 import com.garten.vo.smallcontrol.OrderAll;
 
 
 public class ExcelUtil {
+	
+	
 	
 	//导出订单列表
 	public static void exportOrderExcel(List<OrderAll> orderList,ServletOutputStream outputStream){
@@ -215,7 +231,101 @@ public class ExcelUtil {
 			}
 			
 		}
-	
+		
+	public static List<Card> importCard(File file,String fileName){
+		//multipartFile 转 file 类型
+		/*CommonsMultipartFile cf= (CommonsMultipartFile)file; 
+        DiskFileItem fi = (DiskFileItem)cf.getFileItem(); 
+        File f = fi.getStoreLocation();
+        */
+        ArrayList<Card> list = new ArrayList<Card>();
+        try {
+			FileInputStream fileInputStream = new FileInputStream(file);
+			boolean is03Excel = fileName.matches("^.+\\.(?i)(xls)$");
+			//1、读取工作簿
+			Workbook workbook = is03Excel ? new HSSFWorkbook(fileInputStream):new XSSFWorkbook(fileInputStream);
+			//2、读取工作表
+			Sheet sheet = workbook.getSheetAt(0);
+			//3、读取行
+			if(sheet.getPhysicalNumberOfRows() > 2){
+				Card card = null;
+				for(int k = 2; k < sheet.getPhysicalNumberOfRows(); k++){
+					//4、读取单元格
+					Row row = sheet.getRow(k);
+					card  = new Card();
+					//外卡号
+					Cell cell0 = row.getCell(0);
+					cell0.setCellType(Cell.CELL_TYPE_STRING);
+					card.setOutCard(cell0.getStringCellValue());
+					//内卡号
+					Cell cell1 = row.getCell(1);
+					cell1.setCellType(Cell.CELL_TYPE_STRING);
+					card.setInCard(cell1.getStringCellValue().toString());
+					//加入集合中
+					list.add(card);
+					}
+				}
+			workbook.close();
+			fileInputStream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	public static List<AttendanceNo> importAttendanceNo(File file , String fileName){
+		ArrayList<AttendanceNo> list = new ArrayList<AttendanceNo>();
+		
+		try {
+			FileInputStream fileInputStream = new FileInputStream(file);
+			boolean is03Excel = fileName.matches("^.+\\.(?i)(xls)$");
+			//1、读取工作簿
+			Workbook workbook = is03Excel ? new HSSFWorkbook(fileInputStream):new XSSFWorkbook(fileInputStream);
+			//2、读取工作表
+			Sheet sheet = workbook.getSheetAt(0);
+			//3、读取行
+			if(sheet.getPhysicalNumberOfRows() > 2){
+				AttendanceNo an = null;
+				for(int k = 2; k < sheet.getPhysicalNumberOfRows(); k++){
+					//4、读取单元格
+					Row row = sheet.getRow(k);
+					an = new AttendanceNo();
+					//id
+					Cell cell0 = row.getCell(0);
+					if(null!=cell0){
+						cell0.setCellType(Cell.CELL_TYPE_STRING);
+						an.setJobId(Integer.valueOf(cell0.getStringCellValue()));
+					}
+					//考勤卡号1
+						
+					Cell cell3 = row.getCell(3);
+					if(null!=cell3){
+						cell3.setCellType(Cell.CELL_TYPE_STRING);
+						an.setCardNo1(cell3.getStringCellValue());
+					}
+					//考勤卡号2
+					Cell cell4 = row.getCell(4);
+					if(null!=cell4){
+						cell4.setCellType(Cell.CELL_TYPE_STRING);
+						an.setCardNo2(cell4.getStringCellValue());
+					}
+					//考勤卡号3
+					Cell cell5 = row.getCell(5);
+					if(null!=cell5){
+						cell5.setCellType(Cell.CELL_TYPE_STRING);
+						an.setCardNo3(cell5.getStringCellValue());
+					}
+					
+					list.add(an);
+				}
+			}
+			workbook.close();
+			fileInputStream.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
 	public static HSSFCellStyle createcellStyle(HSSFWorkbook workbook,short fontSize){
 		HSSFCellStyle style = workbook.createCellStyle();
 		style.setAlignment(HSSFCellStyle.ALIGN_CENTER);

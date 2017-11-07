@@ -929,13 +929,13 @@ public class ParentService {
 	                 param.put("orderNumber", out_trade_no);
 		             Order order=parentDao.findOrder(out_trade_no);
 		             BigDecimal   price=order.getOrderMoney().multiply(new BigDecimal(100));
-	                
-	                 if(!MyParamAll.MYALIPAY_MCHID.equals(mch_id)||new BigDecimal(total_fee).compareTo(price) != 0){
+		             
+	                 if(!MyParamAll.MYWXIN_MCHID.equals(mch_id)||new BigDecimal(total_fee).compareTo(price) != 0){
 	                 System.err.println("支付失败,错误信息：" + "参数错误"+new BigDecimal(total_fee)+"=="+price);
 	                 resXml = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>"  
 	                                 + "<return_msg><![CDATA[参数错误]]></return_msg>" + "</xml> ";  
 	                 }else{
-	                	
+	                	 
 	                	 /**
 	                	  *  //开始处理
 	                	  */

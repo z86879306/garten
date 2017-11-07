@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.garten.model.activity.ActivityDetail;
 import com.garten.model.activity.ActivityLog;
+import com.garten.model.activity.ActivityLogAll;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
@@ -264,5 +265,7 @@ public interface SmallcontrolDao {
 	Integer findMostEarlyApply(Integer workerId);
 	
 	WorkerInfo findUnknownInfoByToken(String token);
+	
+	List<ActivityLogAll> ActivityLogAllByactivityId(Integer activityId);
 
 }

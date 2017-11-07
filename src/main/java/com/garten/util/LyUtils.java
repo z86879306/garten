@@ -10,7 +10,9 @@
 package com.garten.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -20,6 +22,8 @@ import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Base64.Decoder;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.cloopen.rest.sdk.utils.encoder.BASE64Decoder;
 import com.garten.util.md5.md5Util;
 import com.garten.vo.smallcontrol.CameraDetile;
 import com.mysql.fabric.xmlrpc.base.Array;
@@ -45,18 +50,6 @@ import cn.jpush.api.push.model.notification.Notification;
 public class LyUtils {
 
 	public static void main(String[] args) throws UnsupportedEncodingException, ParseException {
-		
-//		System.out.println(string.substring(24, 88));
-		/*String dredgeLive = dredgeLive("625460295");
-		System.out.println(dredgeLive);*/
-//		System.out.println(addYinshiyunCamera("625460295", "KTQHZQ"));
-		/*Integer [] array = {1,2,3};
-		Integer[] remove = IntArrayRemove(array, 2);
-		System.out.println(intChangeToStr(remove));*/
-		//System.out.println(getBirthByIdCard("330304199507300010"));
-//		String[] array = {"1","2","3"};
-//		String[] arrayRemoveIndex = ArrayRemoveIndex(array, 0);
-//		System.out.println(StrChangeToStr(arrayRemoveIndex));
 		System.out.println(md5Util.getMD5("5fdaf123-843f-4bdd-a84f-5f18355afe95"+"1504956639"));
 	}
 
@@ -315,4 +308,43 @@ public class LyUtils {
 			Integer index=-1;
 			
 		}*/
+		 
+		 public static File base64ToFile(String base64,String fileName) {
+		        File file = null;
+		        //String fileName = "/Petssions/record/testFile.amr";
+		        FileOutputStream out = null;
+		        try {
+		        	
+		            // 解码，然后将字节转换为文件
+		            file = new File("D:/", fileName);
+		            if (!file.exists())
+		                file.createNewFile();
+		            //BASE64Decoder decoder = new BASE64Decoder();  
+		           // byte[] bytes = Base64.decode(base64, Base64.DEFAULT);// 将字符串转换为byte数组 
+		            //byte[] b = decoder.decodeBuffer(base64);
+		            Decoder decoder2 = Base64.getDecoder();
+		            byte[] decode = decoder2.decode(base64);
+		            ByteArrayInputStream in = new ByteArrayInputStream(decode);
+		            byte[] buffer = new byte[1024];
+		            out = new FileOutputStream(file);
+		            int bytesum = 0;
+		            int byteread = 0;
+		            while ((byteread = in.read(buffer)) != -1) {
+		                bytesum += byteread;
+		                out.write(buffer, 0, byteread); // 文件写操作
+		            }
+		        } catch (IOException ioe) {
+		            ioe.printStackTrace();
+		        } finally {
+		            try {
+		                if (out!= null) {
+		                    out.close();
+		                }
+		            } catch (IOException e) {
+		                // TODO Auto-generated catch block
+		                e.printStackTrace();
+		            }
+		        }
+		        return file;
+		    }
 }

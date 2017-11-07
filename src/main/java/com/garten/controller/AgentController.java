@@ -122,9 +122,9 @@ public class AgentController {
 	@RequestMapping("updateGarten")
 	@ResponseBody
 	public  synchronized  Map<String,Object> updateGarten(String token,Integer gartenId,String gartenName,String name,String phoneNumber,
-			String contractNumber,Long contractStart ,Long contractEnd,	String organizationCode,String province ,String city,
+			String contractNumber,Long contractStart ,Long contractEnd,String province ,String city,
 			String countries,String address,Double charge){
-		Map<String, Object> map = agentService.updateGarten(token, gartenId, gartenName, name, phoneNumber, contractNumber, contractStart, contractEnd, organizationCode, province, city, countries, address, charge);
+		Map<String, Object> map = agentService.updateGarten(token, gartenId, gartenName, name, phoneNumber, contractNumber, contractStart, contractEnd, province, city, countries, address, charge);
 		return map;
 	}
 	
@@ -150,8 +150,8 @@ public class AgentController {
 	@RequestMapping("applyGarten")
 	@ResponseBody
 	public synchronized Map<String,Object> applyGarten(String token,String gartenName,String name,String phoneNumber,String contractNumber,String province,
-			String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money1,String equipment,String remark){
-		Map<String, Object> map = agentService.applyGarten(token, gartenName, name, phoneNumber, contractNumber, province, city, countries, workerCount,babyCount, gradeCount,classCount,money1, equipment,remark);
+			String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money1,String equipment,String remark,Integer gartenType){
+		Map<String, Object> map = agentService.applyGarten(token, gartenName, name, phoneNumber, contractNumber, province, city, countries, workerCount,babyCount, gradeCount,classCount,money1, equipment,remark,gartenType);
 		return map;
 	}
 	
@@ -217,8 +217,8 @@ public class AgentController {
 	//生成物料订单
 	@RequestMapping("addWuliaoOrder")
 	@ResponseBody
-	public synchronized Map<String,Object> addWuliaoOrder(String token,String equipmentAll,String address,String postalcode,String fromPhoneNumber,BigDecimal totalPrice){
-		Map<String, Object> map = agentService.addWuliaoOrder( token, equipmentAll, address, postalcode, fromPhoneNumber,totalPrice);
+	public synchronized Map<String,Object> addWuliaoOrder(String token,String equipmentAll,String address,String postalcode,String fromPhoneNumber,BigDecimal totalPrice,String remark){
+		Map<String, Object> map = agentService.addWuliaoOrder( token, equipmentAll, address, postalcode, fromPhoneNumber,totalPrice,remark);
 		return map;
 	}
 	
@@ -288,32 +288,63 @@ public class AgentController {
 
 		//------------------------------购买信用额度-------------------------------------------		
 		//支付宝支付
-			@RequestMapping(value="alipay")
-			public  synchronized @ResponseBody Map<String, Object> alipay(String token,BigDecimal price,HttpServletRequest httpRequest,
-		            HttpServletResponse httpResponse  ) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException {
-		    	Map<String, Object> map = agentService.alipay(token,price, httpRequest,
-		                 httpResponse);
-				return null;
-			}
-			//支付宝验证
-		   	@RequestMapping(value="alipayyz")
-			public  @ResponseBody String alipayyz() throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
-		    	String map = agentService.alipayyz();
-				return map;
-			}
-		  //删除购买的信用额度记录
-			@RequestMapping(value="deleteAgentOrder")
-			public  synchronized @ResponseBody Map<String, Object> deleteAgentOrder(Long  orderNumber ){
-		    	Map<String, Object> map = agentService.deleteAgentOrder(orderNumber);
-				return map;
-			}
-			//查询购买的信用额度记录
-		   	@RequestMapping(value="findAgentOrder")
-			public  @ResponseBody Map<String, Object> findAgentOrder(String token,Integer pageNo) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
-		    	Map<String, Object> map = agentService.findAgentOrder(token,pageNo);
-				return map;
-			}
-			
-
+		@RequestMapping(value="alipay")
+		public  synchronized @ResponseBody Map<String, Object> alipay(String token,BigDecimal price,HttpServletRequest httpRequest,
+	            HttpServletResponse httpResponse  ) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException {
+	    	Map<String, Object> map = agentService.alipay(token,price, httpRequest,
+	                 httpResponse);
+			return map;
+		}
+		//支付宝验证
+	   	@RequestMapping(value="alipayyz")
+		public  @ResponseBody String alipayyz() throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+	    	String map = agentService.alipayyz();
+			return map;
+		}
+	  //删除购买的信用额度记录
+		@RequestMapping(value="deleteAgentOrder")
+		public  synchronized @ResponseBody Map<String, Object> deleteAgentOrder(Long  orderNumber ){
+	    	Map<String, Object> map = agentService.deleteAgentOrder(orderNumber);
+			return map;
+		}
+		//查询购买的信用额度记录
+	   	@RequestMapping(value="findAgentOrder")
+		public  @ResponseBody Map<String, Object> findAgentOrder(String token,Integer pageNo) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+	    	Map<String, Object> map = agentService.findAgentOrder(token,pageNo);
+			return map;
+		}
 		
+
+	  //微信购买信用额度
+  		@RequestMapping(value="wxpay")
+  		public  synchronized @ResponseBody Map<String, Object> wxpay(String token,BigDecimal price,HttpServletRequest httpRequest,
+  	            HttpServletResponse httpResponse  ) throws Exception {
+  	    	Map<String, Object> map = agentService.wxpay(token,price, httpRequest,
+  	                 httpResponse);
+  			return map;
+  		}
+  		
+  	  //微信购买信用额度
+  		@RequestMapping(value="wxpayyz")
+  		public  synchronized @ResponseBody String wxpayyz(HttpServletRequest httpRequest,
+  	            HttpServletResponse httpResponse  ) throws Exception {
+  	    	String  map = agentService.wxpayyz( httpRequest,httpResponse);
+  			return null;
+  		}
+
+  	//查询单个信用额度订单
+	   	@RequestMapping(value="findAgentOrderOne")
+		public  @ResponseBody Map<String, Object> findAgentOrderOne(Long orderNumber) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+	    	Map<String, Object> map = agentService.findAgentOrderOne(orderNumber);
+			return map;
+		}
+	   	
+	  //查询总台发送的信息
+	   	@RequestMapping(value="findAgentMessage")
+		public  @ResponseBody Map<String, Object> findAgentMessage(String token,Long startTime,Long endTime,Integer state,Integer pageNo) {
+	    	Map<String, Object> map = agentService.findAgentMessage(token,startTime,endTime,state,pageNo);
+			return map;
+		}
+
+
 }

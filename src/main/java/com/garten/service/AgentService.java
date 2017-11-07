@@ -2,7 +2,11 @@ package com.garten.service;
 
 
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -14,11 +18,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jdom.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +43,7 @@ import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
 import com.garten.model.agent.AgentInfo;
+import com.garten.model.agent.AgentMessageAll;
 import com.garten.model.agent.AgentOrder;
 import com.garten.model.agent.SaleService;
 import com.garten.model.agent.WithdrawAll;
@@ -53,6 +61,8 @@ import com.garten.util.lxcutil.MyParamAll;
 import com.garten.util.lxcutil.MyUtilAll;
 import com.garten.util.md5.CryptographyUtil;
 import com.garten.util.myutil.MyUtil;
+import com.garten.util.mywxpay.MyXMLUtil;
+import com.garten.util.mywxpay.PayCommonUtil;
 import com.garten.util.page.MyPage;
 import com.garten.vo.agent.AgentInfoAndGarten;
 import com.garten.vo.agent.AgentVisitDetail;
@@ -109,8 +119,7 @@ public class AgentService {
 		//如果worker不为空则返回uuid,并修改token为uuid
 		if(null!=agent&&!"".equals(agent)){
 			uuid=agentDao.findToken(param);
-			MyUtil.putMapParams(result,"state", 1, "info", uuid,"province",agent.getProvince(),"city",agent.getCity(),"countries",agent.getCountries());
-			MyUtil.putMapParams(result,"agentName",agent.getAgentName(),"receiveType",agent.getReceiveType(),"card",agent.getCard(),"cardName",agent.getCardName());
+			MyUtil.putMapParams(result,"state", 1, "info", agent);
 		}
 		return result;
 	}
@@ -241,14 +250,14 @@ public class AgentService {
 		
 		//修改幼儿园
 		public   Map<String,Object> updateGarten(String token,Integer gartenId,String gartenName,String name,String phoneNumber,
-				String contractNumber,Long contractStart ,Long contractEnd,	String organizationCode,String province ,String city,
+				String contractNumber,Long contractStart ,Long contractEnd,String province ,String city,
 				String countries,String address,Double charge){
 			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 			 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 			 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			 if(null!=agentInfo){
 				 agentDao.updateGarten(gartenId,gartenName, name, phoneNumber,contractNumber,sdf.format(contractStart*1000) ,
-						 sdf.format(contractEnd*1000), organizationCode,province ,city,countries, address,charge);
+						 sdf.format(contractEnd*1000),province ,city,countries, address,charge);
 				 MyUtil.putMapParams(result,"state", 1,"info","操作成功" );
 			 }
 			 return result;
@@ -275,7 +284,7 @@ public class AgentService {
 		
 		//开园申请
 		public Map<String,Object> applyGarten(String token,String gartenName,String name,String phoneNumber,String contractNumber,String province,
-				String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money1,String equipment,String remark){
+				String city, String countries,Integer workerCount,Integer babyCount,Integer gradeCount,Integer classCount,Double money1,String equipment,String remark,Integer gartenType){
 			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 			 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 			 if(null!=agentInfo){
@@ -284,7 +293,7 @@ public class AgentService {
 					 return MyUtil.putMapParams(result,"state", 2);			//该幼儿园联系手机号码已经被注册
 				 }
 				 agentDao.addApplyGarten(1,gartenName,name, phoneNumber, contractNumber, province,
-							 city, countries, workerCount,babyCount,gradeCount, classCount,money1, equipment,agentInfo.getAgentId(),remark);
+							 city, countries, workerCount,babyCount,gradeCount, classCount,money1, equipment,agentInfo.getAgentId(),remark,gartenType);
 				 MyUtil.putMapParams(result,"state", 1,"info","操作成功" );
 			 }
 			
@@ -418,12 +427,13 @@ public class AgentService {
 	}
 
 	public synchronized Map<String, Object> addWuliaoOrder(String token, String equipmentAll, String address, String postalcode,
-			String fromPhoneNumber,BigDecimal totalPrice) {
+			String fromPhoneNumber,BigDecimal totalPrice,String remark) {
 		AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 		 Map<String,Object> result=MyUtil.putMapParams("state", 0);
 		 if(null!=agentInfo){
 			 Map<String,Object> param=MyUtil.putMapParams("agentId",agentInfo.getAgentId(),"equipmentAll",equipmentAll,"address",address,"postalcode",postalcode,"fromPhoneNumber",fromPhoneNumber,"totalPrice",totalPrice,"resource",1);
-			agentDao.addWuliaoOrder(param);
+			 MyUtil.putMapParams(param, "remark", remark);
+			 agentDao.addWuliaoOrder(param);
 			 MyUtil.putMapParams(result,"state", 1);
 		 }
 		 return result;
@@ -617,5 +627,124 @@ public class AgentService {
 				agentDao.deleteAgentOrderByOrderNumber(orderNumber);
 			return result;
 		}
+
+		public Map<String, Object> wxpay(String token,BigDecimal price,HttpServletRequest httpRequest,HttpServletResponse httpResponse ) throws Exception {
+			
+			AgentInfo agentInfo=agentDao.findAgentInfoByToken(token);
+			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+			if(null!=agentInfo){//验证用户
+				Long orderNumber=System.currentTimeMillis();
+				String orderDetail="代理商购买信用额度";
+				AgentOrder ao=new AgentOrder(orderNumber,price,orderDetail,1,0,agentInfo.getAgentId());
+				agentDao.addAgentOrder(ao);
+				Map<String, Object> result1=MyUtilAll.wxmyAlipayAgentCredit(orderNumber+"", orderDetail,price.multiply(new BigDecimal(100)).toString() , httpRequest,httpResponse);
+				String a =result1.get("url")+"";//获取二维码 url
+				MyUtil.putMapParams(result,"state", 1,"info",result1);
+			}
+			return result;
+	}
+
+
+		//验证
+		public   String wxpayyz(/*String orderNumber, String orderDetail,String price,*/HttpServletRequest httpRequest,
+	            HttpServletResponse httpResponse) throws IOException, JDOMException {
+		          
+		        //读取参数  
+		        InputStream inputStream ;  
+		        StringBuffer sb = new StringBuffer();  
+		        inputStream = httpRequest.getInputStream();  
+		        String s ;  
+		        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));  
+		        while ((s = in.readLine()) != null){  
+		            sb.append(s);  
+		        }  
+		        in.close();  
+		        inputStream.close();  
+		  
+		        //解析xml成map  
+		        Map<String, String> m = new HashMap<String, String>();  
+		        m = MyXMLUtil.doXMLParse(sb.toString());  
+		          
+		        //过滤空 设置 TreeMap  
+		        SortedMap<Object,Object> packageParams = new TreeMap<Object,Object>();        
+		        Iterator it = m.keySet().iterator();  
+		        while (it.hasNext()) {  
+		            String parameter = (String) it.next();  
+		            String parameterValue = m.get(parameter);  
+		              
+		            String v = "";  
+		            if(null != parameterValue) {  
+		                v = parameterValue.trim();  
+		            }  
+		            packageParams.put(parameter, v);  
+		        }  
+		          
+		        // 账号信息  
+		        String key = MyParamAll.MYWXIN_PARENT_API_KEY; // key  
+		  
+		        //判断签名是否正确  
+		        if(PayCommonUtil.isTenpaySign("UTF-8", packageParams)) {
+		            //------------------------------  
+		            //处理业务开始  
+		            //------------------------------  
+		            String resXml = "";  
+		            if("SUCCESS".equals((String)packageParams.get("result_code"))){  
+		                // 这里是支付成功  
+		                //////////执行自己的业务逻辑////////////////  
+		                String mch_id = (String)packageParams.get("mch_id");  
+		                String openid = (String)packageParams.get("openid");  
+		                String is_subscribe = (String)packageParams.get("is_subscribe");  
+		                String out_trade_no = (String)packageParams.get("out_trade_no");  
+		                String total_fee = (String)packageParams.get("total_fee");  
+		                //////////执行自己的业务逻辑////////////////  
+		                  System.err.println("支付成功");
+		               // 1完成订单  2增加余额
+		      			AgentOrder a=agentDao.findAgentOrderByOrderNumber(out_trade_no);
+		      			Map<String,Object> param=MyUtil.putMapParams("price",a.getPrice(),"agentId",a.getAgentId());
+		      			agentDao.updateAgentCredit(param);
+		      			agentDao.updateAgentOrder(out_trade_no);
+		                  
+		                //通知微信.异步确认成功.必写.不然会一直通知后台.八次之后就认为交易失败了.  
+		                resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"  
+		                        + "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";  
+		                  return "1.html";
+		            } else {  
+		                System.err.println("支付失败,错误信息：" + packageParams.get("err_code"));
+		                System.err.println();
+		                resXml = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>"  
+		                        + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";  
+		            }  
+		            //------------------------------  
+		            //处理业务完毕  
+		            //------------------------------  
+		            BufferedOutputStream out = new BufferedOutputStream(  
+		            		httpResponse.getOutputStream());  
+		            out.write(resXml.getBytes());  
+		            out.flush();  
+		            out.close();  
+		        } else{  
+		            System.err.println("通知签名验证失败");
+		        }  
+		          return null;
+		    
+		}
+		public Map<String, Object> findAgentOrderOne(Long orderNumber) {
+			AgentOrder a=agentDao.findAgentOrderByOrderNumber(orderNumber);
+			Map<String,Object> result=MyUtil.putMapParams("state",1,"info",a);
+		return result;
+	}
+
+		public Map<String, Object> findAgentMessage(String token,Long startTime,Long endTime,Integer state,Integer pageNo) {
+			AgentInfo agentInfo=agentDao.findAgentInfoByToken(token);
+			Map<String,Object> result=MyUtil.putMapParams("state",0,"info",null);
+			if(null!=agentInfo){
+				Map<String,Object> param=MyUtil.putMapParams("startTime", startTime, "endTime", endTime, "agentId", agentInfo.getAgentId(), "state", state);
+				List<AgentMessageAll> am=bigcontrolDao.findAgentMessage(param);
+				am=MyUtil.setFindAgentMessage(am);
+				MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage(am, pageNo));
+			}
+			return result;
+		}
+
 
 }

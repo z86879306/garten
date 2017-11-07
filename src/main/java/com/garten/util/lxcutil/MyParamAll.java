@@ -65,17 +65,24 @@ public class MyParamAll {
 	//幼儿园后台主页面
 	public static final String MYALIPAY_NOTIFYURL_MANAGE = "http://cms.ahczjy.cc/smallcontrol/manage.html#/payQuery";
 	//代理商购买信用额度的回调
-	public static final String MYALIPAY_NOTIFYURL_AGENT = "http://cms.ahczjy.cc:8081/agent/alipayyz.do";
+	public static final String MYALIPAY_NOTIFYURL_AGENT = "http://cms.ahczjy.cc/agent/alipayyz.do";
 	//代理商购买信用额度完成的会跳
-	public static final String MYALIPAY_NOTIFYURL_MANAGE_AGENT = "http://cms.ahczjy.cc:8081/agentcontrol/manage.html";
+	public static final String MYALIPAY_NOTIFYURL_MANAGE_AGENT = "http://cms.ahczjy.cc/agentcontrol/manage.html";
 
 	//Wxin 微信appid
 	public static final String MYWXIN_APPID = "wx5016949865cc41f1";
 	//Wxin mch_id微信商户ID					   
-	public static final String MYALIPAY_MCHID = "1487640302";
+	public static final String MYWXIN_MCHID = "1487640302";
+	//Wxin app_secret
+	public static final String MYWXIN_PARENT_APP_SECRET = "1cde90fedc5550b6606c2daf11f5dd97";
+	//Wxin api_key
+	public static final String MYWXIN_PARENT_API_KEY = "07282253834529058003629853775552";
+	//Wxin ip
+	public static final String MYWXIN_IP ="127.0.0.1";
+	//Wxin ip
+	public static final String MYWXIN_AGENT_CREDIT ="http://www.baidu.com";
 	//Wxin 统一下单地址
-	public static final String MYALIPAY_UNIFIEDORDERURL = "https://api.mch.weixin.qq.com/pay/unifiedorder";
-	/**
+	public static final String MYWXIN_UNIFIEDORDERURL = "https://api.mch.weixin.qq.com/pay/unifiedorder ";/**
 	 * 退款(微信,支付宝,余额)
 	 */
 	//WX 微信退款证书

@@ -57,7 +57,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT * FROM torder  o
 		where gartenId=#{gartenId} 
 		and #{startTime} &lt; unix_timestamp(orderTime)
-		and unix_timestamp(orderTime) &lt; #{endTime}
+		and unix_timestamp(orderTime) &lt; #{endTime}+86400
 		and o.isValid=0
 	</select>
 	
@@ -504,7 +504,7 @@ gartenId=1
 		and job=#{job}
 		</if>
 		and #{startTime} &lt; UNIX_TIMESTAMP(time)
-		and #{endTime} &gt; UNIX_TIMESTAMP(time) and isValid=0 and type=0
+		and #{endTime}+86400 &gt; UNIX_TIMESTAMP(time) and isValid=0 and type=0
 	</select>
 	<select id="findworkerById" resultType="WorkerInfo">
 		select * from worker＿info
@@ -555,7 +555,7 @@ gartenId=1
 		AND u.job = '老师'
 		AND w.gartenId = (select gartenId from worker＿info where token=#{token})
 		AND UNIX_TIMESTAMP(u.time) &gt;= #{startTime}
-		AND UNIX_TIMESTAMP(u.time) &lt;= #{endTime}
+		AND UNIX_TIMESTAMP(u.time) &lt;= #{endTime}+86400
 		AND u.isValid = 0 AND w.isValid = 0
 	</select>
 	<select id="findUnusualAllByTokenSmall"  resultType="UnusualAll">
@@ -568,7 +568,7 @@ gartenId=1
 		and u.job='宝宝'
 		and b.gartenId=#{gartenId}
 		AND UNIX_TIMESTAMP(u.time) &gt;= #{startTime}
-		AND UNIX_TIMESTAMP(u.time) &lt;= #{endTime}
+		AND UNIX_TIMESTAMP(u.time) &lt;= #{endTime}+86400
 		and u.isValid=0  and b.isValid=0
 	</select>
 	<select id="findLeaveLogByToken"  resultType="WorkerLeaveLogPrin">
@@ -690,7 +690,7 @@ gartenId=1
 		where 
 		 m.isvalid=0
 		and unix_timestamp(m.registTime) > #{start}
-		and #{end} > unix_timestamp(m.registTime)
+		and #{end}+86400 > unix_timestamp(m.registTime)
 		<if test="	gartenId!=null and gartenId!='' " >
 				and m.gartenId=#{gartenId} 
 			</if>
@@ -707,7 +707,7 @@ gartenId=1
 		select * from worker_message_log wm, worker＿info w
 		where wm.gartenId=#{gartenId} 
 		and unix_timestamp(wm.registTime) > #{startTime}
-		and #{endTime} > unix_timestamp(wm.registTime)
+		and #{endTime}+86400 > unix_timestamp(wm.registTime)
 		and wm.workerId=w.workerId
 		and wm.isValid=0 and w.isValid=0
 		<if test=" state!=null and state!='' ">
@@ -766,5 +766,11 @@ gartenId=1
 		w.token = #{token}
 		and w.isValid=0
 	</select>
-	
+	<select id="ActivityLogAllByactivityId"  resultType="ActivityLogAll">
+		SELECT l.babyId ,l.parentName ,l.phoneNumber ,l.activityId,
+		l.id,l.registTime,b.babyName
+		FROM activity_log  l
+		left join baby_info b on l.babyId=b.babyId
+		where activityId = #{activityId}
+	</select>
 </mapper> 

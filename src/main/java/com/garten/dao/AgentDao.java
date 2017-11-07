@@ -79,7 +79,7 @@ public interface AgentDao {
 	void recoverGarten(Integer gartenId);
 
 	void updateGarten(@Param("gartenId")Integer gartenId, @Param("gartenName")String gartenName,@Param("name") String name, @Param("phoneNumber")String phoneNumber,
-			@Param("contractNumber") String contractNumber,@Param("contractStart")String contractStart,@Param("contractEnd") String contractEnd,@Param("organizationCode") String organizationCode,
+			@Param("contractNumber") String contractNumber,@Param("contractStart")String contractStart,@Param("contractEnd") String contractEnd,
 			@Param("province")String province,@Param("city")String city,@Param("countries")String countries ,@Param("address")String address, @Param("charge")Double charge);
 
 	List<AgentAudit> findAgentAudit(Integer agentId);
@@ -88,7 +88,7 @@ public interface AgentDao {
 
 	void addApplyGarten(@Param("resource")Integer resource,@Param("gartenName")String gartenName, @Param("name")String name, @Param("phoneNumber")String phoneNumber,@Param("contractNumber") String contractNumber,@Param("province") String province,
 			@Param("city")String city,@Param("countries") String countries,@Param("workerCount")Integer workerCount, @Param("babyCount")Integer babyCount, @Param("gradeCount")Integer gradeCount, @Param("classCount")Integer classCount,@Param("money1") Double money1,
-			@Param("equipment")String equipment,@Param("agentId")Integer agentId,@Param("remark")String remark);
+			@Param("equipment")String equipment,@Param("agentId")Integer agentId,@Param("remark")String remark,@Param("gartenType")Integer gartenType);
 
 	List<AgentVisitDetail> getAgentVisit(@Param("agentId")Integer agentId,@Param("gartenId") Integer gartenId);
 
@@ -130,6 +130,8 @@ public interface AgentDao {
 
 	void updateAgentOrder(String orderNumber);
 
+	AgentOrder findAgentOrderByOrderNumber(Long orderNumber);
+	
 	AgentOrder findAgentOrderByOrderNumber(String orderNumber);
 
 	void updateAgentCredit(Map<String, Object> param);

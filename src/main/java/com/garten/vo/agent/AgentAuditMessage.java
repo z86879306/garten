@@ -25,10 +25,10 @@ public class AgentAuditMessage extends AgentAudit{
 			Integer workerCount, Integer babyCount, String equipment, BigDecimal money1, BigDecimal money2,
 			BigDecimal money3, BigDecimal money4, Integer auditId, Integer resourceId, Long registTime, Integer state,
 			String gartenName, String name, String phoneNumber, String remark, Integer gradeCount, Integer classCount,
-			String reason, String agentName) {
+			String reason, Integer gartenType, String agentName) {
 		super(resource, contractNumber, province, city, countries, workerCount, babyCount, equipment, money1, money2,
 				money3, money4, auditId, resourceId, registTime, state, gartenName, name, phoneNumber, remark,
-				gradeCount, classCount, reason);
+				gradeCount, classCount, reason, gartenType);
 		this.agentName = agentName;
 	}
 
@@ -36,12 +36,14 @@ public class AgentAuditMessage extends AgentAudit{
 			Integer workerCount, Integer babyCount, String equipment, BigDecimal money1, BigDecimal money2,
 			BigDecimal money3, BigDecimal money4, Integer auditId, Integer resourceId, Long registTime, Integer state,
 			String gartenName, String name, String phoneNumber, String remark, Integer gradeCount, Integer classCount,
-			String reason) {
+			String reason, Integer gartenType) {
 		super(resource, contractNumber, province, city, countries, workerCount, babyCount, equipment, money1, money2, money3,
 				money4, auditId, resourceId, registTime, state, gartenName, name, phoneNumber, remark, gradeCount, classCount,
-				reason);
+				reason, gartenType);
 		// TODO Auto-generated constructor stub
 	}
+
+	
 
 	
 

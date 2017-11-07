@@ -264,7 +264,7 @@ public class MyUtilAll {
 		 	/*	String price="1";*///表示1分钱
 		         System.err.println(price.substring(0, price.length()-3));
 		         parameters.put("appid", MyParamAll.MYWXIN_APPID);  
-		         parameters.put("mch_id", MyParamAll.MYALIPAY_MCHID); 
+		         parameters.put("mch_id", MyParamAll.MYWXIN_MCHID); 
 		         parameters.put("nonce_str",MyPayCommonUtil.CreateNoncestr().substring(0, 9)+price);  
 		         parameters.put("body",type);  
 		         parameters.put("out_trade_no", orderNumber); //订单id
@@ -279,7 +279,7 @@ public class MyUtilAll {
 		       //封装请求参数结束
 		         String requestXML = MyPayCommonUtil.getRequestXml(parameters);  
 		        //调用统一下单接口
-		         String result = MyPayCommonUtil.httpsRequest(MyParamAll.MYALIPAY_UNIFIEDORDERURL, "POST", requestXML);
+		         String result = MyPayCommonUtil.httpsRequest(MyParamAll.MYWXIN_UNIFIEDORDERURL, "POST", requestXML);
 		         System.err.println("~~~~~~~~~~");
 		         System.out.println("\n"+result);
 		         try {
@@ -287,7 +287,7 @@ public class MyUtilAll {
 		            Map<String, String> map = MyXMLUtil.doXMLParse(result);
 		            SortedMap<Object, Object> parameterMap2 = new TreeMap<Object, Object>();  
 		            parameterMap2.put("appid", MyParamAll.MYWXIN_APPID);  
-		            parameterMap2.put("partnerid", MyParamAll.MYALIPAY_MCHID);  
+		            parameterMap2.put("partnerid", MyParamAll.MYWXIN_MCHID);  
 		            parameterMap2.put("prepayid", map.get("prepay_id"));  
 		            parameterMap2.put("package", "Sign=WXPay");  
 		            //本来生成的时间戳是13位，但是ios必须是10位，所以截取了一下
@@ -621,6 +621,115 @@ public class MyUtilAll {
 			    httpResponse.getWriter().flush();
 			    httpResponse.getWriter().close();
 			    return map;
+		}
+
+		/**
+		 * 微信代理商购买信用额度
+		 * @throws JDOMException 
+		 */
+		public static Map<String, Object> wxmyAlipayAgentCredit(String orderNumber, String orderDetail,String price,HttpServletRequest httpRequest,
+	            HttpServletResponse httpResponse) throws IOException, JDOMException {
+			 Map<String, Object> resultMap = new HashMap<String, Object>();
+	         SortedMap<Object,Object> parameters = new TreeMap<Object,Object>();
+	 	/*	String price="1";*///表示1分钱
+	         
+	         System.err.println(price.split("\\.")[0]);
+	         parameters.put("appid", MyParamAll.MYWXIN_APPID);  
+	         parameters.put("mch_id", MyParamAll.MYWXIN_MCHID); 
+	         parameters.put("nonce_str",MyPayCommonUtil.CreateNoncestr().substring(0, 9)+price);  
+	         parameters.put("body",orderDetail);  
+	         parameters.put("out_trade_no", orderNumber); //订单id
+	         parameters.put("fee_type", "CNY");  
+	         parameters.put("total_fee", price.split("\\.")[0]);  
+	         parameters.put("spbill_create_ip","127.0.0.1");
+	         parameters.put("notify_url", "http://cms.ahczjy.cc/agent/wxpayyz.do"); 
+	         parameters.put("trade_type", "NATIVE");  
+	         System.err.println(parameters.toString());
+	        //设置签名
+	         String sign = MyPayCommonUtil.createSign("UTF-8",parameters);
+	         parameters.put("sign", sign);
+	       //封装请求参数结束
+	         String requestXML = MyPayCommonUtil.getRequestXml(parameters);  
+	        //调用统一下单接口
+	         String result = MyPayCommonUtil.httpsRequest(MyParamAll.MYWXIN_UNIFIEDORDERURL, "POST", requestXML);
+	         System.out.println("\n"+result);
+	         try {
+	         /**统一下单接口返回正常的prepay_id，再按签名规范重新生成签名后，将数据传输给APP。参与签名的字段名为appId，partnerId，prepayId，nonceStr，timeStamp，package。注意：package的值格式为Sign=WXPay**/
+	            Map<String, String> map = MyXMLUtil.doXMLParse(result);
+	            SortedMap<Object, Object> parameterMap2 = new TreeMap<Object, Object>();  
+	            parameterMap2.put("appid", MyParamAll.MYWXIN_APPID);  
+	            parameterMap2.put("partnerid", MyParamAll.MYWXIN_MCHID);  
+	            parameterMap2.put("prepayid", map.get("prepay_id"));  
+	            parameterMap2.put("package", "Sign=WXPay");  
+	            //本来生成的时间戳是13位，但是ios必须是10位，所以截取了一下
+	            parameterMap2.put("timestamp", Long.parseLong(String.valueOf(System.currentTimeMillis()).toString().substring(0,10)));  
+	            parameterMap2.put("noncestr", MyPayCommonUtil.CreateNoncestr());  
+	            String sign2 = MyPayCommonUtil.createSign("UTF-8",parameterMap2);
+	            parameterMap2.put("sign", sign2);  
+	            resultMap.put("code","200");
+	            resultMap.put("msg",parameterMap2);
+	            System.err.println(map.get("code_url"));
+	            resultMap.put("url",map.get("code_url"));
+	            resultMap.put("orderNumber",orderNumber);
+	        } catch (JDOMException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	        return resultMap;
+		}
+
+
+		
+		public static Map<String, Object> myWxpayControl(String orderNumber, String type,String price,HttpServletRequest httpRequest,
+	            HttpServletResponse httpResponse) throws IOException {
+			 Map<String, Object> resultMap = new HashMap<String, Object>();
+	         SortedMap<Object,Object> parameters = new TreeMap<Object,Object>();
+	 	/*	String price="1";*///表示1分钱
+	         System.err.println(price.substring(0, price.length()-3));
+	         parameters.put("appid", MyParamAll.MYWXIN_APPID);  
+	         parameters.put("mch_id", MyParamAll.MYWXIN_MCHID); 
+	         parameters.put("nonce_str",MyPayCommonUtil.CreateNoncestr().substring(0, 9)+price);  
+	         parameters.put("body",type);  
+	         parameters.put("out_trade_no", orderNumber); //订单id
+	         parameters.put("fee_type", "CNY");  
+	         parameters.put("total_fee", price.substring(0, price.length()-3));  
+	         parameters.put("spbill_create_ip","127.0.0.1");
+	         parameters.put("notify_url", "http://cms.ahczjy.cc/smallcontrol/wxpayyz.do"); 
+	         parameters.put("trade_type", "NATIVE");  
+	        //设置签名
+	         String sign = MyPayCommonUtil.createSign("UTF-8",parameters);
+	         parameters.put("sign", sign);
+	       //封装请求参数结束
+	         String requestXML = MyPayCommonUtil.getRequestXml(parameters);  
+	        //调用统一下单接口
+	         String result = MyPayCommonUtil.httpsRequest(MyParamAll.MYWXIN_UNIFIEDORDERURL, "POST", requestXML);
+	         System.out.println("\n"+result);
+	         try {
+	         /**统一下单接口返回正常的prepay_id，再按签名规范重新生成签名后，将数据传输给APP。参与签名的字段名为appId，partnerId，prepayId，nonceStr，timeStamp，package。注意：package的值格式为Sign=WXPay**/
+	            Map<String, String> map = MyXMLUtil.doXMLParse(result);
+	            SortedMap<Object, Object> parameterMap2 = new TreeMap<Object, Object>();  
+	            parameterMap2.put("appid", MyParamAll.MYWXIN_APPID);  
+	            parameterMap2.put("partnerid", MyParamAll.MYWXIN_MCHID);  
+	            parameterMap2.put("prepayid", map.get("prepay_id"));  
+	            parameterMap2.put("package", "Sign=WXPay");  
+	            //本来生成的时间戳是13位，但是ios必须是10位，所以截取了一下
+	            parameterMap2.put("timestamp", Long.parseLong(String.valueOf(System.currentTimeMillis()).toString().substring(0,10)));  
+	            parameterMap2.put("noncestr", MyPayCommonUtil.CreateNoncestr());  
+	            String sign2 = MyPayCommonUtil.createSign("UTF-8",parameterMap2);
+	            parameterMap2.put("sign", sign2);  
+	            resultMap.put("code","200");
+	            resultMap.put("msg",parameterMap2);
+	            resultMap.put("url",map.get("code_url"));
+	            resultMap.put("orderNumber",orderNumber);
+
+	            
+	        } catch (JDOMException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	        return resultMap;
 		}
 
 }

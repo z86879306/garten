@@ -37,9 +37,16 @@ public class GartenInfo {
 	private Long  contractEnd;
 	private String  organizationCode;//合同编码
 	private String  name;//签约人
-	private Integer agentType;
+	private Integer agentType;	//0 员工  1代理商
+	private Integer gartenType;	//幼儿园类型
 	
 	
+	public Integer getGartenType() {
+		return gartenType;
+	}
+	public void setGartenType(Integer gartenType) {
+		this.gartenType = gartenType;
+	}
 	public Integer getAgentType() {
 		return agentType;
 	}
@@ -52,47 +59,7 @@ public class GartenInfo {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public GartenInfo(Integer gartenId, String phoneNumber, Long registTime, Integer gartenGrade, String pwd,
-			Integer accountState, String gartenName, Integer applicationState, String address, Long attendanceTime,
-			Long monitorTime, BigDecimal charge, String agent, String arriveStartTime, String arriveEndTime,
-			String leaveStartTime, String leaveEndTime, String token, Long tokenTime, String introduceHtml,
-			String introduceImgs, String province, String city, String countries, Integer teacherAttendanceFlag,
-			Integer studentAttendanceFlag, Integer rebootFlag, String contractNumber, Long contractStart,
-			Long contractEnd, String organizationCode, String name) {
-		super();
-		this.gartenId = gartenId;
-		this.phoneNumber = phoneNumber;
-		this.registTime = registTime;
-		this.gartenGrade = gartenGrade;
-		this.pwd = pwd;
-		this.accountState = accountState;
-		this.gartenName = gartenName;
-		this.applicationState = applicationState;
-		this.address = address;
-		this.attendanceTime = attendanceTime;
-		this.monitorTime = monitorTime;
-		this.charge = charge;
-		this.agent = agent;
-		this.arriveStartTime = arriveStartTime;
-		this.arriveEndTime = arriveEndTime;
-		this.leaveStartTime = leaveStartTime;
-		this.leaveEndTime = leaveEndTime;
-		this.token = token;
-		this.tokenTime = tokenTime;
-		this.introduceHtml = introduceHtml;
-		this.introduceImgs = introduceImgs;
-		this.province = province;
-		this.city = city;
-		this.countries = countries;
-		this.teacherAttendanceFlag = teacherAttendanceFlag;
-		this.studentAttendanceFlag = studentAttendanceFlag;
-		this.rebootFlag = rebootFlag;
-		this.contractNumber = contractNumber;
-		this.contractStart = contractStart;
-		this.contractEnd = contractEnd;
-		this.organizationCode = organizationCode;
-		this.name = name;
-	}
+	
 	@Override
 	public String toString() {
 		return "GartenInfo [gartenId=" + gartenId + ", phoneNumber=" + phoneNumber + ", registTime=" + registTime
@@ -153,6 +120,49 @@ public class GartenInfo {
 	}
 	
 	
+	public GartenInfo(Integer gartenId, String phoneNumber, Long registTime, Integer gartenGrade, String pwd,
+			Integer accountState, String gartenName, Integer applicationState, String address, Long attendanceTime,
+			Long monitorTime, BigDecimal charge, String agent, String arriveStartTime, String arriveEndTime,
+			String leaveStartTime, String leaveEndTime, String token, Long tokenTime, String introduceHtml,
+			String introduceImgs, String province, String city, String countries, Integer teacherAttendanceFlag,
+			Integer studentAttendanceFlag, Integer rebootFlag, String contractNumber, Long contractStart,
+			Long contractEnd, String organizationCode, String name, Integer agentType, Integer gartenType) {
+		super();
+		this.gartenId = gartenId;
+		this.phoneNumber = phoneNumber;
+		this.registTime = registTime;
+		this.gartenGrade = gartenGrade;
+		this.pwd = pwd;
+		this.accountState = accountState;
+		this.gartenName = gartenName;
+		this.applicationState = applicationState;
+		this.address = address;
+		this.attendanceTime = attendanceTime;
+		this.monitorTime = monitorTime;
+		this.charge = charge;
+		this.agent = agent;
+		this.arriveStartTime = arriveStartTime;
+		this.arriveEndTime = arriveEndTime;
+		this.leaveStartTime = leaveStartTime;
+		this.leaveEndTime = leaveEndTime;
+		this.token = token;
+		this.tokenTime = tokenTime;
+		this.introduceHtml = introduceHtml;
+		this.introduceImgs = introduceImgs;
+		this.province = province;
+		this.city = city;
+		this.countries = countries;
+		this.teacherAttendanceFlag = teacherAttendanceFlag;
+		this.studentAttendanceFlag = studentAttendanceFlag;
+		this.rebootFlag = rebootFlag;
+		this.contractNumber = contractNumber;
+		this.contractStart = contractStart;
+		this.contractEnd = contractEnd;
+		this.organizationCode = organizationCode;
+		this.name = name;
+		this.agentType = agentType;
+		this.gartenType = gartenType;
+	}
 	public GartenInfo(Integer gartenId, String phoneNumber, Long registTime, Integer gartenGrade, String pwd,
 			Integer accountState, String gartenName, Integer applicationState, String address, Long attendanceTime,
 			Long monitorTime, BigDecimal charge, String agent, String arriveStartTime, String arriveEndTime,
