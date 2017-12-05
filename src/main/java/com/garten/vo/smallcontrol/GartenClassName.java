@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
-import com.garten.model.garten.GartenClass;
+import com.garten.model.gartenClass.GartenClass;
+
 //GartenClass 加上班级的所有老师名字
 public class GartenClassName extends  GartenClass{
 	
@@ -39,10 +40,12 @@ public class GartenClassName extends  GartenClass{
 		// TODO Auto-generated constructor stub
 	}
 
-	public GartenClassName(String leadClass, String leadGrade, Integer gartenId, Integer classId, Long registTime) {
-		super(leadClass, leadGrade, gartenId, classId, registTime);
+	public GartenClassName(String leadClass, String leadGrade, Integer gartenId, Integer classId, String mark,
+			Long registTime, Integer gradeId) {
+		super(leadClass, leadGrade, gartenId, classId, mark, registTime, gradeId);
 		// TODO Auto-generated constructor stub
 	}
+
 
 
 

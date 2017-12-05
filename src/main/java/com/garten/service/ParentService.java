@@ -93,7 +93,8 @@ public class ParentService {
 	private WorkerService workerService;
 	@Autowired
 	private WorkerDao workerDao;
-	
+	@Autowired
+	private SmallcontrolDao smallcontrolDao;
 	public Map<String, Object> login(String phoneNumber, String pwd) {
 		Map<String,Object> result=MyUtil.putMapParams("state", 0, "info", "error");
 		Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
@@ -130,6 +131,9 @@ public class ParentService {
 	}
 
 
+	/**首页
+	 * [大改 获取孩子列表 mapper]
+	 */
 	public Map<String, Object> index(String token) {
 		ParentInfo parentInfo= parentDao.findParentInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",parentInfo,"babyList",parentInfo,"notified",parentInfo);
@@ -155,7 +159,7 @@ public class ParentService {
 				time= parentDao.findDaijieCircleCircleByToken(babyId);
 				time=MyUtil.getYMDLongs(time);
 			}else if(2==type){//课程红圈   这些天起码有一节课记录 ***
-				 time= parentDao.findLessonCircleByToken(babyId);
+				 time= parentDao.findLessonCircleByBabyId(babyId);
 			}else if(3==type){//考勤,晨检红圈  这些天[没有]考勤,晨检  ***
 				 time= parentDao.findAttendanceCircleByToken( babyId);
 				 time=MyUtil.reverse(time);//反转
@@ -230,7 +234,9 @@ public class ParentService {
 		return result;
 	}
 
-
+	/*5：表示上午迟到6：表示上午早退7：表示下午迟到8：表示下午早退9：表示下午提前入园10：表示下午推迟离园
+	 * 
+	 */
 	//stateLate 0正常 1迟到 2同意
 		//stateEarly 0正常1早退 2同意
 		public Map<String, Object> yichang(String token,Long time,Integer babyId) throws ParseException {
@@ -362,9 +368,10 @@ public class ParentService {
 			ParentInfo parentInfo= parentDao.findParentInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",parentInfo,"flower",parentInfo,"infoAndroid",null);
 			if(null!=parentInfo){//验证用户
-				List<ParentInfoShort> parents=parentDao.findParentLinkMan(MyUtil.putMapParams("babyId", babyId, "parentId", parentInfo.getParentId()));//这个家长的所有宝宝
-				List<WorkerInfoShort> teachers=parentDao.findTeacherLinkMan(babyId);//该幼儿园所有的职工和园长
 				ClassManage classmanege=findBaby(babyId);
+				List<ParentInfoShort> parents=parentDao.findParentLinkMan(MyUtil.putMapParams("babyId", babyId, "parentId", parentInfo.getParentId()));//这个家长的所有宝宝
+				List<WorkerInfoShort> teachers=parentDao.findTeacherLinkMan(classmanege.getClassId(),classmanege.getGartenId());//该幼儿园所有的职工和园长
+
 				Map<String,Map> all=MyUtil.paixuParentByZiMu(parents,teachers,0,classmanege.getGartenId());
 				MyUtil.putMapParams(result, "state",1, "info",all.get("result"),"infoAndroid",all.get("resultAndroid").get("result"),"flower",parentInfo.getFlower());
 			
@@ -377,9 +384,11 @@ public class ParentService {
 			ParentInfo parentInfo= parentDao.findParentInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",parentInfo,"flower",parentInfo,"infoAndroid",null);
 			if(null!=parentInfo){//验证用户
-				List<ParentInfoShort> parents=parentDao.findParentLinkMan(MyUtil.putMapParams("babyId", babyId, "parentId", parentInfo.getParentId()));//这个家长的所有宝宝
-				List<WorkerInfoShort> teachers=parentDao.findTeacherLinkMan(babyId);//该幼儿园所有的职工和园长
+				
 				ClassManage classmanege=findBaby(babyId);
+				List<ParentInfoShort> parents=parentDao.findParentLinkMan(MyUtil.putMapParams("babyId", babyId, "parentId", parentInfo.getParentId()));//这个家长的所有宝宝
+				List<WorkerInfoShort> teachers=parentDao.findTeacherLinkMan(classmanege.getClassId(),classmanege.getGartenId());//该幼儿园所有的职工和园长
+
 				Map<String,Map> all=MyUtil.paixuParentByZiMu(parents,teachers,1,classmanege.getGartenId());
 				MyUtil.putMapParams(result, "state",1, "info",all.get("result"),"infoAndroid",all.get("resultAndroid").get("result"),"flower",parentInfo.getFlower());//一个给安卓用一个给IOS用
 		
@@ -489,9 +498,8 @@ public class ParentService {
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",parentInfo);
 			if(null!=parentInfo){//验证用户
 				ClassManage baby = parentDao.findBabyById(babyId);
-				WorkerInfo workerInfo = workerDao.findWorkerInfoById(Integer.valueOf(baby.getTeacherId().split(",")[0]));
-				List<GartenPhotos> parentPhoto= parentDao.findParentPhotoByToken(babyId,baby.getGartenId(),workerInfo.getClassId());
-				List<GartenPhotos> workerPhoto= parentDao.findWorkerPhotoByToken(babyId,baby.getGartenId(),workerInfo.getClassId());
+				List<GartenPhotos> parentPhoto= parentDao.findParentPhotoByToken(babyId,baby.getGartenId(),baby.getClassId());//大改
+				List<GartenPhotos> workerPhoto= parentDao.findWorkerPhotoByToken(babyId,baby.getGartenId(),baby.getClassId());
 				parentPhoto.addAll(workerPhoto);
 				
 				long current = System.currentTimeMillis();
@@ -691,6 +699,9 @@ public class ParentService {
 										 	}else{//按照全国的标准
 												//没找到发送反馈	parentDao.insertFeedback(new Feedback(garten.getGartenId(),"家长",new Date().getTime()/1000,parentInfo.getParentId(),garten.getProvince()+"没有"+(0==i?"视频":"考勤")+"收费标准",null,parentInfo.getParentName(),parentInfo.getPhoneNumber()));
 										 		gartenCharge=bigcontrolDao.gartenChargeOne(MyUtil.putMapParams( "province","","city","","countries","","gartenId", 0, "type",i+ 4));
+										 		if(null==gartenCharge){
+										 			return MyUtil.putMapParams("state", 3);			//没有该幼儿园的收费标准
+										 		}
 										 		gartenCharges.add(gartenCharge);
 										 		System.err.println("测试"+gartenCharge);
 										 		if(0==i){
@@ -1101,7 +1112,7 @@ public class ParentService {
 			if(null!=babys){
 				for(BabyInfo b:babys){
 					System.err.println(b.getTeacherId());
-					List<WorkerInfo> workers=parentDao.getWorker(b.getTeacherId());//找到每个宝宝的teacherId的所有老师
+					List<WorkerInfo> workers=parentDao.getWorker(b.getClassId());//找到每个宝宝的teacherId的所有老师
 					System.err.println(workers.get(1));
 					if(null!=workers){
 						for(WorkerInfo w:workers){

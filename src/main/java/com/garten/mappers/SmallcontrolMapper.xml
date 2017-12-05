@@ -3,8 +3,10 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.garten.dao.SmallcontrolDao">
-	
-	<select id="findWorkerByPwd"  resultType="WorkerInfo">
+	<resultMap id="workerByPwdMap" type="WorkerInfo" >
+		<collection property="gartenClasses" ofType="GartenClass" javaType="ArrayList" column="classId" select="com.garten.dao.WorkerDao.findTeacherByTokenWithGartenClass"/>
+	</resultMap>
+	<select id="findWorkerByPwd"  resultMap="workerByPwdMap">
 		SELECT * FROM worker＿info  w
 		where phoneNumber=#{phoneNumber} 
 		and pwd=#{pwd}
@@ -24,7 +26,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT leadClass FROM garten_class  c
 		where gartenId=#{gartenId}
 		and leadGrade='小班'
-		and c.isValid=0
 		order by registTime DESC
 		limit 1
 	</select>
@@ -56,7 +57,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="findOrder"  resultType="OrderAll">
 		SELECT * FROM torder  o
 		where gartenId=#{gartenId} 
-		and #{startTime} &lt; unix_timestamp(orderTime)
+		and #{startTime}-1 &lt; unix_timestamp(orderTime)
 		and unix_timestamp(orderTime) &lt; #{endTime}+86400
 		and o.isValid=0
 	</select>
@@ -83,17 +84,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		select * from garten_lesson l 
 		left join garten_class gc on gc.classId=l.classId
 		where 
-		l.isValid=0 and gc.isValid=0
+		l.isValid=0 
 		and #{time} =UNIX_TIMESTAMP(time) 
 		<if test=" classId!=null and classId!='' ">
 			and gc.classId=#{classId}
 		</if>
+		and l.gartenId=#{gartenId}
 		group by lessonId
 		ORDER BY startTime
 	</select>
 	
 
 	
+	<!--大改  -->
 	<select id="findParentInfoCharge"  resultType="ParentInfoCharge">
 		SELECT
 			p.babyId,
@@ -115,8 +118,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		FROM
 			baby_info b
 		JOIN parent_info p ON b.parentId = p.parentId
-		JOIN worker＿info w ON FIND_IN_SET(w.workerId, b.teacherId)
-		join  garten_class c on  c.classId=w.classId
+		join  garten_class c on c.classId=b.classId
 		WHERE
 		 b.parentId IS NOT NULL
 		<if test="	leadGrade!=null and leadGrade!=''" >
@@ -128,31 +130,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		and b.gartenId=#{gartenId}
 		AND b.isValid = 0
 		AND p.isValid = 0
-		AND w.isValid = 0
-		AND c.isValid = 0
-		GROUP BY
-			p.parentId
+		GROUP BY p.parentId desc
 	</select>
 	
 	
 	
-	<update id="updateDaban" >
+	
+	<!-- <update id="updateDaban" >
         update  baby_info b join worker＿info w on FIND_IN_SET(w.workerId, b.teacherId)
         join garten_class c on c.classId=w.classId
         set b.isvalid=1 ,w.classId=null
         where w.gartenId=#{gartenId} and c.leadGrade='大班'
-    </update>
+    </update> -->
     
     
     <update id="updateDakaTime" >
-        update  garten_info g 
-        set arriveStartTime=#{arriveStartTime},
-       arriveEndTime=#{arriveEndTime},
-       leaveStartTime=#{leaveStartTime},
-       leaveEndTime=#{leaveEndTime},
+        update  garten_attendance 
+        set time1=#{time1},
+       <if test=" time2!=null and time2!='' ">
+	       time2=#{time2},
+	       time3=#{time3},
+	       time4=#{time4},
+	       time5=#{time5},
+       </if>
+       time6=#{time6},
        teacherAttendanceFlag=#{teacherAttendanceFlag},
        studentAttendanceFlag=#{studentAttendanceFlag}
-        where g.gartenId=#{gartenId} and g.isvalid=0
+        where gartenId=#{gartenId}
     </update>
     
      <delete id="deletelesson" >
@@ -225,24 +229,24 @@ gartenId=1
 	</insert> -->
 	
 	
-	<!-- 8.19 -->
+	<!-- 8.19大改 -->
 	<select id="getBabyCardNoList" resultType="CardNoDetail">
 		select an.cardNo1,an.cardNo2,an.cardNo3,an.job,an.jobId,b.babyName name from
-		attendance_no an,worker＿info w,baby_info b
+		attendance_no an,baby_info b
 		where
 		an.isValid=0 
-		and w.isValid=0 and b.isValid=0
+		and b.isValid=0
 		and an.gartenId=#{gartenId}
 		and an.job='宝宝' and b.babyId=an.jobId
 		<if test=" classId!=null and classId!=''">
-			and w.classId=#{classId}
-			and FIND_IN_SET(w.workerId,b.teacherId)
+			and b.classId=#{classId}
 		</if>	
-		group by b.babyId	
+		group by b.babyId	desc
 	</select>
-	
+	<!--大改 -->
 	<select id="getTeacherCardNoList" resultType="CardNoDetail">
-		select an.cardNo1,an.cardNo2,an.cardNo3,an.job,an.jobId,w.workerName name from
+		select an.cardNo1,an.cardNo2,an.cardNo3,an.job,an.jobId,w.workerName name
+		from
 		attendance_no an,worker＿info w
 		where
 		an.isValid=0 and w.isValid=0
@@ -275,11 +279,10 @@ gartenId=1
 		update baby_info set
 		babyName=#{babyName},sex=#{sex},
 		birthday=FROM_UNIXTIME(#{birthday},  '%Y-%m-%d %H:%i:%s'),
-		teacherId=#{newTeacher},height=#{height},health=#{health},
+		classId=#{classId},height=#{height},health=#{health},
 		hobby=#{hobby},specialty=#{specialty},allergy=#{allergy},weight=#{weight}
 		where babyId=#{babyId}
 		and isValid=0
-		
 	</update>
 	<update id="updateParentMessage">
 		update parent_info set
@@ -292,16 +295,17 @@ gartenId=1
 		where gartenId=#{gartenId}
 		and isValid=0
 	</select>
+	<!-- 大改 -->
 	<select id="findBabyMessage"  resultType="BabyMessageAndParent">
 		SELECT * FROM 
 		baby_info  b 
 		left join  parent_info p on   FIND_IN_SET(b.babyId,p.babyId)
-		left join worker＿info w on FIND_IN_SET(w.workerId, b.teacherId)
-		left join  garten_class c on w.classId=c.classId
+		left join  garten_class c on b.classId=c.classId
 		left join  attendance_no n on n.jobId=b.babyId and n.job='宝宝'
-		left join  garten_info g on   g.gartenId =w.gartenId
-		where  (b.isValid=0 or b.isvalid is null) and (w.isvalid=0 or w.isvalid is null) and (c.isvalid=0 or c.isValid is null)
-		and (n.isvalid=0 or n.isvalid is null)and (g.isvalid=0 or g.isvalid is null)
+		left join  garten_info g on   g.gartenId =b.gartenId
+		where  (b.isValid=0 or b.isvalid is null) 
+		and (n.isvalid=0 or n.isvalid is null)
+		and (g.isvalid=0 or g.isvalid is null)
 		
 		<if test="	name!=null and name!=''" >
 				and b.babyName=#{name}
@@ -319,11 +323,11 @@ gartenId=1
 			<if test="	gartenId!=null and gartenId!=''" >
 				and g.gartenId=#{gartenId}
 			</if>
-			<if test="	leadGrade!=null and leadGrade!=''" >
-				and c.leadGrade=#{leadGrade}
+			<if test="	gradeId!=null and gradeId!=''" >
+				and c.gradeId=#{gradeId}
 			</if>
-			<if test="	leadClass!=null and leadClass!=''" >
-				and c.leadClass=#{leadClass}
+			<if test="	classId!=null and classId!=''" >
+				and c.classId=#{classId}
 			</if>
 			group by b.babyId
 			
@@ -404,7 +408,7 @@ gartenId=1
 			<if test=" jobCall!=null and jobCall!='' ">jobCall=#{jobCall},</if>
 			<if test=" permission!=null and permission!='' ">permission=#{permission},</if>
 			gartenId=#{gartenId},workerId=#{jobId},pwd=#{pwd},workerName=#{workerName},
-			phoneNumber=#{phoneNumber},job=#{job},registTime=now(),classId=#{classId}
+			phoneNumber=#{phoneNumber},job=#{job},registTime=now(),classId=#{classId},token=#{token}
 		</set>
 	</insert>
 	
@@ -431,7 +435,7 @@ gartenId=1
 			<if test=" weight!=null and weight!='' ">weight=#{weight},</if>
 			<if test=" sex!=null and sex!='' ">sex=#{sex},</if>
 			<if test=" cardId!=null and cardId!='' ">cardId=#{cardId},</if>
-			gartenId=#{gartenId},babyName=#{babyName},teacherId=#{teachers},parentRelation=#{identity},
+			gartenId=#{gartenId},babyName=#{babyName},classId=#{classId},parentRelation=#{identity},
 			babyId=#{babyId},registTime=now(),parentId=#{parentId}
 		</set>
 	</insert>
@@ -461,11 +465,6 @@ gartenId=1
 			monitorTime=#{newMonitorTime},attendanceTime=#{newAttendanceTime}
 		where
 		parentId=#{parentId} and isValid=0
-	</update>
-	<update id="updateBaByTeacher">
-		update baby_info  set teacherId=#{teachers}
-		where FIND_IN_SET((select workerId from worker＿info where classId=#{classId} limit 1), teacherId)
-		and isValid=0
 	</update>
 	<insert id="insertBabyCheck" parameterType="java.util.List">
 		insert into baby_check_log(gartenId,babyId,time)
@@ -503,7 +502,7 @@ gartenId=1
 		<if test=" job!=null and job!='' ">
 		and job=#{job}
 		</if>
-		and #{startTime} &lt; UNIX_TIMESTAMP(time)
+		and #{startTime}-1 &lt; UNIX_TIMESTAMP(time)
 		and #{endTime}+86400 &gt; UNIX_TIMESTAMP(time) and isValid=0 and type=0
 	</select>
 	<select id="findworkerById" resultType="WorkerInfo">
@@ -532,13 +531,11 @@ gartenId=1
 		isValid=1
 		where jobId=#{jobId}
 	</update>
+	<!--大改  -->
 	<select id="getBabyCountByClassId"	resultType="Integer">
-		select count(*) from baby_info b,`worker＿info` w
+		select count(*) from baby_info b
 		where b.isValid=0 
-		and FIND_IN_SET(w.workerId, b.teacherId)
-		and w.classId=#{classId}
-		GROUP BY w.workerId
-		LIMIT 1
+		and b.classId=#{classId}
 	</select>
 	<delete id="deleteRecipe">
 		delete  from garten_recipe WHERE recipeId=#{recipeId}
@@ -554,7 +551,7 @@ gartenId=1
 			 u.jobId = w.workerId
 		AND u.job = '老师'
 		AND w.gartenId = (select gartenId from worker＿info where token=#{token})
-		AND UNIX_TIMESTAMP(u.time) &gt;= #{startTime}
+		AND UNIX_TIMESTAMP(u.time) &gt;= #{startTime}-1
 		AND UNIX_TIMESTAMP(u.time) &lt;= #{endTime}+86400
 		AND u.isValid = 0 AND w.isValid = 0
 	</select>
@@ -567,7 +564,7 @@ gartenId=1
 		u.jobId=b.babyId
 		and u.job='宝宝'
 		and b.gartenId=#{gartenId}
-		AND UNIX_TIMESTAMP(u.time) &gt;= #{startTime}
+		AND UNIX_TIMESTAMP(u.time) &gt;= #{startTime}-1
 		AND UNIX_TIMESTAMP(u.time) &lt;= #{endTime}+86400
 		and u.isValid=0  and b.isValid=0
 	</select>
@@ -689,11 +686,11 @@ gartenId=1
 		SELECT * FROM message_log  m
 		where 
 		 m.isvalid=0
-		and unix_timestamp(m.registTime) > #{start}
+		and unix_timestamp(m.registTime) > #{start}-1
 		and #{end}+86400 > unix_timestamp(m.registTime)
 		<if test="	gartenId!=null and gartenId!='' " >
-				and m.gartenId=#{gartenId} 
-			</if>
+				and find_in_set(#{gartenId},m.gartenId) 
+		</if>
 	</select>
 	<select id="findVisitCount" resultType="VisitCount">
 		select  * from visit_count
@@ -703,10 +700,13 @@ gartenId=1
 	<select id="findTeacherPermisson" resultType="TPermission">
 		select * from t_permission
 	</select>
-	<select id="findWorkerApplyMessage" resultType="WorkerNameMessage">
+	<resultMap type="WorkerNameMessage" id="WorkerNameMessageMap">
+		<association property="gartenClass" column="classId" select="com.garten.dao.BigcontrolDao.findClassById"></association>
+	</resultMap>
+	<select id="findWorkerApplyMessage" resultMap="WorkerNameMessageMap">
 		select * from worker_message_log wm, worker＿info w
 		where wm.gartenId=#{gartenId} 
-		and unix_timestamp(wm.registTime) > #{startTime}
+		and unix_timestamp(wm.registTime) > #{startTime}-1
 		and #{endTime}+86400 > unix_timestamp(wm.registTime)
 		and wm.workerId=w.workerId
 		and wm.isValid=0 and w.isValid=0
@@ -718,7 +718,7 @@ gartenId=1
 		select * from garten_class gc ,worker＿info w
 		where gc.classId=w.classId
 		and w.workerId=#{workerId}
-		and w.isValid=0 and gc.isValid=0
+		and w.isValid=0 
 	</select>
 	<update id="updateTeacherMessageState">
 		update worker_message_log
@@ -731,18 +731,19 @@ gartenId=1
 		where parentId=#{parentId}
 	</update>
 	<insert id="addWorkerMessage">
-		insert into worker_message_log(title,info,registTime,workerId,gartenId)
-		values(#{title},#{info},now(),#{workerId},#{gartenId})
+		insert into worker_message_log(title,info,registTime,workerId,gartenId,classId)
+		values(#{title},#{info},now(),#{workerId},#{gartenId},#{classId})
 	</insert>
 
-	<update id="cancelApplyMessage">
-		update worker_message_log
-		set
-		isValid=1
+	<delete id="deleteApplyMessage">
+		delete from worker_message_log
 		where messageId=#{messageId}
-	</update>
+	</delete>
 
-	<select id="findApplyMessage" resultType="WorkerMessageLog">
+	<resultMap type="WorkerMessageLog" id="WorkerMessageLogMap">
+		<association property="gartenClass" column="classId" select="com.garten.dao.BigcontrolDao.findClassById"/>
+	</resultMap>							
+	<select id="findApplyMessage" resultMap="WorkerMessageLogMap">
 		select * from worker_message_log
 		where workerId=#{workerId}
 		and isValid=0
@@ -772,5 +773,181 @@ gartenId=1
 		FROM activity_log  l
 		left join baby_info b on l.babyId=b.babyId
 		where activityId = #{activityId}
+	</select>
+	<select id="WxpayyzOrder"  resultType="Order">
+		SELECT * FROM torder  o
+		where orderNumber=#{orderNumber}
+	</select>
+	<select id="findDakalog"  resultType="DakalogAll">
+		SELECT * from daka_log d 
+		where 
+		#{startTime}-1 &lt; unix_timestamp(attendanceTime)
+		and   unix_timestamp(attendanceTime) &lt; #{endTime}+86400
+		<if test="	gartenId!=null and gartenId!='' " >
+				and gartenId=#{gartenId} 
+		</if>
+		<if test="	babyName!=null and babyName!='' " >
+				and (select b.babyName  from baby_info b where b.babyId=d.dakaId)=#{babyName} 
+		</if>
+		<if test="	workerName!=null and workerName!='' " >
+				and (select w.workerName  from worker＿info w where w.workerId=d.dakaId)=#{workerName} 
+		</if>
+		limit #{pageNoStart},16
+	</select>
+	
+	<select id="findDakalogCount"  resultType="Integer">
+		SELECT count(1) from daka_log d 
+		where 
+		#{startTime}-1 &lt; unix_timestamp(attendanceTime)
+		and   unix_timestamp(attendanceTime) &lt; #{endTime}+86400
+		<if test="	gartenId!=null and gartenId!='' " >
+				and gartenId=#{gartenId} 
+		</if>
+		<if test="	babyName!=null and babyName!='' " >
+				and (select b.babyName  from baby_info b where b.babyId=d.dakaId)=#{babyName} 
+		</if>
+		<if test="	workerName!=null and workerName!='' " >
+				and (select w.workerName  from worker＿info w where w.workerId=d.dakaId)=#{workerName} 
+		</if>
+	</select>
+	<update id="updateCardGartenId">
+		update card 
+		set gartenId=#{gartenId}
+		where 
+		inCard=#{cardNo}
+	</update>
+	<!-- 大改 -->
+	<select id="findWorkerByClassId"  resultType="Integer">
+		SELECT count(1) from worker＿info w  
+		join garten_class c on FIND_IN_SET(c.classId, w.classId)
+		where c.classId=#{classId} and w.isvalid=0
+	</select>
+	<select id="findGartenClassByClassIdStr"  resultType="GartenClass">
+		SELECT * from garten_class  where FIND_IN_SET(classId, #{classId})
+	</select>
+	<select id="findGartenGrade"  resultType="GartenGrade">
+		SELECT * from garten_grade  where 1=1
+		<if test="	gartenId!=null and gartenId!='' " >
+				and gartenId=#{gartenId} 
+		</if>
+		<if test="	leadGrade!=null and leadGrade!='' " >
+				and leadGrade=#{leadGrade} 
+		</if>
+		<if test="	no!=null and no!='' " >
+				and no=#{no} 
+		</if>
+		and gradeId!=#{gradeId}
+		order by registTime desc
+	</select>
+	<select id="findGartenGradeByGradeId"  resultType="GartenGrade">
+		SELECT * from garten_grade  where gradeId=#{gradeId}
+	</select>
+	<!-- 大改 -->
+	<select id="findGartenGradeByGartenId"  resultType="GartenGrade">
+		SELECT * from garten_grade  where gartenId=#{gartenId} order by no asc
+	</select>
+	<!--大改  -->
+	<update id="graduation"  >
+		UPDATE garten_class
+		SET gradeId = (
+			SELECT g.gradeId FROM garten_grade g
+		WHERE
+		g. NO > ( SELECT a.no FROM
+					( SELECT	mg. NO FROM
+							garten_class mc
+						JOIN garten_grade mg ON mc.gradeId = mg.gradeId
+						WHERE mc.classId = #{classId}
+					) a
+		)
+			AND g.gartenId = #{gartenId}
+			ORDER BY g. NO LIMIT 1
+		),
+		leadGrade = ( SELECT g.leadGrade FROM garten_grade g
+			WHERE g. NO > ( SELECT 	a.no FROM
+							( SELECT	mg. NO  FROM
+									garten_class mc
+								JOIN garten_grade mg ON mc.gradeId = mg.gradeId
+								WHERE mc.classId = #{classId}
+							) a
+				)
+			AND g.gartenId = #{gartenId}
+			ORDER BY
+				g. NO
+			LIMIT 1
+		)
+		WHERE
+			classId = #{classId}
+			and leadGrade !='毕业'
+	</update>
+	<select id="findGartenClassByGartenId"  resultType="GartenClass">
+		SELECT * from garten_class  
+		where 
+		gartenId=#{gartenId} 
+		<if test=" gradeId!=null and gradeId!='' ">
+			and gradeId=#{gradeId}
+		</if>
+		order by registTime desc
+	</select>
+	<insert id="addGartenGrade" >
+		insert into garten_grade set
+		leadGrade=#{leadGrade},
+		gartenId=#{gartenId},
+		mark=#{mark},
+		no=#{no}
+	</insert>
+	
+	<delete id="deleteGartenGrade" >
+		delete from garten_grade where gradeId=#{gradeId}
+	</delete>
+	<select id="findGartenClass"  resultType="GartenClass">
+		SELECT * from garten_class  where 1=1
+		<if test="	gradeId!=null and gradeId!='' " >
+				and gradeId=#{gradeId} 
+		</if>
+		<if test="	leadClass!=null and leadClass!='' " >
+				and leadClass=#{leadClass} 
+		</if>
+		and classId!=#{classId}
+		order by registTime desc
+	</select>
+	<insert id="addGartenClass"  >
+		insert into garten_class  set
+		leadClass=#{leadClass},
+		leadGrade=#{leadGrade},
+		gartenId=#{gartenId},
+		mark=#{mark},
+		gradeId=#{gradeId}
+	</insert>
+	<select id="findBabyByClassId"  resultType="Integer">
+		SELECT count(1) from baby_info b  
+		join garten_class c on b.classId=c.classId
+		where c.classId=#{classId} and b.isvalid=0
+	</select>
+	<!--大改  -->
+	<delete id="deleteGartenClass"  >
+		delete from garten_class
+		where classId=#{classId}
+	</delete>
+	
+	<update id="updateGartenGrade"  >
+		update   garten_grade   
+		set leadGrade=#{leadGrade} ,mark=#{mark}
+		where gradeId=#{gradeId};
+		update   garten_class   
+		set leadGrade=#{leadGrade}
+		where gradeId=#{gradeId} and leadGrade!='毕业'
+	</update>
+	<update id="updateGartenClass"  >
+		update   garten_class   
+		set leadGrade=#{leadGrade} ,mark=#{mark},gradeId=#{gradeId},leadClass=#{leadClass}
+		where classId=#{classId}
+	</update>
+	<select id="findUnusualByUnusualId" resultType="Unusual">
+		select * from unusual
+		where unusualId=#{unusualId} and isValid=0
+	</select>
+	<select id="findGartenClassByClassId" resultType="GartenClass">
+		select * from garten_class
+		where classId=#{classId}
 	</select>
 </mapper> 

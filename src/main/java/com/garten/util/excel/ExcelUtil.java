@@ -29,6 +29,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.other.AttendanceNo;
 import com.garten.model.other.Card;
+import com.garten.vo.garent.GartenAndAgent;
 import com.garten.vo.smallcontrol.CardNoDetail;
 import com.garten.vo.smallcontrol.OrderAll;
 
@@ -155,7 +156,7 @@ public class ExcelUtil {
 	
 	
 	//导出幼儿园信息
-		public static  void exportGarten(List<GartenInfo> list ,ServletOutputStream outputStream){
+		public static  void exportGarten(List<GartenAndAgent> list ,ServletOutputStream outputStream){
 			try {
 				HSSFWorkbook workbook = new HSSFWorkbook();
 				CellRangeAddress cellRangeAddress = new CellRangeAddress(0, 0, 0, 15);

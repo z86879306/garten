@@ -135,24 +135,30 @@ public class WorkerController {
 	
 	
 	
+		/**
+		 * 大改
+		 * 1新增参数 classId
+		 */
+		@RequestMapping("classManage")
+		@ResponseBody
+		public Map<String, Object> classManage(String token,Integer pageNo,Integer classId){
+			Map<String,Object> result=workerService.classManage( token,pageNo,classId);
+			return result;
+		}
 	
 	
-	@RequestMapping("classManage")
-	@ResponseBody
-	public Map<String, Object> classManage(String token,Integer pageNo){
-		Map<String,Object> result=workerService.classManage( token,pageNo);
-		return result;
-	}
 	
-	
-	
-	//这个班级某天课程
-	@RequestMapping("lesson")
-	@ResponseBody
-	public Map<String, Object> lesson(String token,Long time) throws ParseException{
-		Map<String,Object> result=workerService.lesson( token,time);
-		return result;
-	}
+		/**
+		 * 这个班级某天课程
+		 * [大改
+		 * 新增classId]
+		 */
+		@RequestMapping("lesson")
+		@ResponseBody
+		public Map<String, Object> lesson(String token,Long time,Integer classId) throws ParseException{
+			Map<String,Object> result=workerService.lesson( token,time,classId);
+			return result;
+		}
 	/*token"babyName""allergy""birthday""height""hobby"
 	 * "specialty""leadClass""leadGrade""health""babyId"teacherId,weight,sex*/
 
@@ -165,11 +171,16 @@ public class WorkerController {
 				 , specialty , leadClass, leadGrade, health, babyId,weight,sex);
 		return result;
 	}
-	//本班级所有的学生表现信息
+	/**
+	 * 本班级所有的学生表现信息  type 0 未评价 1已评价
+	 * [大改
+	 *	新增classId]
+	 */
+	
 	@RequestMapping("performance")
 	@ResponseBody
-	public Map<String, Object> performance(String token,Integer type,Integer pageNo){
-		Map<String,Object> result=workerService.performance( token,type,pageNo);
+	public Map<String, Object> performance(String token,Integer type,Integer pageNo,Integer classId){
+		Map<String,Object> result=workerService.performance( token,type,pageNo,classId);
 		return result;
 	}
 	
@@ -187,10 +198,14 @@ public class WorkerController {
 		return result;
 	}
 	
+	/**
+	 * [大改
+	 * 新增 classId 部分type需要]
+	 */
 	@RequestMapping("circle")
 	@ResponseBody
-	public Map<String, Object> recipeCircle(String token,Integer type) throws ParseException, InterruptedException{
-		Map<String,Object> result=workerService.circle( token,type);
+	public Map<String, Object> recipeCircle(String token,Integer type,Integer classId) throws ParseException, InterruptedException{
+		Map<String,Object> result=workerService.circle( token,type,classId);
 		return result;
 	}
 	
@@ -232,8 +247,8 @@ public class WorkerController {
     
     	//本班级所有代接信息    type  0:申请中  1:已接
     @RequestMapping("daijie")
-   	public  @ResponseBody Map<String,Object> daijie(String token,Integer type,Long time) throws ParseException  {
-       	Map<String ,Object>  map=workerService.daijie( token,type,time );
+   	public  @ResponseBody Map<String,Object> daijie(String token,Integer type,Long time,Integer classId) throws ParseException  {
+       	Map<String ,Object>  map=workerService.daijie( token,type,time ,classId);
    		return map;
    	}
     
@@ -306,11 +321,14 @@ public class WorkerController {
     //--------------------------------------------------------------
     //考勤管理
     
-  //宝宝晨检 考勤共用这一个接口
+    /**
+     * 宝宝晨检 考勤共用这一个接口
+     * [大改 新增classId]
+     */
   	@RequestMapping("babyCheck")
   	@ResponseBody
-  	public Map<String, Object> babyCheck(String token,Long time) throws ParseException{
-  		Map<String,Object> result=workerService.babyCheck( token, time);
+  	public Map<String, Object> babyCheck(String token,Long time,Integer classId) throws ParseException{
+  		Map<String,Object> result=workerService.babyCheck( token, time,classId);
   		return result;
   	}
   	
@@ -367,23 +385,30 @@ public class WorkerController {
     //--------------------------------------------------------------
     
   	 
-    @RequestMapping("yichang")
-   	public  @ResponseBody Map<String,Object> yichang(String token,Long time) throws ParseException  {
-       	Map<String ,Object>  map=workerService.yichang( token,time );
-   		return map;
-   	}
+    /**
+ 	  * 获取异常信息
+ 	  * [大改 新增classId]
+ 	  */
+   @RequestMapping("yichang")
+  	public  @ResponseBody Map<String,Object> yichang(String token,Long time,Integer classId) throws ParseException  {
+      	Map<String ,Object>  map=workerService.yichang( token,time,classId );
+  		return map;
+  	}
+   
     
    
     
-  	@RequestMapping(value="yichangAgree")
-   	public  @ResponseBody Map<String,Object> yichangAgree(Integer unusualId) throws ParseException  {
-       	Map<String ,Object>  map=workerService.yichangAgree( unusualId );
+  	@RequestMapping(value="yichangResolve")
+   	public  @ResponseBody Map<String,Object> yichangResolve(Integer unusualId,Integer state) throws ParseException  {
+       	Map<String ,Object>  map=workerService.yichangResolve( unusualId ,state);
    		return map;
    	}
-  	//宝宝某天的请假
+  	/**宝宝某天的请假
+  	 * [大改 新增classId]
+  	 */
   	@RequestMapping("leaveLog")
-   	public  @ResponseBody Map<String,Object> leaveLog(String token,Long time) throws ParseException  {
-       	Map<String ,Object>  map=workerService.leaveLog( token,time );
+   	public  @ResponseBody Map<String,Object> leaveLog(String token,Long time,Integer classId) throws ParseException  {
+       	Map<String ,Object>  map=workerService.leaveLog( token,time,classId );
    		return map;
    	}
   	//同意 或不同意孩子请假   type 0:同意 1：不同意

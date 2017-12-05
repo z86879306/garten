@@ -8,7 +8,7 @@ public class BabyAttendanceInfo {
 	private Double examValue;
 	private String cardNo;
 	private String fileId;
-	private String macId;
+	private Integer mode;
 	public Integer getBabyId() {
 		return babyId;
 	}
@@ -45,14 +45,17 @@ public class BabyAttendanceInfo {
 	public void setFileId(String fileId) {
 		this.fileId = fileId;
 	}
-	public String getMacId() {
-		return macId;
+	public Integer getMode() {
+		return mode;
 	}
-	public void setMacId(String macId) {
-		this.macId = macId;
+	public void setMode(Integer mode) {
+		this.mode = mode;
+	}
+	public BabyAttendanceInfo() {
+		super();
 	}
 	public BabyAttendanceInfo(Integer babyId, Long attendanceDate, Long examDate, Double examValue, String cardNo,
-			String fileId, String macId) {
+			String fileId, Integer mode) {
 		super();
 		this.babyId = babyId;
 		this.attendanceDate = attendanceDate;
@@ -60,10 +63,7 @@ public class BabyAttendanceInfo {
 		this.examValue = examValue;
 		this.cardNo = cardNo;
 		this.fileId = fileId;
-		this.macId = macId;
-	}
-	public BabyAttendanceInfo() {
-		super();
+		this.mode = mode;
 	}
 	
 	

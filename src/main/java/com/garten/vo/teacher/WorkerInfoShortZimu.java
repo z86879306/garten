@@ -1,6 +1,9 @@
 package com.garten.vo.teacher;
 
 import java.sql.Timestamp;
+import java.util.List;
+
+import com.garten.model.gartenClass.GartenClass;
 
 public class WorkerInfoShortZimu {
 	//去除密码
@@ -10,7 +13,7 @@ public class WorkerInfoShortZimu {
 	private String phoneNumber;
 	private Integer sex;
 	private Integer age;
-	private Integer classId;
+	private List<GartenClass> gartenClasses;
 	private String education;
 	private String certificate;
 	private String chinese;
@@ -20,49 +23,21 @@ public class WorkerInfoShortZimu {
 	private Long tokenTime;
 	private String headImg;
 	private String zimu;
-
-	public String getZimu() {
-		return zimu;
-	}
-	public void setZimu(String zimu) {
-		this.zimu = zimu;
-	}
-	public WorkerInfoShortZimu(Integer gartenId, Integer workerId, String workerName, String phoneNumber, Integer sex,
-			Integer age, Integer classId, String education, String certificate, String chinese, String job,
-			Integer flowers, String token, Long tokenTime, String headImg, String zimu) {
-		super();
-		this.gartenId = gartenId;
-		this.workerId = workerId;
-		this.workerName = workerName;
-		this.phoneNumber = phoneNumber;
-		this.sex = sex;
-		this.age = age;
-		this.classId = classId;
-		this.education = education;
-		this.certificate = certificate;
-		this.chinese = chinese;
-		this.job = job;
-		this.flowers = flowers;
-		this.token = token;
-		this.tokenTime = tokenTime;
-		this.headImg = headImg;
-		this.zimu = zimu;
-	}
 	@Override
 	public String toString() {
-		return "WorkerInfoShort [gartenId=" + gartenId + ", workerId=" + workerId + ", workerName=" + workerName
-				+ ", phoneNumber=" + phoneNumber + ", sex=" + sex + ", age=" + age + ", classId=" + classId
+		return "WorkerInfoShortZimu [gartenId=" + gartenId + ", workerId=" + workerId + ", workerName=" + workerName
+				+ ", phoneNumber=" + phoneNumber + ", sex=" + sex + ", age=" + age + ", gartenClasses=" + gartenClasses
 				+ ", education=" + education + ", certificate=" + certificate + ", chinese=" + chinese + ", job=" + job
 				+ ", flowers=" + flowers + ", token=" + token + ", tokenTime=" + tokenTime + ", headImg=" + headImg
-				+ "]";
+				+ ", zimu=" + zimu + "]";
 	}
 	public WorkerInfoShortZimu() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 	public WorkerInfoShortZimu(Integer gartenId, Integer workerId, String workerName, String phoneNumber, Integer sex,
-			Integer age, Integer classId, String education, String certificate, String chinese, String job,
-			Integer flowers, String token, Long tokenTime, String headImg) {
+			Integer age, List<GartenClass> gartenClasses, String education, String certificate, String chinese,
+			String job, Integer flowers, String token, Long tokenTime, String headImg, String zimu) {
 		super();
 		this.gartenId = gartenId;
 		this.workerId = workerId;
@@ -70,7 +45,7 @@ public class WorkerInfoShortZimu {
 		this.phoneNumber = phoneNumber;
 		this.sex = sex;
 		this.age = age;
-		this.classId = classId;
+		this.gartenClasses = gartenClasses;
 		this.education = education;
 		this.certificate = certificate;
 		this.chinese = chinese;
@@ -79,6 +54,7 @@ public class WorkerInfoShortZimu {
 		this.token = token;
 		this.tokenTime = tokenTime;
 		this.headImg = headImg;
+		this.zimu = zimu;
 	}
 	public Integer getGartenId() {
 		return gartenId;
@@ -116,11 +92,11 @@ public class WorkerInfoShortZimu {
 	public void setAge(Integer age) {
 		this.age = age;
 	}
-	public Integer getClassId() {
-		return classId;
+	public List<GartenClass> getGartenClasses() {
+		return gartenClasses;
 	}
-	public void setClassId(Integer classId) {
-		this.classId = classId;
+	public void setGartenClasses(List<GartenClass> gartenClasses) {
+		this.gartenClasses = gartenClasses;
 	}
 	public String getEducation() {
 		return education;
@@ -170,5 +146,13 @@ public class WorkerInfoShortZimu {
 	public void setHeadImg(String headImg) {
 		this.headImg = headImg;
 	}
+	public String getZimu() {
+		return zimu;
+	}
+	public void setZimu(String zimu) {
+		this.zimu = zimu;
+	}
+	
+	
 	
 }

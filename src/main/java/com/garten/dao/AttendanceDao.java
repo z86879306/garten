@@ -6,9 +6,14 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 
 import com.garten.model.baby.BabyCheckLog;
+import com.garten.model.baby.BabyInfo;
+import com.garten.model.daka.Dakalog;
+import com.garten.model.garten.GartenAttendance;
 import com.garten.model.garten.GartenInfo;
+import com.garten.model.other.AttendanceNo;
 import com.garten.model.other.PartnerInfo;
 import com.garten.model.worker.WorkerCheckLog;
+import com.garten.model.worker.WorkerInfo;
 import com.garten.vo.attendance.BabySimpleInfo;
 import com.garten.vo.attendance.EquipmentShort;
 import com.garten.vo.attendance.AttGartenClass;
@@ -113,4 +118,20 @@ public interface AttendanceDao {
 	public Integer findAttendanceUseful(String schoolToken);
 
 	public void addCheckImg(@Param("imgPath")String imgPath, @Param("fileId")String fileId);
+
+	public Dakalog findDakaLogIsRepeat(@Param("babyId")Integer babyId, @Param("attendanceTime")Long attendanceTime);
+
+	public GartenAttendance findGartenAttendanceByGartenId(Integer gartenId);
+
+	public void updateBabyCheckLog(Map<String, Object> params);
+
+	public void insertUnusual(Map<String, Object> params);
+
+	public AttendanceNo findAttendanceByJobId(Integer jobId);
+
+	public BabyInfo findBabyById(Integer babyId);
+
+	public void updateWorkerCheckLog(Map<String, Object> params);
+
+	public List<WorkerInfo> findWorkerByClassId(Integer classId);
 }

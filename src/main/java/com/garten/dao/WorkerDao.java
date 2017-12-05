@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.garten.model.activity.ActivityLog;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
@@ -46,16 +48,16 @@ public interface WorkerDao {
 	public Integer findInfoCount(String token);
 	public List<InfoLog> findNotifiedByToken(Map<String, Object> map);
 	public Integer findImportantCountByToken(String token);
-	public List<BabyCheckLogAll> findBabyCheckByToken(Map<String, Object> param);
-	public Set<Long> findYichangLongByToken(String token);
-	public List<ClassManage> findBabysByToken(String token);
-	public  List<GartenLesson> findLessonByToken(Map<String, Object> param);
+	public List<BabyCheckLogAll> findBabyCheckByClassId(Map<String, Object> param);
+	public Set<Long> findYichangLongByClassId(Integer classId);
+	public List<ClassManage> findBabysByClassId(Integer classId);
+	public  List<GartenLesson> findLessonByClassId(Map<String, Object> param);
 	public int findUpdateBabyByToken(Map<String, Object> param);
-	public List<BabyPerformanceLogAll> findPerformanceByToken(String token);
+	public List<BabyPerformanceLogAll> findPerformanceByClassId(Integer classId);
 	public WorkerCheckLog findWorkerCheckLogByToken(Map<String, Object> map);
 	public void inset(Map<String, Object> param);
 	public List<GartenRecipe> findRecipeByToken(Map<String, Object> putMapParams);
-	public List<BabyLeaveLogAll> findLeaveLogByToken(Map<String, Object> putMapParams);
+	public List<BabyLeaveLogAll> findLeaveLogByClassId(Map<String, Object> putMapParams);
 	public WorkerInfo findWorkerInfoByToken(String token);
 	public void createRecipeByToken(Map<String, Object> param);
 	public void createWorkerCheckLogByToken(Map<String, Object> param);
@@ -66,16 +68,16 @@ public interface WorkerDao {
 	public void insetBabyCheck(Map<String, Object> param);
 	public void insetWorkerCheck(Map<String, Object> param);
 	public void insetBabyPerformance(Map<String, Object> param);
-	public Set<Long> findLessonCircleByToken(String token);
+	public Set<Long> findLessonCircleByClassId(Integer classId);
 	public Set<Long> findRecipeCircleCircleByToken(String token);
-	public Set<Long> findDaijieCircleCircleByToken(String token);
+	public Set<Long> findDaijieCircleCircleByClassId(Integer classId);
 	public Set<Long> findAttendanceCircleByToken(String token);
-	public List<Daijie> findDaijieById(Map<String, Object> putMapParams);
+	public List<Daijie> findDaijieByClassId(Integer classId);
 	
 	public void updateAgreeLeaveByCheckId(Integer leaveId);
 	public void updateLate(Map<String, Object> putMapParams);
 	public void updatePerformance(Map<String, Object> putMapParams);
-	public List<BabyLeaveLog> findLeaveLongByToken(Map<String, Object> param);
+	public List<BabyLeaveLog> findLeaveLongByClassId(Integer classId);
 	public List<WorkerLeaveLog> findWLeaveLongByToken(Map<String, Object> param);
 	public GartenInfo findGartenInfoById(Integer gartenId);
 	public List<ParentInfoShort> findParentLinkMan(String token);
@@ -114,8 +116,8 @@ public interface WorkerDao {
 	public void updateCheckAgreeByCheckIdWorker(Map<String, Object> putMapParams);
 	public void updateLateWorker(Map<String, Object> putMapParams);
 	public ClassManage findBabyById(Integer babyId);
-	public List<UnusualAll> findUnusualAllByToken(Map<String, Object> param);
-	public void resolveUnusual(Integer unusualId);
+	public List<UnusualAll> findUnusualAllByClassId(Map<String, Object> param);
+	public void resolveUnusual(@Param("unusualId")Integer unusualId,@Param("state")Integer state);
 	public List<Video> findVideosByToken(String token);
 	public void readNotified(String infoId);
 	public void deleteComment(String commentId);

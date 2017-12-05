@@ -30,9 +30,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.aliyun.oss.OSSClient;
 import com.garten.Thread.XxxThread;
 import com.garten.controller.FreeMarkerTest;
+import com.garten.dao.AttendanceDao;
 import com.garten.dao.ParentDao;
 import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
+import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.garten.GartenLesson;
@@ -45,6 +47,7 @@ import com.garten.model.other.Comment;
 import com.garten.model.other.GartenMsg;
 import com.garten.model.other.HXLog;
 import com.garten.model.other.InfoLog;
+import com.garten.model.other.Unusual;
 import com.garten.model.other.Version;
 import com.garten.model.other.VisitCount;
 import com.garten.model.parent.ParentInfo;
@@ -71,6 +74,9 @@ import com.garten.vo.teacher.Shouye;
 import com.garten.vo.teacher.WorkerInfoShort;
 import com.garten.vo.teacher.WorkerLeaveLogPrin;
 
+import cn.jiguang.common.resp.APIConnectionException;
+import cn.jiguang.common.resp.APIRequestException;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -93,10 +99,12 @@ public class WorkerService{
 	private WorkerDao workerDao;
 	@Autowired
 	private SmallcontrolDao smallcontrolDao;
-
+	@Autowired
+	private AttendanceDao attendanceDao;
 	@Autowired
 	private ParentDao parentDao;
-
+	@Autowired
+	private BigcontrolService bigcontrolService;
 	public Map<String, Object> login(String phoneNumber, String pwd) {
 		Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
 		WorkerInfo worker=workerDao.findWorkerByPwd(param);
@@ -118,6 +126,9 @@ public class WorkerService{
 		return result;
 	}
 	
+	/**
+	 * 大改
+	 */
 	public Map<String, Object> shouye(String token) {
 		WorkerInfo workerInfo= workerDao.findWorkerInfoByToken(token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
@@ -126,7 +137,8 @@ public class WorkerService{
 			if(null!=shouye){//有用户则找到通知数并添加进model里返回对象
 				shouye.setCount(workerDao.findInfoCount(token));//设置通知数
 				WorkerCheckLog workerCheckLog=workerDao.findWorkerCheckLogOne(token);//查找并设置今天是否已签到
-				shouye.setSign(null==workerCheckLog||null==workerCheckLog.getArriveTime()?0:1);//为null或签到时间没有都是没有签到(基本不为空,基本记录事先已经建好)
+				shouye.setSign(null==workerCheckLog||null==workerCheckLog.getAmArriveTime()?0:1);//为null或签到时间没有都是没有签到(基本不为空,基本记录事先已经建好)
+				MyUtil.setShouyeClass(shouye);
 			}
 			MyUtil.putMapParams(result,"state", 1,"info",shouye);//改变返回的数据
 		}
@@ -190,16 +202,30 @@ public class WorkerService{
 	
 	
 
-	public Map<String, Object> babyCheck(String token,Long time) throws ParseException {
-		time=MyUtil.getYMDLong(time);
-		WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
-		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
-		if(null!=workerInfo){//验证用户
-			List<BabyCheckLogAll> babyCheckLogs= workerDao.findBabyCheckByToken(MyUtil.putMapParams("token", token,"time",time));//获取所有宝宝的晨检 考勤信息
-			MyUtil.putMapParams(result, "state",1,"info",/*0==babyCheckLogs.size()?babyCheckLogs:*/ MyUtil.paixuBabyCheckLog(babyCheckLogs));//排序 体温0的在前面 总的按id排序
+	/**
+	 * 大改
+	 */
+		public Map<String, Object> babyCheck(String token,Long time,Integer classId) throws ParseException {
+			time=MyUtil.getYMDLong(time);
+			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
+			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
+			if(null!=workerInfo){//验证用户
+				List<BabyCheckLogAll> babyCheckLogs= workerDao.findBabyCheckByClassId(MyUtil.putMapParams("time",time,"classId",classId));//获取所有宝宝的晨检 考勤信息
+				MyUtil.putMapParams(result, "state",1,"info",/*0==babyCheckLogs.size()?babyCheckLogs:*/ MyUtil.paixuBabyCheckLog(babyCheckLogs));//排序 体温0的在前面 总的按id排序
+				
+				//请求一次接口 访问次数加一
+				long current = System.currentTimeMillis();
+	            long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
+				Map<String, Object> params = MyUtil.putMapParams("gartenId",babyCheckLogs.get(0).getGartenId(),"type",1,"time",zero/1000);
+	            VisitCount visitCount = parentDao.findVisitCount(params);
+				if(null==visitCount){
+					parentDao.addVisitCount(params);
+				}else{
+					parentDao.updateVisitCount(params);
+				}
+			}
+			return result;
 		}
-		return result;
-	}
 	//如果是私有的相册 则判断是不是自己 不是自己就不给看
 	public Map<String, Object> photo(String token,Integer pageNo) {
 		WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
@@ -224,23 +250,28 @@ public class WorkerService{
 	}
 	
 
-	public Map<String, Object> classManage(String token,Integer pageNo) {
+	/**
+	 * 大改
+	 */
+	public Map<String, Object> classManage(String token,Integer pageNo,Integer classId) {
 		WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
 		if(null!=workerInfo){//验证用户
-			List<ClassManage> babyInfos= workerDao.findBabysByToken(token);
+			List<ClassManage> babyInfos= workerDao.findBabysByClassId(classId);
 			MyUtil.putMapParams(result, "state", 1, "info",MyPage.listPage(babyInfos, pageNo));
 		}
 		return result;
 	}
 	
 	
-	
 
 
 	
 	
-	public Map<String, Object> circle(String token,Integer type) throws ParseException {
+	/**
+	 * 大改
+	 */
+	public Map<String, Object> circle(String token,Integer type,Integer classId) throws ParseException {
 		WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
 		Set<Long> time=null;
@@ -248,17 +279,17 @@ public class WorkerService{
 			if(0==type){//食谱红圈    这些天起码有一顿餐记录
 				time= workerDao.findRecipeCircleCircleByToken(token);
 			}else if(1==type){//代接红圈    这些天起码有一条代接记录
-				time= workerDao.findDaijieCircleCircleByToken(token);
+				time= workerDao.findDaijieCircleCircleByClassId(classId);
 				time=MyUtil.getYMDLongs(time);
 			}else if(2==type){//课程红圈   这些天起码有一节课记录
-				 time= workerDao.findLessonCircleByToken(token);
+				 time= workerDao.findLessonCircleByClassId(classId);
 			}else if(3==type){//考勤,晨检红圈  这些天[没有]考勤,晨检
 				 time= workerDao.findAttendanceCircleByToken(token);
-				 time=MyUtil.reverse(time);//反转
+				 time=MyUtil.reverse(time);//反转sss
 			}else if(4==type){//宝宝异常红圈  这些天至少一个异常
-				time= workerDao.findYichangLongByToken( token );
+				time= workerDao.findYichangLongByClassId( classId );
 			}else if(5==type){//宝宝请假红圈  
-				 List<BabyLeaveLog> babyLeave= workerDao.findLeaveLongByToken(MyUtil.putMapParams("token", token ));
+				 List<BabyLeaveLog> babyLeave= workerDao.findLeaveLongByClassId(classId);
 				 Set<Long> leave=MyUtil.findBTimeLongByStartEnd(babyLeave)	;
 				 time=MyUtil.getYMDLongs(leave);
 			}else if(6==type){//老师请假红圈
@@ -274,12 +305,15 @@ public class WorkerService{
 		return result;
 	}
 	
-	public Map<String, Object> lesson(String token,Long time) throws ParseException {
+	/**
+	 * 大改
+	 */
+	public Map<String, Object> lesson(String token,Long time,Integer classId) throws ParseException {
 		time=MyUtil.getYMDLong(time);
 		WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
 		if(null!=workerInfo){//验证用户
-			List<GartenLesson> lesson= workerDao.findLessonByToken(MyUtil.putMapParams("token",token,"time",time));
+			List<GartenLesson> lesson= workerDao.findLessonByClassId(MyUtil.putMapParams("classId",classId,"time",time));
 			//得到早上  下午的课程
 			MyUtil.putMapParams(result,"state", 1,"info",MyUtil.lessonClassify(lesson));
 		}
@@ -313,15 +347,18 @@ public class WorkerService{
 		return result;
 	}
 
-	public Map<String, Object> performance(String token,Integer type,Integer pageNo) {
-		WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
-		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
-		if(null!=workerInfo){//验证用户
-			List<BabyPerformanceLogAll> performance= workerDao.findPerformanceByToken(token);//获取当日已评价 未评价的表现信息
-			MyUtil.putMapParams(result,"state",1,"info",MyPage.listPage((List<?>) MyUtil.paixuBabyPerformanceLog(performance,type).get("info"), pageNo));
+	/**
+	 * 大改
+	 */
+		public Map<String, Object> performance(String token,Integer type,Integer pageNo,Integer classId) {
+			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
+			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
+			if(null!=workerInfo){//验证用户
+				List<BabyPerformanceLogAll> performance= workerDao.findPerformanceByClassId(classId);//获取当日已评价 未评价的表现信息
+				MyUtil.putMapParams(result,"state",1,"info",MyPage.listPage((List<?>) MyUtil.paixuBabyPerformanceLog(performance,type).get("info"), pageNo));
+			}
+			return result;
 		}
-		return result;
-	}
 	
 	public Map<String, Object> toPerformance(Integer performanceId,Float learn,Float play,Float eat,Float sleep,String remark) {
 		remark= null==remark?"":remark;
@@ -354,12 +391,15 @@ public class WorkerService{
 		return result;
 	}
 	
-	public Map<String, Object> leaveLog(String token, Long time) throws ParseException {
+	/**
+	 * 大改
+	 */
+	public Map<String, Object> leaveLog(String token, Long time,Integer classId) throws ParseException {
 		time=MyUtil.getYMDLong(time);
 		WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
 		if(null!=workerInfo){//验证用户
-			MyUtil.putMapParams(result, "state", 1,"info",MyUtil.paixuBabyLeaveLog(workerDao.findLeaveLogByToken(MyUtil.putMapParams("token", token, "time", time))));
+			MyUtil.putMapParams(result, "state", 1,"info",MyUtil.paixuBabyLeaveLog(workerDao.findLeaveLogByClassId(MyUtil.putMapParams("classId", classId, "time", time))));
 		}
 		return result;
 	}
@@ -451,12 +491,12 @@ public class WorkerService{
 			
 		}
 
-		public Map<String, Object> daijie(String token,Integer type,Long time) throws ParseException {
+		public Map<String, Object> daijie(String token,Integer type,Long time,Integer classId) throws ParseException {
 			time=MyUtil.getYMDLong(time);
 			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
 			if(null!=workerInfo){//验证用户
-				List<Daijie> daijieInfo=workerDao.findDaijieById(MyUtil.putMapParams("token", token));
+				List<Daijie> daijieInfo=workerDao.findDaijieByClassId(classId);
 				MyUtil.putMapParams(result, "state",1, "info", MyUtil.paixuDaijieLog(daijieInfo,type,time).get("info"));
 			}
 			return result;
@@ -473,13 +513,16 @@ public class WorkerService{
 		}
 		
 		
-		public Map<String, Object> yichang(String token,Long time) throws ParseException {
+		/**
+		 * 大改
+		 */
+		public Map<String, Object> yichang(String token,Long time,Integer classId) throws ParseException {
 			time=MyUtil.getYMDLong(time);
 			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0);
 			if(null!=workerInfo){//验证用户
-				Map<String,Object> param=MyUtil.putMapParams("token", token, "time", time);
-				List<UnusualAll> yichangs= workerDao.findUnusualAllByToken(param);
+				Map<String,Object> param=MyUtil.putMapParams("time", time,"classId",classId);
+				List<UnusualAll> yichangs= workerDao.findUnusualAllByClassId(param);
 				MyUtil.putMapParams(result, "state",1, "info", yichangs);
 			}
 			return result;
@@ -488,8 +531,26 @@ public class WorkerService{
 		
 		
 		//同意异常
-		public Map<String, Object> yichangAgree(Integer unusualId) {
-			workerDao.resolveUnusual( unusualId);
+		/*
+		 * state 1是宝宝异常  给主监护人 发送推送
+		 */
+		public Map<String, Object> yichangResolve(Integer unusualId,Integer state) {
+			workerDao.resolveUnusual( unusualId,state);
+			if(1==state){
+				Unusual unusual = smallcontrolDao.findUnusualByUnusualId(unusualId);
+				BabyInfo babyInfo = attendanceDao.findBabyById(unusual.getJobId());
+				ParentInfo parentInfo = parentDao.findParentById(babyInfo.getParentId());
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				String content = "您的孩子"+babyInfo.getBabyName()+"于"+sdf.format(unusual.getUnusualTime());
+				Integer mode = unusual.getUnusualType();
+				String type = mode==5?"上午迟到":(mode==6?"上午早退":(mode==7?"下午迟到":(mode==8?"下午早退":(mode==9?"下午提前入园":"下午推迟离园"))));
+				String message = content +type;
+				try {
+					bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP, MyParamAll.JIGUANG_PARENT_MASTER, message, parentInfo.getPhoneNumber());
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			Map<String,Object> result=MyUtil.putMapParams("state", 1);
 			return result;
 		}
@@ -725,6 +786,18 @@ public class WorkerService{
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		if(null!=workerInfo){//验证用户
 			List<Video> videos=workerDao.findVideosByToken(token);
+			
+			//请求一次接口 访问次数加一
+			long current = System.currentTimeMillis();
+            long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
+			Map<String, Object> params = MyUtil.putMapParams("gartenId",workerInfo.getGartenId(),"type",2,"time",zero/1000);
+            VisitCount visitCount = parentDao.findVisitCount(params);
+			if(null==visitCount){
+				parentDao.addVisitCount(params);
+			}else{
+				parentDao.updateVisitCount(params);
+			}
+			
 			MyUtil.putMapParams(result,"state",1,"info",videos);
 		}
 		return result;

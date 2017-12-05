@@ -61,12 +61,13 @@ import com.garten.model.agent.WithdrawAll;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
 import com.garten.model.company.Employee;
+import com.garten.model.daka.DakalogAll;
 import com.garten.model.garten.GartenCharge;
-import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.garten.GartenLesson;
 import com.garten.model.garten.GartenPhotos;
 import com.garten.model.garten.PhotoDianZan;
+import com.garten.model.gartenClass.GartenClass;
 import com.garten.model.other.Comment;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerCheckLog;
@@ -76,6 +77,7 @@ import com.garten.service.AgentService;
 import com.garten.service.BigcontrolService;
 import com.garten.service.ParentService;
 import com.garten.service.PrincipalService;
+import com.garten.service.SmallcontrolService;
 import com.garten.service.WorkerService;
 import com.garten.util.AA;
 import com.garten.util.duanxin.CCPRestSDK;
@@ -96,6 +98,7 @@ import com.garten.vo.teacher.ClassManage;
 import com.garten.vo.teacher.Daijie;
 import com.garten.vo.teacher.GartenStartEnd;
 import com.garten.vo.teacher.PhotoAll;
+import com.garten.vo.teacher.Shouye;
 import com.garten.vo.teacher.WorkerCheckLogAll;
 import com.garten.vo.teacher.WorkerInfoShort;
 import com.garten.vo.teacher.WorkerInfoShortZimu;
@@ -272,7 +275,7 @@ public  class MyUtil implements ApplicationContextAware{
 					str=index.getWorkerName();
 					key=String.valueOf((char)('A'+AA.cn2py(str)-97));
 					realWorker=new WorkerInfoShortZimu( index.getGartenId(), index.getWorkerId(), index.getWorkerName(), index.getPhoneNumber(), index.getSex(),
-							 index.getAge(), index.getClassId(),  index.getEducation(),  index.getCertificate(),  index.getChinese(), index.getJob() ,
+							 index.getAge(), index.getGartenClasses(),  index.getEducation(),  index.getCertificate(),  index.getChinese(), index.getJob() ,
 							index.getFlowers() , index.getToken() , index.getTokenTime() , index.getHeadImg() ,  key);
 					result.get(key).add(realWorker);
 					all.add(realWorker);
@@ -1150,10 +1153,10 @@ public  class MyUtil implements ApplicationContextAware{
 				for(BabyCheckLogAll b:babyCheckLogs){
 					shouldCountAm++;
 					shouldCountPm++;
-					if(null!=b.getArriveTime()&&!"".equals(b.getArriveTime())){
+					if(null!=b.getAmArriveTime()&&!"".equals(b.getAmArriveTime())){
 						realCountAm++;
 					}
-					if(null!=b.getLeaveTime()&&!"".equals(b.getLeaveTime())){
+					if(null!=b.getPmLeaveTime()&&!"".equals(b.getPmLeaveTime())){
 						realCountPm++;
 					}
 				}
@@ -1293,7 +1296,7 @@ public  class MyUtil implements ApplicationContextAware{
 			Integer state, Integer pageNo) {
 		//过滤符合是否处理状态的
 		if(null!=state){
-			if(0==state||1==state){
+			if(0==state||1==state||2==state){
 				  Iterator<UnusualAll> iterator = workerYichang.iterator();
 			        while(iterator.hasNext()){
 			        	UnusualAll u = iterator.next();
@@ -1567,5 +1570,29 @@ public  class MyUtil implements ApplicationContextAware{
 			}
 			return am;
 		}
+		public static List<DakalogAll> setFindDakalog(List<DakalogAll> d) {
+			ParentService parentService = (ParentService) MyUtil.getBean("parentService");
+			WorkerService workerService = (WorkerService) MyUtil.getBean("workerService");
+			for(DakalogAll da:d){
+				if("宝宝".equals(da.getJob())){
+					ClassManage c=parentService.findBaby(da.getJobId());
+					da.setName(c.getBabyName());
+					da.setHead(c.getBabyHead());
+				}
+				
+				if("老师".equals(da.getJob())){
+					WorkerInfo c=workerService.findWorker(da.getJobId());
+					da.setName(c.getWorkerName());
+					da.setHead(c.getHeadImg());
+				}
+			}
+			return d;
+		}
+		public static Shouye setShouyeClass(Shouye shouye) {
+			SmallcontrolService smallcontrolService = (SmallcontrolService) MyUtil.getBean("smallcontrolService");
 
+			List<GartenClass> gc= smallcontrolService.findGartenClassByClassIdStr(shouye.getClassId());
+			shouye.setGartenClasses(gc);
+			return shouye;
+		}
 }

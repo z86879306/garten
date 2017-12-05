@@ -225,9 +225,9 @@ public class PrincipalController {
     	}
   	 
   	//处理老师考勤异常
-  	@RequestMapping(value="yichangAgree")
-   	public synchronized  @ResponseBody Map<String,Object> yichangAgree(Integer unusualId ) throws ParseException  {
-       	Map<String ,Object>  map=principalService.yichangAgree( unusualId );
+  	@RequestMapping(value="yichangResolve")
+   	public synchronized  @ResponseBody Map<String,Object> yichangResolve(Integer unusualId ,Integer state) throws ParseException  {
+       	Map<String ,Object>  map=principalService.yichangResolve( unusualId ,state);
    		return map;
    	}
   	 

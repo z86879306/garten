@@ -4,58 +4,35 @@ package com.garten.dao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.ibatis.annotations.Param;
 
-import com.garten.model.activity.ActivityDetail;
-import com.garten.model.activity.ActivityLog;
 import com.garten.model.activity.ActivityLogAll;
 import com.garten.model.baby.BabyInfo;
-import com.garten.model.baby.BabyLeaveLog;
-import com.garten.model.baby.BabyPerformanceLog;
-import com.garten.model.garten.GartenClass;
-import com.garten.model.garten.GartenInfo;
-import com.garten.model.garten.GartenLesson;
-import com.garten.model.garten.GartenPhotos;
+import com.garten.model.daka.DakalogAll;
 import com.garten.model.garten.GartenRecipe;
 import com.garten.model.garten.IgnoreTime;
-import com.garten.model.garten.PhotoDianZan;
+import com.garten.model.gartenClass.GartenClass;
+import com.garten.model.gartenClass.GartenGrade;
 import com.garten.model.other.AttendanceNo;
-import com.garten.model.other.CheckNumber;
-import com.garten.model.other.Comment;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.MessageLog;
+import com.garten.model.other.Order;
 import com.garten.model.other.TPermission;
-import com.garten.model.other.Version;
+import com.garten.model.other.Unusual;
 import com.garten.model.other.VisitCount;
 import com.garten.model.parent.ParentInfo;
-import com.garten.model.worker.WorkerCheckLog;
 import com.garten.model.worker.WorkerInfo;
-import com.garten.model.worker.WorkerLeaveLog;
 import com.garten.model.worker.WorkerMessageLog;
 import com.garten.vo.baby.BabyLeaveLogAll;
 import com.garten.vo.baby.BabyMessageAndParent;
 import com.garten.vo.baby.UnusualAll;
-import com.garten.vo.bigcontrol.BabyMessage;
 import com.garten.vo.garent.GartenAndAgent;
 import com.garten.vo.parent.ParentInfoCharge;
-import com.garten.vo.parent.ParentInfoShort;
 import com.garten.vo.smallcontrol.BabyCheckSimple;
 import com.garten.vo.smallcontrol.CardNoDetail;
-import com.garten.vo.smallcontrol.GartenClassName;
 import com.garten.vo.smallcontrol.GartenLessonDetail;
-import com.garten.vo.smallcontrol.MachineDetail;
 import com.garten.vo.smallcontrol.OrderAll;
-import com.garten.vo.teacher.ActivityDetailAll;
-import com.garten.vo.teacher.BabyCheckLogAll;
-import com.garten.vo.teacher.BabyInfoShort;
-import com.garten.vo.teacher.BabyPerformanceLogAll;
-import com.garten.vo.teacher.ClassManage;
-import com.garten.vo.teacher.Daijie;
-import com.garten.vo.teacher.GartenStartEnd;
-import com.garten.vo.teacher.Shouye;
-import com.garten.vo.teacher.WorkerInfoShort;
 import com.garten.vo.teacher.WorkerLeaveLogPrin;
 import com.garten.vo.teacher.WorkerNameMessage;
 
@@ -110,12 +87,12 @@ public interface SmallcontrolDao {
 	/*
 	 * 8.19 交接
 	 */
-	void updateTeacher(@Param("sex")Integer sex, @Param("age")Integer age,@Param("education") String education, @Param("certificate")String certificate,@Param("chinese") String chinese,@Param("classId") Integer classId,
+	void updateTeacher(@Param("sex")Integer sex, @Param("age")Integer age,@Param("education") String education, @Param("certificate")String certificate,@Param("chinese") String chinese,@Param("classId") String classId,
 			@Param("phoneNumber")String phoneNumber, @Param("workerName")String workerName,@Param("workerId") Integer workerId,@Param("jobcall")String jobcall,@Param("permission")String permission);
 
 	void updateRebootFlag(Integer gartenId);
 
-	void updateBaby(@Param("babyId")Integer babyId,@Param("babyName") String babyName,@Param("sex") Integer sex,@Param("birthday") Long birthday, @Param("newTeacher")String newTeacher,@Param("height") Double height, @Param("health")String health, @Param("hobby")String hobby, @Param("specialty")String specialty, @Param("allergy")String allergy, @Param("weight")Double weight);
+	void updateBaby(@Param("babyId")Integer babyId,@Param("babyName") String babyName,@Param("sex") Integer sex,@Param("birthday") Long birthday, @Param("classId")Integer classId,@Param("height") Double height, @Param("health")String health, @Param("hobby")String hobby, @Param("specialty")String specialty, @Param("allergy")String allergy, @Param("weight")Double weight);
 
 	String getGartenNameById(Integer gartenId);
 
@@ -141,11 +118,11 @@ public interface SmallcontrolDao {
 
 	void addWorkerTeacher(@Param("gartenId")Integer gartenId,@Param("jobId") Integer jobId,@Param("pwd") String pwd, @Param("workerName")String workerName,@Param("phoneNumber") String phoneNumber,
 			@Param("sex")Integer sex, @Param("age")Integer age, @Param("education")String education, @Param("certificate")String certificate, @Param("chinese")String chinese,@Param("job") String job,
-			@Param("jobCall")String jobCall, @Param("classId")Integer classId,@Param("permission")String permission);
+			@Param("jobCall")String jobCall, @Param("classId")String classId,@Param("permission")String permission, @Param("token")String token);
 
 	Integer[] getTeacherByClassId(Integer classId);
 
-	void addBaby(@Param("gartenId")Integer gartenId,@Param("babyName") String babyName,@Param("birthday") Long birthday,@Param("height") Double height,@Param("health") String health,@Param("hobby") String hobby,@Param("specialty")String specialty,@Param("teachers") String teachers,@Param("allergy") String allergy,
+	void addBaby(@Param("gartenId")Integer gartenId,@Param("babyName") String babyName,@Param("birthday") Long birthday,@Param("height") Double height,@Param("health") String health,@Param("hobby") String hobby,@Param("specialty")String specialty,@Param("classId") Integer classId,@Param("allergy") String allergy,
 			@Param("identity") String identity, @Param("weight")Double weight, @Param("sex")Integer sex,@Param("babyId") Integer babyId, @Param("parentId")Integer parentId,@Param("cardId")String cardId);
 
 	ParentInfo findParentByPhone(String phoneNumber);
@@ -154,8 +131,6 @@ public interface SmallcontrolDao {
 
 	void addParent(@Param("babyId")String babyId, @Param("identity")String identity,@Param("parentName") String parentName, @Param("phoneNumber")String phoneNumber, @Param("address")String address,
 			@Param("gartenId")String gartenId, @Param("pwd")String pwd, @Param("monitorTime")String monitorTime,@Param("attendanceTime") String attendanceTime);
-
-	void updateBaByTeacher(@Param("teachers")String teachers,@Param("classId") Integer classId);
 
 	void insertBabyCheck(ArrayList<BabyCheckSimple> list);
 
@@ -254,7 +229,7 @@ public interface SmallcontrolDao {
 
 	void addWorkerMessage(Map<String, Object> params);
 
-	void cancelApplyMessage(Integer messageId);
+	void deleteApplyMessage(Integer messageId);
 
 	List<WorkerMessageLog> findApplyMessage(Integer workerId);
 
@@ -267,5 +242,47 @@ public interface SmallcontrolDao {
 	WorkerInfo findUnknownInfoByToken(String token);
 	
 	List<ActivityLogAll> ActivityLogAllByactivityId(Integer activityId);
+
+	Order WxpayyzOrder(Long orderNumber);
+
+	List<DakalogAll> findDakalog(Map<String, Object> param);
+
+	Integer findDakalogCount(Map<String, Object> param);
+
+	void updateCardGartenId(@Param("cardNo")String cardNo, @Param("gartenId")Integer gartenId);
+
+	Integer findWorkerByClassId(Integer classId);
+
+	List<GartenClass> findGartenClassByClassIdStr(String classId);
+
+	void graduation(GartenClass g);
+
+	List<GartenClass> findGartenClassByGartenId(@Param("gartenId")Integer gartenId,@Param("gradeId")Integer gradeId);
+
+	List<GartenGrade> findGartenGrade(Map<String, Object> param);
+
+	void addGartenGrade(Map<String, Object> param);
+
+	void deleteGartenGrade(Integer gradeId);
+
+	List<GartenClass> findGartenClass(Map<String, Object> param);
+
+	void addGartenClass(Map<String, Object> param);
+
+	GartenGrade findGartenGradeByGradeId(Integer gradeId);
+
+	List<GartenGrade> findGartenGradeByGartenId(Integer gartenId);
+
+	Integer findBabyByClassId(Integer classId);
+
+	void deleteGartenClass(Integer classId);
+
+	void updateGartenGrade(Map<String, Object> param);
+
+	void updateGartenClass(Map<String, Object> param);
+
+	Unusual findUnusualByUnusualId(Integer unusualId);
+
+	GartenClass findGartenClassByClassId(Integer classId);
 
 }

@@ -142,31 +142,31 @@ c.leaveTime,c.time,c.checkId, c.amFileId, c.pmFileId, c.amMacId,c.pmMacId, c.arr
 
 	
 	
+	<!--大改  -->
 	<select id="findBabyCheckByClass"  resultType="BabyCheckLogAll">
 		SELECT * FROM baby_info b
 		LEFT JOIN baby_check_log c ON b.babyId = c.babyId
-		LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
-		WHERE w.classId = #{classId}
+		WHERE b.classId = #{classId}
 		AND UNIX_TIMESTAMP(c.time) = #{time}
-		AND b.isValid = 0 AND c.isValid = 0 AND w.isValid = 0
-		GROUP BY b.babyId
+		AND b.isValid = 0 AND
+		GROUP BY b.babyId desc
 	</select>
 	
+	<!-- 大改 -->
 	<select id="findBabyCheckByClassSmall"  resultType="BabyCheckLogAll">
 		SELECT * FROM baby_info b
 		LEFT JOIN baby_check_log c ON b.babyId = c.babyId
-		LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
-		left join garten_class gc on w.classId=gc.classId
+		left join garten_class gc on b.classId=gc.classId
 		WHERE  UNIX_TIMESTAMP(c.time) = #{time}
 		
 		<if test="	classId==null or  classId=='' " >
-				and w.classId in (select classId from garten_class where gartenId=#{gartenId})
+				and b.classId in (select classId from garten_class where gartenId=#{gartenId})
 			</if>
 			
 			<if test=" classId!=null and classId!='' " >
-				and w.classId = #{classId}
+				and b.classId = #{classId}
 			</if>
-		AND b.isValid = 0 AND c.isValid = 0 AND w.isValid = 0
+		AND b.isValid = 0 
 		GROUP BY b.babyId
 	</select>
 	
@@ -250,15 +250,14 @@ c.leaveTime,c.time,c.checkId, c.amFileId, c.pmFileId, c.amMacId,c.pmMacId, c.arr
 	</select>
 	
 	
+	<!-- 大改 -->
 	<select id="findParentLinkMan"  resultType="ParentInfoShort">
 		select * from parent_info p ,
-		worker＿info w,
 		baby_info b 
 		where 
-		 w.classId=#{classId}
-		and FIND_IN_SET(w.workerId,b.teacherId)
+		 b.classId=#{classId}
 		and FIND_IN_SET(b.babyId,p.babyId)
-		and w.isValid=0 and p.isValid=0 and b.isValid=0 
+		and p.isValid=0 and b.isValid=0 
 		group by p.parentId
 	</select>
 	

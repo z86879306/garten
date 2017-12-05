@@ -74,7 +74,7 @@ public class AttendanceController {
 	}
 	
 	//宝宝考勤数据上传
-	@RequestMapping(value="/sendAttendanceData",method=RequestMethod.POST)
+/*	@RequestMapping(value="/sendAttendanceData",method=RequestMethod.POST)
 	@ResponseBody
 	public synchronized Map<String,Object> sendAttendanceData(@RequestBody JSONObject info){
 //		JSONObject jsonObject = JSONObject.parseObject(info);
@@ -87,7 +87,24 @@ public class AttendanceController {
 		Map<String, Object> result = attendanceService.
 				sendAttendanceData(list, schoolToken, partnerToken, partnerId);
 		return result;
-	}
+	}*/
+	
+	//宝宝考勤数据上传{ 新  （4个时间）}
+		@RequestMapping(value="/sendAttendanceDataNew",method=RequestMethod.POST)
+		@ResponseBody
+		public synchronized Map<String,Object> sendAttendanceDataNew(@RequestBody JSONObject info){
+//			JSONObject jsonObject = JSONObject.parseObject(info);
+			JSONArray array = info.getJSONArray("attendanceInfoList");
+			String js = JSONObject.toJSONString(array);
+			List<BabyAttendanceInfo> list = JSONObject.parseArray(js, BabyAttendanceInfo.class);
+			String schoolToken=info.getString("schoolToken");
+			String partnerToken=info.getString("partnerToken");
+			String partnerId=info.getString("partnerId");
+			String macId=info.getString("macId");
+			Map<String, Object> result = attendanceService.
+					sendAttendanceDataNew(list, schoolToken, partnerToken, partnerId,macId);
+			return result;
+		}
 	
 	//根据幼儿园下发老师和宝宝信息
 	@RequestMapping(value="/getTeacherAndStudentList",method=RequestMethod.POST)

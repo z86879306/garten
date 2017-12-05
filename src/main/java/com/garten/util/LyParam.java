@@ -38,6 +38,6 @@ public class LyParam {
 	public static final String YINGSHIYUN_GET = "https://open.ys7.com/api/lapp/live/address/get";
 
 	//园长权限
-	public static final String PRINCIPAL_QX = "{\"pushInfo\":true,\"infoHistory\":true,\"applyPushInfo\":false,\"infoCheck\":true,\"kindergartenManage\":true,\"teacherManage\":true,\"babyManage\":true,\"patriarchManage\":true,\"gradeAndClassManage\":true,\"upGradeManage\":true,\"attendanceTimeManage\":true,\"attendanceCardManage\":true,\"attendanceAnomalyManage\":true,\"leaveManage\":true,\"morningCheckLook\":true,\"curriculumManage\":true,\"cookbookSet\":true,\"cookbookList\":true,\"payQuery\":true,\"payFees\":true,\"schoolIntroduction\":true,\"schoolActivity\":true}";
+	public static final String PRINCIPAL_QX = "{\"kindergartenManage\":true,\"teacherManage\":true,\"babyManage\":true,\"patriarchManage\":true,\"pushInfo\":true,\"infoHistory\":true,\"applyPushInfo\":false,\"infoCheck\":true,\"gradeManage\":true,\"classManage\":true,\"upGradeManage\":true,\"attendanceTimeManage\":true,\"attendanceCardManage\":true,\"attendanceHistory\":true,\"attendanceAnomalyManage\":true,\"leaveManage\":true,\"morningCheckLook\":true,\"curriculumManage\":true,\"cookbookSet\":true,\"cookbookList\":true,\"payQuery\":true,\"payFees\":true,\"schoolIntroduction\":true,\"schoolActivity\":true,\"ideaFeedback\":true}";
 }
 

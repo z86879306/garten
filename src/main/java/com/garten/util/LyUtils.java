@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -213,18 +214,23 @@ public class LyUtils {
 	//int数组转为string
 	public static String intChangeToStr(Integer[] inte){
 		String sb="" ;
-		for(int i=0;i<inte.length;i++)
-		{
-		if(i<inte.length-1)
-		{
-		sb+=(inte[i].toString()+",");
+		if(inte.length!=0){
+			for(int i=0;i<inte.length;i++)
+			{
+			if(i<inte.length-1)
+			{
+			sb+=(inte[i].toString()+",");
+			}
+			else if(i==inte.length-1)
+			{
+			sb+=(inte[i].toString());
+			}   
+			}
+			System.out.println(sb);
+		}else{
+			return null;
 		}
-		else if(i==inte.length-1)
-		{
-		sb+=(inte[i].toString());
-		}   
-		}
-		System.out.println(sb);
+			
 		return sb;
 	}
 	//字符串数组生成字符串
@@ -314,25 +320,33 @@ public class LyUtils {
 		        //String fileName = "/Petssions/record/testFile.amr";
 		        FileOutputStream out = null;
 		        try {
-		        	
 		            // 解码，然后将字节转换为文件
-		            file = new File("D:/", fileName);
+		            file = new File("C:/excel", fileName);
 		            if (!file.exists())
 		                file.createNewFile();
-		            //BASE64Decoder decoder = new BASE64Decoder();  
-		           // byte[] bytes = Base64.decode(base64, Base64.DEFAULT);// 将字符串转换为byte数组 
-		            //byte[] b = decoder.decodeBuffer(base64);
-		            Decoder decoder2 = Base64.getDecoder();
-		            byte[] decode = decoder2.decode(base64);
-		            ByteArrayInputStream in = new ByteArrayInputStream(decode);
-		            byte[] buffer = new byte[1024];
+		            BASE64Decoder decoder = new BASE64Decoder();  
+		            byte[] b = decoder.decodeBuffer(base64);
+		            for(int i=0;i<b.length;++i)  
+		            {  
+		                if(b[i]<0)  
+		                {//调整异常数据  
+		                    b[i]+=256;  
+		                }  
+		            }  
+//		            Decoder decoder2 = Base64.getDecoder();
+//		            byte[] decode = decoder2.decode(base64);
+//		            ByteArrayInputStream in = new ByteArrayInputStream(decode);
+//		            byte[] buffer = new byte[1024];
 		            out = new FileOutputStream(file);
-		            int bytesum = 0;
-		            int byteread = 0;
-		            while ((byteread = in.read(buffer)) != -1) {
-		                bytesum += byteread;
-		                out.write(buffer, 0, byteread); // 文件写操作
-		            }
+//		            int bytesum = 0;
+//		            int byteread = 0;
+//		            while ((byteread = in.read(buffer)) != -1) {
+//		                bytesum += byteread;
+//		                out.write(buffer, 0, byteread); // 文件写操作
+//		            }
+		            out.write(b);  
+		            out.flush();  
+		            out.close();  
 		        } catch (IOException ioe) {
 		            ioe.printStackTrace();
 		        } finally {

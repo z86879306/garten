@@ -25,10 +25,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	
+	<!--大改 这个班级所有老师的名字  -->
 	<select id="findClassName"  resultType="String">
 		SELECT workerName  FROM worker＿info  w
 		where 
-		w.classId=#{classId}
+		find_in_set(#{classId},w.classId)
 		and w.job='老师'
 		and w.isValid=0
 	</select>
@@ -63,7 +64,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="	leadGrade!=null and leadGrade!=''" >
 				and c.leadGrade=#{leadGrade}
 			</if>
-		AND w.isValid = 0 AND c.isValid = 0
+		AND w.isValid = 0 
 	</select>
 	
 	
@@ -88,10 +89,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 				SELECT * FROM
 			parent_info p,  baby_info b
 		WHERE
-			b.teacherId=(select teacherId from baby_info where babyId=#{babyId} )
+			b.classId=#{classId}
 		AND FIND_IN_SET(b.babyId, p.babyId)
 		AND p.parentId not in (#{parentId})
-		GROUP BY p.parentId
+		GROUP BY p.parentId desc
 	</select>
 	
 	<select id="findPhotoByParentId"  resultType="GartenPhotos">
@@ -105,11 +106,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	<select id="findTeacherLinkMan"  resultType="WorkerInfoShort">
-		select * from worker＿info wi where
-		FIND_IN_SET(wi.workerId,(
-		SELECT b.teacherId FROM baby_info b
-		WHERE b.babyId = #{babyId} and b.isValid=0 ))
-		and wi.isValid=0
+		select * from worker＿info w where
+		w.gartenId=#{gartenId}
+		and w.isValid=0
+		and (FIND_IN_SET(#{classId},w.classId) or w.job='园长')
+		
 	</select>
 
 	
@@ -121,13 +122,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	
-	<select id="findLessonCircleByToken"  resultType="Long">
+	<select id="findLessonCircleByBabyId"  resultType="Long">
 		SELECT UNIX_TIMESTAMP(l.time) FROM
-		garten_lesson l , baby_info b, worker＿info w
+		garten_lesson l 
+		join  baby_info b on l.classId=b.classId
 		WHERE b.babyId=#{babyId}
-		and l.classId=w.classId
-		and FIND_IN_SET(w.workerId,b.teacherId)
-		and l.isValid=0 and b.isValid=0 and w.isValid=0
+		and l.isValid=0 and b.isValid=0 
 	</select>
 	
 	<update id="updateToken"  >
@@ -156,7 +156,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		AND b.babyId = #{babyId}
 		AND NOT EXISTS (
 			SELECT * FROM garten_video, worker＿info
-			WHERE v.type = 0 AND v.pointId NOT IN ( #{classId}))		
+WHERE v.type = 0 AND (v.pointId!=#{classId}  or #{classId} is null)	)	
 		AND v.type NOT IN (3)
 	</select>
 	
@@ -178,15 +178,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	<select id="findBabyById"  resultType="ClassManage">
-		SELECT  b.babyName,b.babyId,b.birthday, b.height,
-	 b.health,b.hobby,b.specialty,b.gartenId,b.teacherId, b.babyHead, b.allergy,
-	b.weight,b.sex,b.registTime, w.classId,c.leadClass,c.leadGrade 
-	FROM
-		baby_info b LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
-		left join garten_class c on  c.classId=w.classId 
+		SELECT  * FROM
+		baby_info b
+		left join garten_class c on  c.classId=b.classId 
 		WHERE
 		b.babyId = #{babyId}
-		and b.isValid=0 and w.isValid=0 and c.isValid=0
+		and b.isValid=0 
 		group by b.babyId
 	</select>
 	
@@ -194,17 +191,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 				SELECT concat(c.leadGrade, c.leadClass) classStr,
 			b.babyId,b.babyName,g.gartenName,b.babyHead
 		FROM
-			baby_info b,parent_info p,garten_info g,worker＿info w,garten_class c
+			baby_info b
+			join parent_info p on FIND_IN_SET(b.babyId, p.babyId)
+			join garten_info g on  g.gartenId = b.gartenId
+			join garten_class c on b.classId=c.classId
 		WHERE
 			p.token = #{token}
-		and w.classId=c.classId
-		AND FIND_IN_SET(w.workerId, b.teacherId)
-		AND g.gartenId = b.gartenId
-		AND FIND_IN_SET(b.babyId, p.babyId)
-		AND c.leadGrade IN ('大班', '中班', '小班')
-		AND b.isValid = 0 AND p.isValid = 0 AND w.isValid = 0 AND c.isValid = 0
-		GROUP BY
-			b.babyId
+		AND b.isValid = 0 AND p.isValid = 0 
+		GROUP BY b.babyId desc
 	</select>
 	
 	
@@ -261,26 +255,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<select id="findParentPhotoByToken"  resultType="GartenPhotos">
 		SELECT * FROM
-			garten_photos gp,baby_info b,parent_info p,worker＿info w
+			garten_photos gp
+			join parent_info p on gp.job = '家长' and gp.id=p.parentId
+			join baby_info b on  FIND_IN_SET(b.babyId, p.babyId)
 			WHERE
-			gp.job = '家长'
-			and b.babyId=#{babyId}
-			AND FIND_IN_SET(b.babyId, p.babyId)
-			AND FIND_IN_SET(w.workerId, b.teacherId)
-			and w.classId=#{classId}
+			 b.classId=#{classId}
 			and gp.gartenId=#{gartenId}
 			and gp.isValid=0 and  b.isValid=0 and p.isValid=0
 			group by gp.infoId 
 	</select>
 	
+	
 	<select id="findWorkerPhotoByToken"  resultType="GartenPhotos">
 	select * from garten_photos p
-		join worker＿info w on w.gartenId=p.gartenId join baby_info b on  FIND_IN_SET(w.workerId,b.teacherId)
-		where p.job in('老师','园长','职工') and b.babyId=#{babyId}
-		and w.classId=#{classId}
-		and p.isValid=0 and w.isValid=0 and w.gartenId=#{gartenId}
+		join worker＿info w on w.gartenId=p.gartenId 
+		join baby_info b on  FIND_IN_SET(b.classId,w.classId)
+		where p.job in('老师','园长','职工') 
+		and b.classId=#{classId}
+		and p.gartenId=#{gartenId}
+		and p.isValid=0 and w.isValid=0 
 		GROUP BY p.infoId 
 	</select>
+	
 	
 	
 	
@@ -294,14 +290,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<select id="findDaijieById"  resultType="Daijie">
 			SELECT *
-			FROM  daijie_info d  ,baby_info b,worker＿info w,garten_class c
+			FROM  daijie_info d  
+			join baby_info b on d.babyId=b.babyId
+			join garten_class c on c.classId=b.classId
 			WHERE
 			 b.babyId = #{babyId}
-    		and d.babyId=b.babyId
-    		and c.classId=w.classId
-    		and FIND_IN_SET(w.workerId, b.teacherId)
     		and d.isValid=0 	 and b.isValid=0
-    		group by d.daijieId
+    		group by d.daijieId desc
     		
 	</select>
 	
@@ -316,13 +311,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<select id="findLessonById"  resultType="GartenLesson">
 			SELECT *   FROM
-				baby_info b,garten_lesson l,	worker＿info w
+				baby_info b,garten_lesson l
 			WHERE b.babyId = #{babyId}
-			and w.classId=l.classId
-			AND FIND_IN_SET(w.workerId, b.teacherId)
+			and b.classId=l.classId
+			
 			AND #{time} &lt;= unix_timestamp(l.time)
 			AND unix_timestamp(l.time) &lt; #{time}+86400
-			AND l.isValid = 0 AND b.isValid = 0 AND w.isValid = 0
+			AND l.isValid = 0 AND b.isValid = 0 
 			group by l.lessonId
 	</select>
 	
@@ -349,12 +344,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<select id="findGartenInfoById"  resultType="GartenInfo">
 			SELECT *   FROM
-				baby_info b,worker＿info w,garten_info g
+				baby_info b
+				join garten_info g on  b.gartenId=g.gartenId
 			WHERE b.babyId = #{babyId}
-			and w.gartenId=g.gartenId
-			and FIND_IN_SET(w.workerId, b.teacherId)
-			AND w.isValid = 0 AND b.isValid = 0  and g.isValid=0
-			GROUP BY g.gartenId
+		    and b.isValid = 0  and g.isValid=0
 	</select>
 	
 	<select id="findActivityById"  resultType="ActivityDetail">
@@ -598,9 +591,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 <select id="getWorker"  resultType="WorkerInfo">
 		SELECT * FROM
-		worker＿info w WHERE  
-	  workerId in (#{teacherId}) and isvalid=0
+		worker＿info  WHERE  
+		FIND_IN_SET(#{classId},classId)
+		 and isvalid=0
 	</select>
+	
 	<update id="updateHonghua"  >
 	UPDATE parent_info p
 	set flower=1

@@ -7,46 +7,26 @@ public class BabyCheckLog {
 	
 	private Integer gartenId;
 	private Integer babyId;
-	private Long arriveTime;
-	private String arriveImg;
-	private Long leaveTime;
-	private String leaveImg;
 	private BigDecimal temperature;
 	private String remark;
 	private Long time;
 	private Integer checkId;
-	private String amFileId;
-	private String pmFileId;
-	private String macId;
-	@Override
-	public String toString() {
-		return "BabyCheckLog [gartenId=" + gartenId + ", babyId=" + babyId + ", arriveTime=" + arriveTime
-				+ ", arriveImg=" + arriveImg + ", leaveTime=" + leaveTime + ", leaveImg=" + leaveImg + ", temperature="
-				+ temperature + ", remark=" + remark + ", time=" + time + ", checkId=" + checkId + ", amFileId="
-				+ amFileId + ", pmFileId=" + pmFileId + ", macId=" + macId + "]";
-	}
-	public BabyCheckLog() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-	public BabyCheckLog(Integer gartenId, Integer babyId, Long arriveTime, String arriveImg, Long leaveTime,
-			String leaveImg, BigDecimal temperature, String remark, Long time, Integer checkId, String amFileId,
-			String pmFileId, String macId) {
-		super();
-		this.gartenId = gartenId;
-		this.babyId = babyId;
-		this.arriveTime = arriveTime;
-		this.arriveImg = arriveImg;
-		this.leaveTime = leaveTime;
-		this.leaveImg = leaveImg;
-		this.temperature = temperature;
-		this.remark = remark;
-		this.time = time;
-		this.checkId = checkId;
-		this.amFileId = amFileId;
-		this.pmFileId = pmFileId;
-		this.macId = macId;
-	}
+	private Long amArriveTime;
+	private String amArriveImg;
+	private String amArriveFileId;
+	private String amArriveMacId;
+	private Long amLeaveTime;
+	private String amLeaveImg;
+	private String amLeaveFileId;
+	private String amLeaveMacId;
+	private Long pmArriveTime;
+	private String pmArriveImg;
+	private String pmArriveFileId;
+	private String pmArriveMacId;
+	private Long pmLeaveTime;
+	private String pmLeaveImg;
+	private String pmLeaveFileId;
+	private String pmLeaveMacId;
 	public Integer getGartenId() {
 		return gartenId;
 	}
@@ -58,30 +38,6 @@ public class BabyCheckLog {
 	}
 	public void setBabyId(Integer babyId) {
 		this.babyId = babyId;
-	}
-	public Long getArriveTime() {
-		return arriveTime;
-	}
-	public void setArriveTime(Timestamp arriveTime) {
-		this.arriveTime = arriveTime.getTime()/1000;
-	}
-	public String getArriveImg() {
-		return arriveImg;
-	}
-	public void setArriveImg(String arriveImg) {
-		this.arriveImg = arriveImg;
-	}
-	public Long getLeaveTime() {
-		return leaveTime;
-	}
-	public void setLeaveTime(Timestamp leaveTime) {
-		this.leaveTime = leaveTime.getTime()/1000;
-	}
-	public String getLeaveImg() {
-		return leaveImg;
-	}
-	public void setLeaveImg(String leaveImg) {
-		this.leaveImg = leaveImg;
 	}
 	public BigDecimal getTemperature() {
 		return temperature;
@@ -107,24 +63,135 @@ public class BabyCheckLog {
 	public void setCheckId(Integer checkId) {
 		this.checkId = checkId;
 	}
-	public String getAmFileId() {
-		return amFileId;
+	public Long getAmArriveTime() {
+		return amArriveTime;
 	}
-	public void setAmFileId(String amFileId) {
-		this.amFileId = amFileId;
+	public void setAmArriveTime(Timestamp amArriveTime) {
+		this.amArriveTime = amArriveTime.getTime()/1000;
 	}
-	public String getPmFileId() {
-		return pmFileId;
+	public String getAmArriveImg() {
+		return amArriveImg;
 	}
-	public void setPmFileId(String pmFileId) {
-		this.pmFileId = pmFileId;
+	public void setAmArriveImg(String amArriveImg) {
+		this.amArriveImg = amArriveImg;
 	}
-	public String getMacId() {
-		return macId;
+	public String getAmArriveFileId() {
+		return amArriveFileId;
 	}
-	public void setMacId(String macId) {
-		this.macId = macId;
+	public void setAmArriveFileId(String amArriveFileId) {
+		this.amArriveFileId = amArriveFileId;
 	}
+	public String getAmArriveMacId() {
+		return amArriveMacId;
+	}
+	public void setAmArriveMacId(String amArriveMacId) {
+		this.amArriveMacId = amArriveMacId;
+	}
+	public Long getAmLeaveTime() {
+		return amLeaveTime;
+	}
+	public void setAmLeaveTime(Timestamp amLeaveTime) {
+		this.amLeaveTime = amLeaveTime.getTime()/1000;
+	}
+	public String getAmLeaveImg() {
+		return amLeaveImg;
+	}
+	public void setAmLeaveImg(String amLeaveImg) {
+		this.amLeaveImg = amLeaveImg;
+	}
+	public String getAmLeaveFileId() {
+		return amLeaveFileId;
+	}
+	public void setAmLeaveFileId(String amLeaveFileId) {
+		this.amLeaveFileId = amLeaveFileId;
+	}
+	public String getAmLeaveMacId() {
+		return amLeaveMacId;
+	}
+	public void setAmLeaveMacId(String amLeaveMacId) {
+		this.amLeaveMacId = amLeaveMacId;
+	}
+	public Long getPmArriveTime() {
+		return pmArriveTime;
+	}
+	public void setPmArriveTime(Timestamp pmArriveTime) {
+		this.pmArriveTime = pmArriveTime.getTime()/1000;
+	}
+	public String getPmArriveImg() {
+		return pmArriveImg;
+	}
+	public void setPmArriveImg(String pmArriveImg) {
+		this.pmArriveImg = pmArriveImg;
+	}
+	public String getPmArriveFileId() {
+		return pmArriveFileId;
+	}
+	public void setPmArriveFileId(String pmArriveFileId) {
+		this.pmArriveFileId = pmArriveFileId;
+	}
+	public String getPmArriveMacId() {
+		return pmArriveMacId;
+	}
+	public void setPmArriveMacId(String pmArriveMacId) {
+		this.pmArriveMacId = pmArriveMacId;
+	}
+	public Long getPmLeaveTime() {
+		return pmLeaveTime;
+	}
+	public void setPmLeaveTime(Timestamp pmLeaveTime) {
+		this.pmLeaveTime = pmLeaveTime.getTime()/1000;
+	}
+	public String getPmLeaveImg() {
+		return pmLeaveImg;
+	}
+	public void setPmLeaveImg(String pmLeaveImg) {
+		this.pmLeaveImg = pmLeaveImg;
+	}
+	public String getPmLeaveFileId() {
+		return pmLeaveFileId;
+	}
+	public void setPmLeaveFileId(String pmLeaveFileId) {
+		this.pmLeaveFileId = pmLeaveFileId;
+	}
+	public String getPmLeaveMacId() {
+		return pmLeaveMacId;
+	}
+	public void setPmLeaveMacId(String pmLeaveMacId) {
+		this.pmLeaveMacId = pmLeaveMacId;
+	}
+	public BabyCheckLog() {
+		super();
+	}
+	public BabyCheckLog(Integer gartenId, Integer babyId, BigDecimal temperature, String remark, Long time,
+			Integer checkId, Long amArriveTime, String amArriveImg, String amArriveFileId, String amArriveMacId,
+			Long amLeaveTime, String amLeaveImg, String amLeaveFileId, String amLeaveMacId, Long pmArriveTime,
+			String pmArriveImg, String pmArriveFileId, String pmArriveMacId, Long pmLeaveTime, String pmLeaveImg,
+			String pmLeaveFileId, String pmLeaveMacId) {
+		super();
+		this.gartenId = gartenId;
+		this.babyId = babyId;
+		this.temperature = temperature;
+		this.remark = remark;
+		this.time = time;
+		this.checkId = checkId;
+		this.amArriveTime = amArriveTime;
+		this.amArriveImg = amArriveImg;
+		this.amArriveFileId = amArriveFileId;
+		this.amArriveMacId = amArriveMacId;
+		this.amLeaveTime = amLeaveTime;
+		this.amLeaveImg = amLeaveImg;
+		this.amLeaveFileId = amLeaveFileId;
+		this.amLeaveMacId = amLeaveMacId;
+		this.pmArriveTime = pmArriveTime;
+		this.pmArriveImg = pmArriveImg;
+		this.pmArriveFileId = pmArriveFileId;
+		this.pmArriveMacId = pmArriveMacId;
+		this.pmLeaveTime = pmLeaveTime;
+		this.pmLeaveImg = pmLeaveImg;
+		this.pmLeaveFileId = pmLeaveFileId;
+		this.pmLeaveMacId = pmLeaveMacId;
+	}
+	
 	
 
 }

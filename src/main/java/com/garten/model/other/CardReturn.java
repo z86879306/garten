@@ -38,7 +38,7 @@ public class CardReturn {
 		return returnTime;
 	}
 	public void setReturnTime(Timestamp returnTime) {
-		this.returnTime = returnTime.getTime();
+		this.returnTime = returnTime.getTime()/1000;
 	}
 	public String getName() {
 		return name;

@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>成长记忆管理后台登录</title>
+    <link rel="stylesheet" href="bigcontrol/css/base.css">
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            position: relative;
+            padding: 0 30px;
+            background: url(bigcontrol/images/bg.jpg) no-repeat 0 0 /100%;
+        }
+        .inlineBlock {
+            display: inline-block;
+        }
+        #header {
+            position: absolute;
+            left: 0;
+            right: 0;
+            width: 700px;
+            margin: 4% auto 0;
+            text-align: center;
+            height: 90px;
+            line-height: 90px;
+            font-size: 48px;
+            color: white;
+            text-shadow: 0px 0px 10px #ececec, 0px 0px 20px #fff, 0px 0px 30px #afa8a8, 0px 0px 40px #a2de26, 0px 0px 70px #ab2e4b, 0px 0px 80px #63da23, 0px 0px 150px #00ff25;
+            letter-spacing: 60px;
+            text-indent: 60px;
+            color: rgb(46, 101, 14);
+            animation: shadow 3.5s linear forwards;
+        }
+
+        /***********************************动画开始*********************************/
+        @keyframes shadow {
+            0% {
+                left: -50%;
+                -moz-transform: rotate(-90deg);
+                -webkit-transform: rotate(-90deg);
+                -o-transform: rotate(-90deg);
+                transform: rotate(-90deg);
+                opacity: 0;
+            }
+            35% {
+                left: -32.5%;
+                -moz-transform: rotate(-180deg);
+                -webkit-transform: rotate(-180deg);
+                -o-transform: rotate(-180deg);
+                transform: rotate(-180deg);
+                opacity: .3;
+            }
+            65% {
+                left: -17.5%;
+                -moz-transform: rotate(-270deg);
+                -webkit-transform: rotate(-270deg);
+                -o-transform: rotate(-270deg);
+                transform: rotate(-270deg);
+                opacity: .6;
+            }
+            100% {
+                left: 0;
+                -moz-transform: rotate(-360deg);
+                -webkit-transform: rotate(-360deg);
+                -o-transform: rotate(-360deg);
+                transform: rotate(-360deg);
+                opacity: 1;
+            }
+        }
+
+        /***********************************动画结束*********************************/
+
+        #login {
+            position: absolute;
+            padding: 0 70px;
+            left: 0;
+            right: 0;
+            width: 500px;
+            height: 350px;
+            margin: 15% auto 0;
+            border-radius: 10px;
+            background-color: rgba(143, 169, 33, 0.3);
+            box-shadow: -10px 40px 115px rgba(4, 66, 12, 0.5) inset;
+        }
+
+        #login::before {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            right: 80px;
+            top: 92px;
+            background: url(bigcontrol/images/password.png) no-repeat 0 0/100%;
+        }
+
+        #login::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            right: 80px;
+            top: 154px;
+            background: url(bigcontrol/images/admin.png) no-repeat 0 0/100%;
+        }
+
+        #login h3 {
+            color: hsl(88, 68%, 68%);
+            font-size: 22px;
+            text-align: center;
+            padding: 30px 0 30px 0;
+            text-shadow: 2px 1px 2px #263122;
+        }
+
+        #login .admin,
+        #login .password {
+            width: 100%;
+            height: 40px;
+            color: #2c2c2c;
+            padding-left: 10px;
+            border-radius: 4px;
+        }
+
+        #login .password {
+            margin-top: 20px;
+        }
+        #login .other{
+            position: relative;
+            margin-top: 10px;
+        }
+        #login .identity {
+            width: 120px;
+            font-size: 16px;
+        }
+        #login .alterAndFindPwd {
+            position: absolute;
+            right:0;
+            font-family: 宋体;
+            width: 120px;
+            color: hsl(88, 90%, 60%);
+            text-shadow: 2px 1px 2px #263122;
+            font-size: 12px;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        #login .sel_identity {
+            position: absolute;
+            font-weight: 500;
+            width: 360px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 2;
+            color: #000;
+        }
+        #login .sel_identity li {
+            position: relative;
+            font-size: 16px;
+            height: 40px;
+            line-height: 40px;
+            padding: 0 10px;
+        }
+        #login .sel_identity li + li {
+            border-top: 1px solid #ccc;
+        }
+        #login .sel_identity li:hover {
+            background-color: #ccc;
+        }
+        #login .sel_identity li input{
+            position: absolute;
+            top:14px;
+            cursor: pointer;
+        }
+        #login .sel_identity li label{
+            display: block;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        #login .vcode {
+            margin-top: 40px;
+            vertical-align: bottom;
+            text-align: center;
+        }
+
+        #login .vcode .vcode-info {
+            display: inline-block;
+            height: 40px;
+            width: 100px;
+            background-color: #D2F8A2;
+            margin-right: 20px;
+        }
+
+        #login .vcode .vcode-input {
+            width: 80px;
+            height: 30px;
+            margin-top: -26px;
+            padding-left: 10px;
+        }
+
+        #login .btn {
+            color: hsl(88, 70%, 30%);
+            background-color: hsl(88, 70%, 60%);
+            box-shadow: 0 0.3em .3em rgba(255, 254, 255, 0.6) inset, 0 -0.1em .3em rgba(0, 0, 0, 0.15) inset, /* inner shadow */ 0 .1em 3px hsl(88, 70%, 40%), 0 .3em 1px hsl(88, 70%, 30%), /* color border */ 0 .5em 5px rgba(0, 0, 0, 0.2);
+            transition: background .2s ease-in-out;
+            text-decoration: none;
+            font-weight: bold;
+            text-shadow: rgba(255, 255, 255, .5) 0 1px 0;
+            user-select: none;
+            padding: .5em .6em .4em .6em;
+            border-radius: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background-image: -webkit-gradient(radial, 50% 0, 100, 50% 0, 0, from(rgba(255, 255, 255, 0)), to(rgba(255, 255, 255, 0.7)));
+            cursor: pointer;
+        }
+
+        #login .login {
+            display: block;
+            margin: 0 auto;
+            margin-top: 30px;
+            font: 24px/1em 'Droid Sans', sans-serif;
+            width: 200px;
+            font-weight: 700;
+        }
+
+        #login .btn:hover {
+            background-color: hsl(88, 75%, 75%);
+        }
+
+        #login .btn:active {
+            background-color: hsl(88, 50%, 50%);
+        }
+
+        #login .alterAndFindPwd_content {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: url(bigcontrol/images/bg.jpg) no-repeat;
+            background-size: cover;
+            z-index: 1;
+            padding: 35px;
+            border-radius: 10px;
+        }
+
+        #login .alterAndFindPwd_content .clear {
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+            line-height: 20px;
+            background-color: #739a9a;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 50%;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+
+        #login .alterAndFindPwd_content .clear:hover {
+            background-color: #e60000;
+        }
+
+        #login .alterAndFindPwd_content h3 {
+            padding: 0;
+        }
+
+        #login .alterAndFindPwd_content div {
+            margin-top: 5px;
+            line-height: 320%;
+            font-size: 16px;
+            border-radius: 10px;
+            color: #fff6d6;
+            font-weight: 700;
+        }
+
+        #login .alterAndFindPwd_content div:last-of-type {
+            margin-top: 20px;
+        }
+
+        #login .alterAndFindPwd_content div input {
+            border: 1px solid #639474;
+            line-height: 220%;
+            border-radius: 10px;
+            padding-left: 8px;
+
+        }
+
+        #login .alterAndFindPwd_content div:nth-of-type(-n + 3) input[type="text"] {
+            width: 368px;
+        }
+
+        #login .alterAndFindPwd_content div .number {
+            width: 100px;
+        }
+
+        #login .alterAndFindPwd_content div .btn {
+            padding: 0 10px;
+            height: 25px;
+            line-height: 25px;
+        }
+        #login .alterAndFindPwd_content div .btn2 {
+            width: 80px;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<header id="header">成长记忆</header>
+<section v-cloak id="login">
+    <h3>成长记忆管理后台</h3>
+    <input class="admin" type="text" v-model="phoneNumber" placeholder="请输入管理员账号">
+    <input class="password" type="password" v-model="password" placeholder="请输入管理员密码">
+    <div class="other">
+        <sel-identity @give-identity="getIdentity" class="inlineBlock"></sel-identity>
+        <!--<input type="button" class="identity btn" @click="show_identity=true" :value="identity">-->
+        <input type="button" class="alterAndFindPwd btn" @click="show_alterAndFindPwd=true" value="修改/找回密码">
+    </div>
+    <!--<ul class="sel_identity" @click="show_identity = false" v-if="show_identity">-->
+        <!--<li><input v-model="identity" type="radio" id="identity_1" name="identity" value="总控制端"><label for="identity_1">总控制端</label></li>-->
+        <!--<li><input v-model="identity" type="radio" id="identity_2" name="identity" value="幼儿园端"><label for="identity_2">幼儿园端</label></li>-->
+        <!--<li><input v-model="identity" type="radio" id="identity_3" name="identity" value="代理商端"><label for="identity_3">代理商端</label></li>-->
+        <!--<li><input v-model="identity" type="radio" id="identity_4" name="identity" value="老师端"><label for="identity_4">老师端</label></li>-->
+    <!--</ul>-->
+    <!--<div class="vcode">-->
+        <!--<div class="vcode-info"><canvas id="canvas"></canvas></div>-->
+        <!--<input type="text" v-model="code" class="vcode-input">-->
+    <!--</div>-->
+    <input @click="postData(login)" class="login btn" type="button" value="登 录">
+    <div class="alterAndFindPwd_content" v-if="show_alterAndFindPwd">
+        <div class="clear" @click="show_alterAndFindPwd=false">×</div>
+        <h3>修改、找回密码</h3>
+        <sel-identity  @give-identity="getIdentity"></sel-identity>
+        <div>手机号: <input v-model="phoneNumber" type="text"></div>
+        <div>新密码: <input v-model="newPassword" type="newPassword"></div>
+        <div>请输入验证码:
+            <input class="number" type="text" v-model="number">
+            <input class="btn" @click="postData(getSecurityCode)" class="btn" type="button" value="发送短信获取验证码">
+        </div>
+        <div><input class="btn btn2" @click="postData(updatePassword)" class="btn" type="button" value="提交"></div>
+    </div>
+</section>
+</body>
+<script src="bigcontrol/lib/jQuery/jquery-3.2.1.js"></script>
+<script src="bigcontrol/lib/vue/vue.js"></script>
+<script src="bigcontrol/lib/myjs/Vcode.js"></script>
+<script>
+    (function (window,document) {
+        if(!localStorage.bg_num){
+            localStorage.bg_num = 0;
+        }
+        var num = + localStorage.bg_num,
+            body = document.querySelector('body');
+        if(num % 2 == 0){
+            body.style.backgroundImage = 'url(bigcontrol/images/bg.jpg)';
+        }else {
+            body.style.backgroundImage = 'url(bigcontrol/images/bg_01.jpg)';
+        }
+        num += 1;
+        localStorage.bg_num = num;
+        
+        
+        
+        
+        var baseUrl = 'http://cms.ahczjy.cc';
+        var login = new Vue({
+            components: {
+                'sel-identity': {
+                    template:
+                        '<div>' +
+                            '<input type="button" class="identity btn" @click="show_identity=!show_identity" :value="identity">'+
+                            '<ul class="sel_identity" @click="show_identity = false" v-show="show_identity">'+
+                                '<li><input v-model="identity" type="radio" id="identity_1" name="identity" value="总控制端"><label for="identity_1">总控制端</label></li>'+
+                                '<li><input v-model="identity" type="radio" id="identity_2" name="identity" value="幼儿园端"><label for="identity_2">幼儿园端</label></li>'+
+                                '<li><input v-model="identity" type="radio" id="identity_3" name="identity" value="代理商端"><label for="identity_3">代理商端</label></li>'+
+                                '<li><input v-model="identity" type="radio" id="identity_4" name="identity" value="老师端"><label for="identity_4">老师端</label></li>'+
+                            '</ul>'+
+                        '</div>',
+                    data: function () {
+                        return {
+                            show_identity: false,
+                            identity: '请选择身份',
+                        }
+                    },
+                    watch: {
+                        identity: function () {
+                            this.$emit('give-identity',this.identity);
+                        }
+                    }
+                }
+            },
+            el: '#login',
+            data: {
+                show_alterAndFindPwd: false,
+                show_identity: false,
+                identity: '请选择身份',
+                phoneNumber: '',
+                password: '',
+                newPassword: '',
+                number: ''
+//                canvas: null,
+//                code: '',
+            },
+            computed:{
+                baseUrl: function () {
+                    switch(this.identity){
+                        case '总控制端':
+                            return baseUrl + '/bigcontrol';
+                            break;
+                        case '幼儿园端':
+                        case '老师端':
+                            return baseUrl + '/smallcontrol';
+                            break;
+                        case '代理商端':
+                            return baseUrl + '/agent';
+                            break;
+                    }
+                },
+                login:function () {
+                    var self = this;
+                    return {
+                        url: this.baseUrl+'/login.do',
+                        data: {
+                            phoneNumber: this.phoneNumber,
+                            pwd: this.password
+                        },
+                        type: 'post',
+                        success:function (data) {
+                            if(data.state){
+                                switch(self.identity){
+                                    case '总控制端':
+                                        sessionStorage.info = JSON.stringify(data.info);
+                                        window.location.href = self.baseUrl + '/manage.html';
+                                        break;
+                                    case '幼儿园端':
+                                    case '老师端':
+                                        sessionStorage.gartenToken = data.info.token;
+                                        sessionStorage.gartenName = data.gartenName;
+                                        sessionStorage.name = data.info.workerName;
+                                        sessionStorage.permission = data.info.permission;
+                                        window.location.href = self.baseUrl + '/manage.html';
+                                        break;
+                                    case '代理商端':
+                                        sessionStorage.agentToken = data.info;
+                                        sessionStorage.province = data.province;
+                                        sessionStorage.city = data.city;
+                                        sessionStorage.counties = data.countries;
+                                        sessionStorage.agentName = data.agentName;
+                                        sessionStorage.name = data.name;
+                                        sessionStorage.receiveType = data.receiveType; //提现方式 0支付宝 1银行卡
+                                        sessionStorage.card = data.card; //提现的银行卡或支付宝
+                                        sessionStorage.cardName = data.cardName; //户主名字
+                                        window.location.href = baseUrl + '/agentcontrol/manage.html';
+                                        break;
+                                }
+                            }else{
+                                alert('账号或密码错误');
+                            }
+                        }
+                    }
+                },
+                getSecurityCode:function () {
+                    var url = '';
+                    switch(this.identity){
+                        case '总控制端':
+                            url = baseUrl + '/worker/sendControl.do';
+                            break;
+                        case '幼儿园端':
+                            url = baseUrl + '/worker/sendControlSmall.do';
+                            break;
+                        case '代理商端':
+                            url = baseUrl + '/worker/sendControlAgent.do';
+                            break;
+                        case '老师端':
+                            url = baseUrl + '/worker/sendCheckWorker.do';
+                            break;
+
+                    }
+                    return {
+                        url: url,
+                        type: 'post',
+                        data: {
+                            phoneNumber: this.phoneNumber
+                        },
+                        success:function (data) {
+                            console.log(data);
+                            if(data.state){
+                                alert('验证码发送成功');
+                            }
+                        },
+                        error:function () {
+                            alert('验证码发送失败');
+                        }
+                    }
+                },
+                updatePassword:function () {
+                    var url = '';
+                    if(this.identity == '老师端'){
+                        url = baseUrl + '/worker/updateLogin.do';
+                    }else {
+                        url = this.baseUrl+'/updateLogin.do';
+                    }
+                    return {
+                        url: url,
+                        type: 'post',
+                        data: {
+                            phoneNumber: this.phoneNumber,
+                            number: this.number,
+                            pwd: this.newPassword
+                        },
+                        success: function (data) {
+                            console.log(data);
+                            switch(data.state){
+                                case 0:
+                                    alert('密码修改失败');
+                                    break;
+                                case 1:
+                                    alert('密码修改成功');
+                                    break;
+                                case 2:
+                                    alert('验证码错误');
+                                    break;
+                            }
+                        }
+                    }
+                }
+            },
+            watch: {
+                identity: function () {
+                    switch(this.identity){
+                        case '总控制端':
+                            this.baseUrl = baseUrl + '/bigcontrol';
+                            break;
+                        case '幼儿园端':
+                            this.baseUrl = baseUrl + '/smallcontrol';
+                            break;
+                        case '代理商端':
+                            this.baseUrl = baseUrl + '/agent';
+                            break;
+                        case '老师端':
+                            this.baseUrl = baseUrl + '/bigWorker';
+                            break;
+                    }
+                }
+            },
+            methods: {
+                getIdentity: function (identity) {
+                    console.log(1);
+                    this.identity = identity;
+                },
+                postData:function (option) {
+                    if(option === this.login){
+                        if(!this.phoneNumber) {
+                            alert('请输入账号');
+                            return;
+                        };
+                        if(!this.password) {
+                            alert('请输入密码');
+                            return;
+                        };
+                        if(this.identity == '请选择身份') {
+                            alert('未选择身份');
+                            return;
+                        }
+//                        if(this.canvas.passCode(this.code)){
+//                            $.ajax(option);
+//                        }else {
+//                            alert('验证码错误');
+//                            return;
+//                        }
+                    }
+                    if(this.identity == '请选择身份') {
+                        alert('未选择身份');
+                        return;
+                    }
+                    $.ajax(option);
+                }
+            }
+//            mounted: function () {
+//                this.canvas = new Vcode({
+//                    id: 'canvas',
+//                    w: 100,
+//                    h: 40,
+//                });
+//            }
+        });
+    })(window,document);
+</script>
+</html>

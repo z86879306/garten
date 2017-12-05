@@ -2,6 +2,8 @@ package com.garten.model.worker;
 
 import java.sql.Timestamp;
 
+import com.garten.model.gartenClass.GartenClass;
+
 public class WorkerMessageLog {
 
 	private Integer messageId;
@@ -11,7 +13,7 @@ public class WorkerMessageLog {
 	private Integer workerId;
 	private Integer gartenId;
 	private Integer state;
-	
+	private GartenClass gartenClass;
 	
 	public Integer getState() {
 		return state;
@@ -56,8 +58,17 @@ public class WorkerMessageLog {
 		this.registTime = registTime.getTime()/1000;
 	}
 	
+	public GartenClass getGartenClass() {
+		return gartenClass;
+	}
+	public void setGartenClass(GartenClass gartenClass) {
+		this.gartenClass = gartenClass;
+	}
+	public WorkerMessageLog() {
+		super();
+	}
 	public WorkerMessageLog(Integer messageId, String title, String info, Long registTime, Integer workerId,
-			Integer gartenId, Integer state) {
+			Integer gartenId, Integer state, GartenClass gartenClass) {
 		super();
 		this.messageId = messageId;
 		this.title = title;
@@ -66,9 +77,7 @@ public class WorkerMessageLog {
 		this.workerId = workerId;
 		this.gartenId = gartenId;
 		this.state = state;
-	}
-	public WorkerMessageLog() {
-		super();
+		this.gartenClass = gartenClass;
 	}
 	
 }

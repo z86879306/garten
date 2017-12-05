@@ -23,6 +23,7 @@ public class BabyInfo {
 	private Integer sex;
 	private Long registTime;
 	private String cardId;
+	private Integer classId;
 	@Override
 	public String toString() {
 		return "BabyInfo [babyName=" + babyName + ", babyId=" + babyId + ", birthday=" + birthday + ", height=" + height
@@ -165,6 +166,37 @@ public class BabyInfo {
 	}
 	public void setCardId(String cardId) {
 		this.cardId = cardId;
+	}
+	public Integer getClassId() {
+		return classId;
+	}
+	public void setClassId(Integer classId) {
+		this.classId = classId;
+	}
+	public BabyInfo(String babyName, Integer babyId, Long birthday, BigDecimal height, String health, String hobby,
+			String specialty, Integer gartenId, String teacherId, Integer attendanceceId, String babyHead,
+			String allergy, Integer parentId, String parentRelation, BigDecimal weight, Integer sex, Long registTime,
+			String cardId, Integer classId) {
+		super();
+		this.babyName = babyName;
+		this.babyId = babyId;
+		this.birthday = birthday;
+		this.height = height;
+		this.health = health;
+		this.hobby = hobby;
+		this.specialty = specialty;
+		this.gartenId = gartenId;
+		this.teacherId = teacherId;
+		this.attendanceceId = attendanceceId;
+		this.babyHead = babyHead;
+		this.allergy = allergy;
+		this.parentId = parentId;
+		this.parentRelation = parentRelation;
+		this.weight = weight;
+		this.sex = sex;
+		this.registTime = registTime;
+		this.cardId = cardId;
+		this.classId = classId;
 	}
 
 

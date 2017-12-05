@@ -123,7 +123,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		
 	</select>
 	
-	<select id="getChildAgentBusiness" resultType="AgentAudit">
+	<select id="getChildAgentBusiness" resultType="AgentAuditDetail">
 		select * from
 		agent_audit a
 		where
@@ -261,7 +261,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</insert>
 	
 		<update id="updateAgentOrder" >
-		update  agent_order set state=1 where orderNumber=#{orderNumber}
+		update  agent_order set state=state+1 where orderNumber=#{orderNumber}
 	</update>
 	
 	<select id="findAgentOrderByOrderNumber"  resultType="AgentOrder">
@@ -282,6 +282,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<select id="findWithdrawById"  resultType="Withdraw">
 		SELECT * FROM agent_withdraw   where withdrawId=#{withdrawId} 
+	</select>
+	<select id="findAgentbyPhoneNumber" resultType="AgentInfo">
+		select * from agent_info where phoneNumber=#{phoneNumber}
 	</select>
 	
 </mapper> 

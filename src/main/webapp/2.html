@@ -1,0 +1,47 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>演示：使用jquery.qrcode生成二维码</title>
+
+<style type="text/css">
+.demo{width:400px; margin:40px auto 0 auto; min-height:250px;}
+.demo p{line-height:30px}
+#code{margin-top:10px}
+</style>
+<script type="text/javascript" src="agentcontrol/lib/jQuery/jquery-3.2.1.js"></script>
+<script type="text/javascript" src="jquery.qrcode.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	var str = "weixin://wxpay/bizpayurl?pr=v0wS51v";
+	$('#code').qrcode(str);
+	
+	$("#sub_btn").click(function(){
+		$("#code").empty();
+		var str = $("#mytxt").val();
+		
+		 $("#code").qrcode({
+			render: "table",
+			width: 300,
+			height:300,
+			text: str
+		}); 
+	});
+})
+ 
+</script>
+</head>
+
+<body>
+
+
+   <div class="demo">
+   		<p>请输入内容然后提交生成二维码：</p>
+        <p><input type="text" class="input" id="mytxt" value=""> <input type="button" id="sub_btn" value="提交"></p>
+   		<div id="code"></div>
+   </div>
+
+
+
+</body>
+</html>

@@ -12,6 +12,8 @@ public class TeacherAndBabyInfo {
 	private String cardNo3;
 	private String fileUrl;
 	private Integer type;
+	private String identity;
+	
 	public Integer getBabyId() {
 		return babyId;
 	}
@@ -45,8 +47,8 @@ public class TeacherAndBabyInfo {
 	public Integer getType() {
 		return type;
 	}
-	public void setType(String type) {
-		this.type =("0".equals(type)?0:1 );
+	public void setType(String identity) {
+		this.type = "宝宝".equals(identity)?0:1;
 	}
 	public String getFileUrl() {
 		return fileUrl;
@@ -54,7 +56,6 @@ public class TeacherAndBabyInfo {
 	public void setFileUrl(String fileUrl) {
 		this.fileUrl = fileUrl;
 	}
-
 	public String getCardNo2() {
 		return cardNo2;
 	}
@@ -67,8 +68,15 @@ public class TeacherAndBabyInfo {
 	public void setCardNo3(String cardNo3) {
 		this.cardNo3 = cardNo3;
 	}
+	public String getIdentity() {
+		return identity;
+	}
+	public void setIdentity(String identity) {
+		this.identity = identity;
+	}
+
 	public TeacherAndBabyInfo(Integer babyId, String name, Integer classId, String classesName, String cardNo1,
-			 String fileUrl, String type,String cardNo2, String cardNo3) {
+			String cardNo2, String cardNo3, String fileUrl, String identity) {
 		super();
 		this.babyId = babyId;
 		this.name = name;
@@ -78,7 +86,18 @@ public class TeacherAndBabyInfo {
 		this.cardNo2 = cardNo2;
 		this.cardNo3 = cardNo3;
 		this.fileUrl = fileUrl;
-		this.type = 0;
+		this.identity = identity;
+	}
+	public TeacherAndBabyInfo(Integer babyId, String name, String cardNo1, String cardNo2, String cardNo3,
+			String fileUrl, String identity) {
+		super();
+		this.babyId = babyId;
+		this.name = name;
+		this.cardNo1 = cardNo1;
+		this.cardNo2 = cardNo2;
+		this.cardNo3 = cardNo3;
+		this.fileUrl = fileUrl;
+		this.identity = identity;
 	}
 
 	

@@ -42,8 +42,6 @@ public class Test {
 	
 	public static void main(String[] args) throws ParseException, UnsupportedEncodingException, APIConnectionException, APIRequestException {
 
-		System.out.println(LyParam.PRINCIPAL_QX);
-		
 	}
 	public static String test1(){
 		Long lon=57600l;
@@ -199,4 +197,5 @@ public class Test {
 		  return flag;
 		  
 	  }
+	  
 }

@@ -1,5 +1,7 @@
 package com.garten.vo.bigcontrol;
 
+import com.garten.model.gartenClass.GartenClass;
+
 public class LiveCamera {
 	private Integer gartenId;
 	private String gartenName;
@@ -15,6 +17,7 @@ public class LiveCamera {
 	private Integer pointId;
 	private String img;
 	
+	private GartenClass gartenClass;
 	public Integer getGartenId() {
 		return gartenId;
 	}
@@ -92,6 +95,13 @@ public class LiveCamera {
 	}
 	public void setImg(String img) {
 		this.img = img;
+	}
+	
+	public GartenClass getGartenClass() {
+		return gartenClass;
+	}
+	public void setGartenClass(GartenClass gartenClass) {
+		this.gartenClass = gartenClass;
 	}
 	public LiveCamera(Integer gartenId, String gartenName, String deviceSerial, String validateCode, String url,
 			String cameraUser, String cameraPwd, String cameraIp, Integer cameraPort, Integer cameraId, Integer type,

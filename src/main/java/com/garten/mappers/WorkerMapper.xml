@@ -23,9 +23,11 @@ gartenId,babyId,arriveTime,arriveImg,leaveTime,leaveImg,temperature,remark,time
 	</select>
 	
 	
+	<!--大改  -->
 	<select id="findWorkerInfoNotified"  resultType="WorkerInfo">
 		SELECT * FROM
-	worker＿info w join garten_class c on w.classId=c.classId
+		worker＿info w 
+		join garten_class c on find_in_set(c.classId,w.classId)
 		WHERE  w.job = '老师'
 		<if test="	leadGrade!=null and leadGrade!=''" >
 				and c.leadGrade=#{leadGrade}
@@ -38,16 +40,18 @@ gartenId,babyId,arriveTime,arriveImg,leaveTime,leaveImg,temperature,remark,time
 		
 	</select>
 	
+	<!--大改  -->
 	<select id="findVideosByToken"  resultType="Video">
 		SELECT * FROM
 			garten_video v,worker＿info w
 			WHERE
 			w.gartenId=v.gartenId
 			and w.token=#{token}
-		and NOT EXISTS
-          (SELECT * FROM 	garten_video ,worker＿info 
-         WHERE v.type=0 AND v.pointId not in (w.classId))
-          and type not in ('3')
+			and NOT EXISTS
+	         	 (SELECT * FROM 	garten_video ,worker＿info 
+WHERE v.type = 0 AND (v.pointId!=#{classId}  or #{classId} is null)	)	
+         
+         	and type not in ('3')
 	</select>
 	<update id="updateIntroduce"  >
 		update   garten_info  g
@@ -93,18 +97,17 @@ gartenId,babyId,arriveTime,arriveImg,leaveTime,leaveImg,temperature,remark,time
 		and w.isValid=0
 	</select>
 	
-	
+	<!-- 大改 -->
 	<select id="findParentPhotoByToken"  resultType="GartenPhotos">
 		SELECT * FROM
-			garten_photos gp,worker＿info w,baby_info b,parent_info p
+			garten_photos gp
+			join parent_info p on  gp.job='家长' and gp.id=p.parentId
+			join baby_info b on find_in_set(b.babyId,p.babyId)
+			join worker＿info w on find_in_set(b.classId,w.classId)
 			WHERE
 			w.token=#{token}
-			AND FIND_IN_SET(w.workerId, b.teacherId)
-			and find_in_set(b.babyId,p.babyId)
-			and gp.job='家长'
-			and gp.gartenId=w.gartenId
 			and gp.isValid=0 and w.isValid=0 and b.isValid=0 and p.isValid=0
-			group by gp.infoId 
+			group by gp.infoId desc
 	</select>
 	
 		<select id="findWorkerPhotoByToken"  resultType="GartenPhotos">
@@ -137,16 +140,14 @@ gartenId,babyId,arriveTime,arriveImg,leaveTime,leaveImg,temperature,remark,time
 		limit 1
 	</select>
 	
-	<select id="findDaijieById"  resultType="Daijie">
-			SELECT * FROM daijie_info d, baby_info b, worker＿info w, garten_class c
+	<!--大改  -->
+	<select id="findDaijieByClassId"  resultType="Daijie">
+			SELECT * FROM daijie_info d, baby_info b
 		WHERE
-			w.token = #{token}
-		and c.classId=w.classId
+		b.classId=#{classId}
 		AND d.babyId = b.babyId
-		AND FIND_IN_SET(w.workerId, b.teacherId)
-		AND d.isValid = 0 AND c.isValid = 0 AND b.isValid = 0 AND w.isValid = 0
-		GROUP BY
-			d.daijieId
+		AND d.isValid = 0  AND b.isValid = 0 
+		GROUP BY d.daijieId
 	</select>
 	
 	<select id="findIntroduceActivityByToken"  resultType="ActivityDetailAll">
@@ -185,10 +186,9 @@ and l.activityId=#{activityId}
 	</update>
 	
 <select id="findWorkerByToken"  resultType="Shouye">
-		select gartenName,workerName,leadClass,leadGrade,flowers,headImg 
+		select gartenName,workerName,flowers,headImg,classId 
 		from `worker＿info` w 
 		 join garten_info g ON w.gartenId = g.gartenId
-		left join garten_class c on w.classId=c.classId
 		where w.token=#{token} 
 		 and g.isValid=0 and w.isValid=0
 	</select>
@@ -275,37 +275,36 @@ and l.activityId=#{activityId}
 	
 	
 	
-	<select id="findBabyCheckByToken"  resultType="BabyCheckLogAll">
+	<!--大改  -->
+	<select id="findBabyCheckByClassId"  resultType="BabyCheckLogAll">
 		SELECT *		FROM
 		baby_info b LEFT JOIN baby_check_log c on b.babyId=c.babyId
-		LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
 		WHERE
-		w.token = #{token}
+		b.classId = #{classId}
 		and UNIX_TIMESTAMP(c.time)=#{time}
-		and b.isValid=0 and c.isValid=0 and w.isValid=0
+		and b.isValid=0 
 	</select>
 	
-	<select id="findYichangLongByToken"  resultType="Long">
+	<!--大改  -->
+	<select id="findYichangLongByClassId"  resultType="Long">
 		SELECT unix_timestamp(u.time)
 		FROM
 			baby_info b
-		 JOIN unusual u ON b.babyId=u.jobId
-		 JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
+		 JOIN unusual u ON b.babyId=u.jobId and u.job='宝宝'
 		WHERE
-			w.token = #{token}
-		and u.job='宝宝'
-		AND b.isValid = 0 AND u.isValid = 0 AND w.isValid = 0
+			b.classId = #{classId}
+		AND b.isValid = 0 AND u.isValid = 0
 		GROUP BY u.time
 	</select>
 	
-	<select id="findLeaveLongByToken"  resultType="BabyLeaveLog">
+	<!--大改  -->
+	<select id="findLeaveLongByClassId"  resultType="BabyLeaveLog">
 		SELECT *		FROM
 		baby_info b LEFT JOIN baby_leave_log c on b.babyId=c.babyId
-		LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
 		WHERE
-		w.token = #{token}
+		b.classId = #{classId}
 		and c.time
-		and b.isValid=0 and c.isValid=0 and w.isValid=0
+		and b.isValid=0 and c.isValid=0 
 	</select>
 	
 	<select id="findWLeaveLongByToken"  resultType="WorkerLeaveLog">
@@ -316,42 +315,39 @@ and l.activityId=#{activityId}
 		and w.isValid=0 and l.isValid=0 
 	</select>
 	
-	<select id="findBabysByToken"  resultType="ClassManage">
-		SELECT
-		 *
-		FROM
-		baby_info b  JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
-		join  garten_class c on c.classId=w.classId
+	<!--大改  -->
+	<select id="findBabysByClassId"  resultType="ClassManage">
+		SELECT  *
+		FROM  baby_info b   
+		join  garten_class c on c.classId=b.classId
 		WHERE
-		w.token = #{token}
-		and b.isValid=0 and w.isValid=0 and c.isValid=0
+		b.classId = #{classId}
+		and b.isValid=0 
 	</select>
 	
+	<!--大改  -->
 	<select id="findBabyById"  resultType="ClassManage">
-		SELECT
-		 *
+		SELECT *
 		FROM
-		baby_info b  JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
-		join  garten_class c on c.classId=w.classId
+		baby_info b  
+		join  garten_class c on c.classId=b.classId
 		WHERE
 		b.babyId=#{babyId}
-		and b.isValid=0 and w.isValid=0 and c.isValid=0
+		and b.isValid=0 
 		group by b.babyId
 	</select>
 	
-	<select id="findUnusualAllByToken"  resultType="UnusualAll">
+	<!--大改  -->
+	<select id="findUnusualAllByClassId"  resultType="UnusualAll">
 		select  u.unusualTime,u.unusualType, u.unusualImg,u.jobId,
 	  u.gartenId,u.state, u.fileId, u.cardNo,u.unusualId,u.time,u.job,
 	 b.babyName jobName,b.babyHead jobHead
-		
-		FROM unusual u, `worker＿info` w, baby_info b
+		FROM unusual u
+		join  baby_info b on u.jobId=b.babyId and u.job='宝宝'
 		where 
-		FIND_IN_SET(w.workerId,b.teacherId)
-		and u.jobId=b.babyId
-		and u.job='宝宝'
-		and w.token=#{token}
+		 b.classId=#{classId}
 		and UNIX_TIMESTAMP(u.time)=#{time}
-		and u.isValid=0 and w.isValid=0 and b.isValid=0
+		and u.isValid=0 and   b.isValid=0
 	</select>
 	
 	<select id="findUnusualAllByTokenSmall"  resultType="UnusualAll">
@@ -368,17 +364,11 @@ and l.activityId=#{activityId}
 	</select>
 	
 	
-	<select id="findLessonCircleByToken"  resultType="Long">
-		SELECT UNIX_TIMESTAMP(l.time)
-		FROM  garten_lesson l
-		LEFT JOIN worker＿info w ON l.gartenId = w.gartenId
-		WHERE
-			 w.token = #{token}
-		and  not exists (
-   		 select 1 from garten_lesson lesss
-   		 where l.time = lesss.time
-    	and l.lessonId &lt; lesss.lessonId)
-    	and l.isValid =0 and w.isValid=0
+	<!--大改  -->
+	<select id="findLessonCircleByClassId"  resultType="Long">
+		SELECT UNIX_TIMESTAMP(time)
+		FROM  garten_lesson 
+		WHERE classId=#{classId} and isValid =0 
 	</select>
 	
 	<select id="findRecipeCircleCircleByToken"  resultType="Long">
@@ -389,15 +379,15 @@ and l.activityId=#{activityId}
 		AND r.isValid = 0 AND w.isValid = 0
 	</select>
 	
-	<select id="findDaijieCircleCircleByToken"  resultType="Long">
+	<!--  大改-->
+	<select id="findDaijieCircleCircleByClassId"  resultType="Long">
 		SELECT DISTINCT UNIX_TIMESTAMP(r.time)
-		FROM daijie_info r , parent_info p  , baby_info b  , worker＿info w 
+		FROM daijie_info r , parent_info p  , baby_info b  
 		WHERE
-			 w.token = #{token}
-		and FIND_IN_SET(b.babyId,p.babyId )
+			r.babyId=b.babyId
 		and  r.parentId = p.parentId
-		and FIND_IN_SET(w.workerId, b.teacherId)
-		AND r.isValid = 0 AND p.isValid = 0 AND b.isValid = 0 AND w.isValid = 0
+		and b.classId=#{classId}
+		AND r.isValid = 0 AND p.isValid = 0 AND b.isValid = 0 
 		AND r.daijieState = 1
 	</select>
 	
@@ -433,24 +423,22 @@ and l.activityId=#{activityId}
 	
 	
 	
-	<select id="findLessonByToken"  resultType="GartenLesson">
-		SELECT
-l.gartenId gartenId,l.time time,l.ampm ampm,l.lessonName lessonName,l.classId classId,l.startTime startTime,l.endTime,l.lessonId
-
-		FROM
-		garten_lesson l LEFT JOIN `worker＿info` w ON l.gartenId=w.gartenId
+	<!--大改  -->
+		<select id="findLessonByClassId"  resultType="GartenLesson">
+		SELECT *  FROM
+		garten_lesson 
 		where
-		 UNIX_TIMESTAMP(l.time)=#{time}
-		and w.token=#{token}
-		and l.isValid=0 and w.isValid=0
-		and l.classId=w.classId
+		 UNIX_TIMESTAMP(time)=#{time}
+		and classId=#{classId}
+		and isValid=0 
 	</select>
 	
 	
+	<!--大改  -->
 	<update id="findUpdateBabyByToken"  >
 	UPDATE baby_info b
 	SET b.allergy =#{allergy}, b.babyName =#{babyName}, b.birthday =FROM_UNIXTIME(#{birthday},  '%Y-%m-%d %H:%i:%s'), b.health =#{health}, 
-	b.height =#{height}, b.hobby =#{hobby}, b.specialty =#{specialty}, b.teacherId =#{teacherId},b.weight=#{weight},b.sex=#{sex}
+	b.height =#{height}, b.hobby =#{hobby}, b.specialty =#{specialty}, b.classId =#{classId},b.weight=#{weight},b.sex=#{sex}
 	where 
 	 b.babyId=#{babyId}
 	and b.isValid=0 
@@ -458,7 +446,7 @@ l.gartenId gartenId,l.time time,l.ampm ampm,l.lessonName lessonName,l.classId cl
 	
 	
 	<update id="resolveUnusual"  >
-	UPDATE unusual u set state=1 where unusualId=#{unusualId}
+	UPDATE unusual u set state=#{state} where unusualId=#{unusualId}
 	</update>
 	
 	
@@ -521,20 +509,20 @@ l.gartenId gartenId,l.time time,l.ampm ampm,l.lessonName lessonName,l.classId cl
 	where performanceId=#{performanceId}
 	</update>
 	
-	<select id="findPerformanceByToken"  resultType="BabyPerformanceLogAll">
+	<!--大改  -->
+	<select id="findPerformanceByClassId"  resultType="BabyPerformanceLogAll">
 		SELECT
 		 p.gartenId gartenId,p.babyId babyId,p.time time,p.learn learn,p.play play,p.eat eat,p.sleep sleep,p.remark remark,p.performanceId performanceId
 		,b.babyName babyName,b.babyHead babyHead
 		FROM
 		  baby_info b  LEFT JOIN baby_performance_log p ON b.babyId=p.babyId
-		  LEFT JOIN worker＿info w on FIND_IN_SET(w.workerId, b.teacherId)
+		 
 		WHERE
-		w.token = #{token}
+		b.classId = #{classId}
 		and  UNIX_TIMESTAMP(now())-86400   &lt;   UNIX_TIMESTAMP(p.time)
 		 and UNIX_TIMESTAMP(p.time)   &lt;=   UNIX_TIMESTAMP(now())
-		and b.isValid=0 and p.isValid=0 and  w.isValid=0
+		and b.isValid=0 and p.isValid=0 
 	</select>
-	
 	
 	<select id="findWorkerCheckLogByToken"  resultType="WorkerCheckLog">
 		SELECT * FROM
@@ -569,17 +557,16 @@ l.gartenId gartenId,l.time time,l.ampm ampm,l.lessonName lessonName,l.classId cl
 		and i.isValid=0 and w.isValid=0 and r.isValid=0
 	</select>
 	
-	<select id="findLeaveLogByToken"  resultType="BabyLeaveLogAll">
+	<!--大改  -->
+	<select id="findLeaveLogByClassId"  resultType="BabyLeaveLogAll">
 		SELECT r.babyId,r.leaveTime,r.time,r.reason,r.leaveState,r.isValid,r.leaveId,r.endTime,bi.babyHead,bi.babyName
 		 FROM
-			garten_info i
-			JOIN worker＿info w ON w.gartenId = i.gartenId
-			JOIN baby_info bi ON FIND_IN_SET(w.workerId, bi.teacherId)
+			 baby_info bi 
 			JOIN baby_leave_log r ON r.babyId = bi.babyId
-			WHERE  w.token = #{token}
+			WHERE  bi.classId=#{classId}
 			and UNIX_TIMESTAMP(r.leaveTime)-86400 &lt; #{time}
 			and #{time}  &lt; UNIX_TIMESTAMP(r.endTime)
-			AND i.isValid = 0  AND w.isValid = 0  	AND r.isValid = 0
+				AND r.isValid = 0 AND bi.isValid = 0
 	</select>
 	
 	<select id="findLeaveLogByTokenSmall"  resultType="BabyLeaveLogAll">
@@ -632,7 +619,7 @@ l.gartenId gartenId,l.time time,l.ampm ampm,l.lessonName lessonName,l.classId cl
 			c.leadClass = #{leadClass}
 		AND c.leadGrade = #{leadGrade}
 		and w.gartenId=#{gartenId}
-		AND w.isValid = 0 AND c.isValid = 0
+		AND w.isValid = 0 
 	</select>
 	
 	
@@ -648,15 +635,14 @@ l.gartenId gartenId,l.time time,l.ampm ampm,l.lessonName lessonName,l.classId cl
 				AND wi.isValid = 0
 	</select>
 	
+	<!--大改  -->
 	<select id="findParentLinkMan"  resultType="ParentInfoShort">
 		select * from parent_info p ,
-		worker＿info w,
 		baby_info b 
 		where 
-		w.token=#{token}
-		and FIND_IN_SET(w.workerId,b.teacherId)
+		b.classId=#{classId}
 		and FIND_IN_SET(b.babyId,p.babyId)
-		and w.isValid=0 and p.isValid=0 and b.isValid=0 
+		 and p.isValid=0 and b.isValid=0 
 		group by p.parentId
 	</select>
 	
@@ -682,12 +668,18 @@ l.gartenId gartenId,l.time time,l.ampm ampm,l.lessonName lessonName,l.classId cl
 	
 	
 	
-	<select id="findTeacherByToken"  resultType="WorkerInfoShort">
-		select * from worker＿info w ,garten_class c
+	<!--大改  -->
+	<resultMap id="findTeacherByToken" type="WorkerInfoShort" >
+<collection property="gartenClasses" ofType="GartenClass" javaType="ArrayList" column="classId" select="findTeacherByTokenWithGartenClass"/>
+</resultMap>
+<select parameterType="String" resultType="GartenClass" id="findTeacherByTokenWithGartenClass">   
+ select * from garten_class where find_in_set(classId,#{classId})
+  </select>   
+    <select id="findTeacherByToken"  resultMap="findTeacherByToken">
+        select *
+		from worker＿info w 
 		where token=#{token}
-		and w.classId=c.classId
-		and w.isValid=0
-	</select>
+    </select>
 	
 	<select id="findCheck" resultType="CheckNumber">
         select * from duanxin

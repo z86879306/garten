@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.garten.GartenRecipe;
+import com.garten.model.other.Order;
 import com.garten.service.BigcontrolService;
 import com.garten.service.SmallcontrolService;
 import com.garten.util.myutil.MyUtil;
@@ -58,8 +59,8 @@ public class SmallcontrolController {
 	}
 
 	@RequestMapping("sendNotified")//发送通知
-	public  synchronized @ResponseBody Map<String,Object> sendNotified(String token,String leadClass,String leadGrade ,Integer type ,String title,String content) throws ParseException, APIConnectionException, APIRequestException {
-		Map<String,Object> map=smallcontrolService.sendNotified(  token,  leadClass, leadGrade , type, title, content);
+	public  synchronized @ResponseBody Map<String,Object> sendNotified(String token,Integer classId,Integer gradeId ,Integer type ,String title,String content) throws ParseException, APIConnectionException, APIRequestException {
+		Map<String,Object> map=smallcontrolService.sendNotified(  token,  classId, gradeId , type, title, content);
 		return map;
 	}
 	
@@ -75,8 +76,8 @@ public class SmallcontrolController {
 		return map;
 	}
 	@RequestMapping("babyMessage")//用户管理-宝宝管理
-	public  @ResponseBody Map<String,Object> babyMessage(String token,String name ,String leadGrade,String leadClass,Integer pageNo ) throws ParseException {
-		Map<String,Object> map=smallcontrolService.babyMessage( token, name,leadGrade,leadClass,pageNo);
+	public  @ResponseBody Map<String,Object> babyMessage(String token,String name ,Integer gradeId, Integer classId,Integer pageNo ) throws ParseException {
+		Map<String,Object> map=smallcontrolService.babyMessage( token, name,gradeId,classId,pageNo);
 		return map;
 	}
 	
@@ -134,8 +135,8 @@ public class SmallcontrolController {
 		
 		@RequestMapping("updateDakaTime")
 	 	@ResponseBody
-	 	public synchronized Map<String, Object> updateDakaTime(String token,String arriveStartTime,String arriveEndTime,String leaveStartTime,String leaveEndTime,Integer teacherAttendanceFlag,Integer studentAttendanceFlag){
-	 		Map<String,Object> result=smallcontrolService.updateDakaTime(  token, arriveStartTime, arriveEndTime, leaveStartTime, leaveEndTime,teacherAttendanceFlag,studentAttendanceFlag);
+	 	public synchronized Map<String, Object> updateDakaTime(String token,String time1,String time2,String time3,String time4,String time5,String time6,Integer teacherAttendanceFlag,Integer studentAttendanceFlag){
+	 		Map<String,Object> result=smallcontrolService.updateDakaTime(  token, time1, time2, time3, time4,time5,time6,teacherAttendanceFlag,studentAttendanceFlag);
 	 		return result;
 	 	}
 		
@@ -171,7 +172,13 @@ public class SmallcontrolController {
 	 		return result;
 	 	}
 		
-		
+		//异常处理
+		@RequestMapping("yichangResolve")
+		@ResponseBody
+		public Map<String, Object> yichangResolve(Integer unusualId ,Integer state ){
+			Map<String, Object> map = smallcontrolService.yichangResolve(unusualId, state);
+			return map;
+		}
 		//处理老师考勤异常   principal/yichangAgree   :unusualId
 	  	
 	  	
@@ -240,11 +247,11 @@ public class SmallcontrolController {
 		
 		@RequestMapping("order")
 	  	@ResponseBody
-	  	public Map<String, Object> order(String token,Integer pageNo,String province,String city,String countries
-				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,String orderDetail,String babyName) {
-	  		Map<String,Object> result=smallcontrolService.order(  token, pageNo ,province, city, countries,gartenId,state,name,phoneNumber,type,orderDetail,babyName);
+	  	public Map<String, Object> order(String token,Integer pageNo,Integer state,String name,
+	  			String phoneNumber,Integer type,String babyName,Long startTime ,Long endTime) {
+	  		Map<String,Object> result=smallcontrolService.order( token, pageNo,state,name,phoneNumber,type,babyName,startTime,endTime);
 	  		return result;
-	  	}
+	  	}	
 		
 		
 		
@@ -305,7 +312,7 @@ public class SmallcontrolController {
 		@RequestMapping("updateTeacher")
 		@ResponseBody
 		public synchronized Map<String, Object> updateTeacher(String token,Integer sex,Integer age,String education,String certificate,String chinese,
-				Integer classId,String phoneNumber,String workerName,Integer workerId,String jobcall,String permission){
+				Integer[] classId,String phoneNumber,String workerName,Integer workerId,String jobcall,String permission){
 			Map<String, Object> map = smallcontrolService.updateTeacher(token, sex, age, education, certificate, chinese, classId, phoneNumber, workerName, workerId,jobcall,permission);
 			return map;
 			
@@ -330,9 +337,9 @@ public class SmallcontrolController {
 		//添加老师
 		@RequestMapping("addTeacher")
 		@ResponseBody
-		public synchronized Map<String,Object> addTeacher(String token,String teacherName,Integer sex,Integer age,String phoneNumber,Integer classId,String education,
-				String certificate,String chinese,String jobCall,String permission) throws ParseException, IOException{
-			Map<String, Object> map = smallcontrolService.addTeacher(token, teacherName, sex, age, phoneNumber, classId, education, certificate, chinese, jobCall,permission);
+		public synchronized Map<String,Object> addTeacher(String token,String teacherName,Integer sex,Integer age,String phoneNumber,Integer[] classId,String education,
+				String certificate,String chinese,String jobCall,String permission,String job) throws ParseException, IOException{
+			Map<String, Object> map = smallcontrolService.addTeacher(token, teacherName, sex, age, phoneNumber, classId, education, certificate, chinese, jobCall,permission,job);
 			return map;
 			
 		}
@@ -406,12 +413,19 @@ public class SmallcontrolController {
 			return map;
 		}
 		
+		//获取支付价格
+		@RequestMapping("getPayPrice")
+		@ResponseBody
+		public  synchronized Map<String, Object> getPayPrice(String token,Integer type,Integer monthCount){
+			Map<String, Object> map = smallcontrolService.getPayPrice(token,type,monthCount);
+			return map;
+		}
+		
 		//支付宝支付
 		@RequestMapping(value="alipay")
-		public  synchronized @ResponseBody Map<String, Object> alipay(String token,Integer type,Integer monthCount,HttpServletRequest httpRequest,
+		public  synchronized @ResponseBody Map<String, Object> alipay(String token,BigDecimal price,Integer type,Integer monthCount,HttpServletRequest httpRequest,
 	            HttpServletResponse httpResponse  ) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException {
-	    	Map<String, Object> map = smallcontrolService.alipay(token,type,monthCount, httpRequest,
-	                 httpResponse);
+	    	Map<String, Object> map = smallcontrolService.alipay(token,price,type,monthCount, httpRequest,httpResponse);
 			return null;
 		}
 		//支付宝验证
@@ -424,19 +438,27 @@ public class SmallcontrolController {
 	   	
 	    //微信支付   
 		@RequestMapping(value="wxpay")
-		public  synchronized @ResponseBody Map<String, Object> wxpay(String token,Integer type,Integer monthCount,HttpServletRequest httpRequest,
+		public  synchronized @ResponseBody Map<String, Object> wxpay(String token,Integer type,Integer monthCount,BigDecimal price,HttpServletRequest httpRequest,
 	            HttpServletResponse httpResponse  ) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException {
-	    	Map<String, Object> map = smallcontrolService.wxpay(token,type,monthCount, httpRequest,
+	    	Map<String, Object> map = smallcontrolService.wxpay(token,type,monthCount,price, httpRequest,
 	                 httpResponse);
 			return map;
 		}
+
+	   	
 		//微信支付验证
 	   	@RequestMapping(value="wxpayyz")
-		public  @ResponseBody String wxpayyz(HttpServletRequest httpRequest,HttpServletResponse httpResponse) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException, JDOMException {
-	    	String map = smallcontrolService.wxpayyz( httpRequest, httpResponse);
-			return map;
+		public  @ResponseBody void wxpayyz(HttpServletRequest httpRequest,HttpServletResponse httpResponse) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException, JDOMException {
+	    	 smallcontrolService.wxpayyz( httpRequest, httpResponse);
 		}
-
+	   	
+	   	
+	  //查看单个微信订单
+	   	@RequestMapping(value="wxpayyzOrder")
+		public  @ResponseBody Order wxpayyzOrder(Long  orderNumber) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException, JDOMException {
+	   		Order o=smallcontrolService.wxpayyzOrder( orderNumber);
+	   		return o;
+		}
 	   	
 	  //修改主监护人
 	  	@RequestMapping("updateMainParent")
@@ -513,8 +535,8 @@ public class SmallcontrolController {
 	  // 老师申请发送通知
 		@RequestMapping("applySendMessage")
 		@ResponseBody
-		public Map<String,Object> applySendMessage(String token,String title, String info ){
-			Map<String, Object> map = smallcontrolService.applySendMessage(token, title, info);
+		public Map<String,Object> applySendMessage(String token,String title, String info,Integer[] classIds ){
+			Map<String, Object> map = smallcontrolService.applySendMessage(token, title, info,classIds);
 			return map;
 		}
 		
@@ -562,4 +584,87 @@ public class SmallcontrolController {
 			return result;
 		}
 
+	 
+	//------------------------------------查看打卡记录-------------------------------------
+			@RequestMapping(value="findDakalog")
+			public  @ResponseBody Map<String, Object> findDakalog(String token,Long startTime,Long endTime,String jobName,Integer pageNo,String job) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+				Map<String, Object> map = smallcontrolService.findDakalog(token,startTime,endTime,jobName,pageNo,job);
+				return map;
+			}
+			//--------------------------------年级管理---------------------------------------	
+			@RequestMapping("findGartenGrade")
+			@ResponseBody
+			public  Map<String, Object> findGartenGrade(Integer gartenId ){
+				Map<String, Object> map = smallcontrolService.findGartenGrade(gartenId);
+				return map;
+			}
+			
+			/**
+			 * 
+			 * @param token[操作人]
+			 * @param leadGrade 年级名字[不能重复]
+			 * @param mark 备注[第几届]
+			 * @return 
+			 */
+			@RequestMapping("addGartenGrade")
+			@ResponseBody
+			public  Map<String, Object> addGartenGrade(String token,String leadGrade,String mark,Integer no ){
+				Map<String, Object> map = smallcontrolService.addGartenGrade(token,leadGrade,mark,no);
+				return map;
+			}
+			/**
+			 * 
+			 * @param token
+			 * @param gradeId 年级[验证是否有班级]
+			 * @return
+			 */
+			@RequestMapping("deleteGartenGrade")
+			@ResponseBody
+			public  Map<String, Object> deleteGartenGrade(String token,Integer gradeId){
+				Map<String, Object> map = smallcontrolService.deleteGartenGrade(token,gradeId);
+				return map;
+			}
+			
+			/**
+			 * 修改年级名字
+			 * @param token
+			 * @param gradeId
+			 * @return
+			 */
+			@RequestMapping("updateGartenGrade")
+			@ResponseBody
+			public  Map<String, Object> updateGartenGrade(String token,Integer gradeId,String leadGrade,String mark){
+				Map<String, Object> map = smallcontrolService.updateGartenGrade(token,gradeId,leadGrade,mark);
+				return map;
+			}
+				
+	//--------------------------------班级管理---------------------------------------	
+			
+			@RequestMapping("findGartenClass")
+			@ResponseBody
+			public  Map<String, Object> findGartenClass(Integer gartenId ,Integer gradeId){
+				Map<String, Object> map = smallcontrolService.findGartenClass(gartenId,gradeId);
+				return map;
+			}
+			
+			@RequestMapping("addGartenClass")
+			@ResponseBody
+			public  Map<String, Object> addGartenClass(String token,Integer gradeId,String mark,String leadClass ){
+				Map<String, Object> map = smallcontrolService.addGartenClass(token,gradeId,mark,leadClass);
+				return map;
+			}
+			
+			@RequestMapping("updateGartenClass")
+			@ResponseBody
+			public  Map<String, Object> updateGartenClass(String token,Integer classId,Integer gradeId,String mark,String leadClass ){
+				Map<String, Object> map = smallcontrolService.updateGartenClass(token,classId,gradeId,mark,leadClass);
+				return map;
+			}
+			
+			@RequestMapping("deleteGartenClass")
+			@ResponseBody
+			public  Map<String, Object> deleteGartenClass(String token,Integer classId ){
+				Map<String, Object> map = smallcontrolService.deleteGartenClass(token,classId);
+				return map;
+			}
 }

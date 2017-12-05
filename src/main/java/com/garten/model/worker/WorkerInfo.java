@@ -1,6 +1,9 @@
 package com.garten.model.worker;
 
 import java.sql.Timestamp;
+import java.util.List;
+
+import com.garten.model.gartenClass.GartenClass;
 
 public class WorkerInfo {
 	
@@ -11,7 +14,7 @@ public class WorkerInfo {
 	private String phoneNumber;
 	private Integer sex;
 	private Integer age;
-	private Integer classId;
+	private String classId;
 	private String education;
 	private String certificate;
 	private String chinese;
@@ -24,6 +27,7 @@ public class WorkerInfo {
 	private String jobcall;
 	private String permission;
 	
+	private List<GartenClass> gartenClasses;
 	public String getPermission() {
 		return permission;
 	}
@@ -37,6 +41,12 @@ public class WorkerInfo {
 		this.jobcall = jobcall;
 	}
 	
+	public List<GartenClass> getGartenClasses() {
+		return gartenClasses;
+	}
+	public void setGartenClasses(List<GartenClass> gartenClasses) {
+		this.gartenClasses = gartenClasses;
+	}
 	@Override
 	public String toString() {
 		return "WorkerInfo [gartenId=" + gartenId + ", workerId=" + workerId + ", pwd=" + pwd + ", workerName="
@@ -51,9 +61,9 @@ public class WorkerInfo {
 	}
 	
 	public WorkerInfo(Integer gartenId, Integer workerId, String pwd, String workerName, String phoneNumber,
-			Integer sex, Integer age, Integer classId, String education, String certificate, String chinese, String job,
+			Integer sex, Integer age, String classId, String education, String certificate, String chinese, String job,
 			Integer flowers, String token, Long tokenTime, String headImg, Long registTime, String jobcall,
-			String permission) {
+			String permission, List<GartenClass> gartenClasses) {
 		super();
 		this.gartenId = gartenId;
 		this.workerId = workerId;
@@ -74,6 +84,7 @@ public class WorkerInfo {
 		this.registTime = registTime;
 		this.jobcall = jobcall;
 		this.permission = permission;
+		this.gartenClasses = gartenClasses;
 	}
 	public Integer getGartenId() {
 		return gartenId;
@@ -117,10 +128,10 @@ public class WorkerInfo {
 	public void setAge(Integer age) {
 		this.age = age;
 	}
-	public Integer getClassId() {
+	public String getClassId() {
 		return classId;
 	}
-	public void setClassId(Integer classId) {
+	public void setClassId(String classId) {
 		this.classId = classId;
 	}
 	public String getEducation() {

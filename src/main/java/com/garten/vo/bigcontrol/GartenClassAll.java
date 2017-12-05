@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
-import com.garten.model.garten.GartenClass;
+import com.garten.model.gartenClass.GartenClass;
+
 
 public class GartenClassAll {//改幼儿园每个年级下的所有班级
 	

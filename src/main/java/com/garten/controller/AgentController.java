@@ -326,10 +326,10 @@ public class AgentController {
   		
   	  //微信购买信用额度
   		@RequestMapping(value="wxpayyz")
-  		public  synchronized @ResponseBody String wxpayyz(HttpServletRequest httpRequest,
+  		public  synchronized @ResponseBody void wxpayyz(HttpServletRequest httpRequest,
   	            HttpServletResponse httpResponse  ) throws Exception {
-  	    	String  map = agentService.wxpayyz( httpRequest,httpResponse);
-  			return null;
+  	    	agentService.wxpayyz( httpRequest,httpResponse);
+  			
   		}
 
   	//查询单个信用额度订单
@@ -343,6 +343,12 @@ public class AgentController {
 	   	@RequestMapping(value="findAgentMessage")
 		public  @ResponseBody Map<String, Object> findAgentMessage(String token,Long startTime,Long endTime,Integer state,Integer pageNo) {
 	    	Map<String, Object> map = agentService.findAgentMessage(token,startTime,endTime,state,pageNo);
+			return map;
+		}
+	  //已读总台发送的信息
+	   	@RequestMapping(value="readAgentMessage")
+		public  @ResponseBody Map<String, Object> readAgentMessage(Integer agentMessageId) {
+	    	Map<String, Object> map = agentService.readAgentMessage(agentMessageId);
 			return map;
 		}
 

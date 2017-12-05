@@ -6,28 +6,23 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.annotations.Param;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.garten.model.activity.ActivityDetail;
-import com.garten.model.activity.ActivityLog;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
-import com.garten.model.baby.BabyPerformanceLog;
-import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.garten.GartenLesson;
 import com.garten.model.garten.GartenPhotos;
 import com.garten.model.garten.GartenRecipe;
 import com.garten.model.garten.PhotoDianZan;
 import com.garten.model.garten.Video;
-import com.garten.model.other.CheckNumber;
-import com.garten.model.other.Comment;
 import com.garten.model.other.Feedback;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.Order;
 import com.garten.model.other.Version;
 import com.garten.model.other.VisitCount;
 import com.garten.model.parent.ParentInfo;
-import com.garten.model.worker.WorkerCheckLog;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.model.worker.WorkerLeaveLog;
 import com.garten.vo.baby.UnusualAll;
@@ -40,7 +35,6 @@ import com.garten.vo.teacher.BabyPerformanceLogAll;
 import com.garten.vo.teacher.ClassManage;
 import com.garten.vo.teacher.Daijie;
 import com.garten.vo.teacher.GartenStartEnd;
-import com.garten.vo.teacher.Shouye;
 import com.garten.vo.teacher.WorkerInfoShort;
 
 public interface ParentDao {
@@ -71,7 +65,7 @@ public interface ParentDao {
 	Set<Long> findDaijieCircleCircleByToken(Integer babyId);
 
 
-	Set<Long> findLessonCircleByToken(Integer babyId);
+	Set<Long> findLessonCircleByBabyId(Integer babyId);
 
 
 	Set<Long> findAttendanceCircleByToken(Integer babyId);
@@ -145,7 +139,7 @@ public interface ParentDao {
 	List<ParentInfoShort> findParentLinkMan(Map<String, Object> map);
 
 
-	List<WorkerInfoShort> findTeacherLinkMan(Integer babyId);
+	List<WorkerInfoShort> findTeacherLinkMan(@Param("classId")Integer classId, @Param("gartenId")Integer gartenId);
 
 
 
@@ -256,7 +250,7 @@ public interface ParentDao {
 
 
 	List<BabyInfo> findBaby();
-	List<WorkerInfo> getWorker(@Param( value= "teacherId" )String teacherId);
+	List<WorkerInfo> getWorker(Integer classId);
 
 	void updateHonghua();
 

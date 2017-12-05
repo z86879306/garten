@@ -9,7 +9,14 @@ public class BabyMessageAndParent extends BabyMessage {
 	private String parentName;
 	private String phoneNumber;
 	private Integer classId;
+	private Integer gradeId;
 	
+	public Integer getGradeId() {
+		return gradeId;
+	}
+	public void setGradeId(Integer gradeId) {
+		this.gradeId = gradeId;
+	}
 	public Integer getClassId() {
 		return classId;
 	}
@@ -28,11 +35,13 @@ public class BabyMessageAndParent extends BabyMessage {
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
-	public BabyMessageAndParent(String parentName, String phoneNumber, Integer classId) {
+
+	public BabyMessageAndParent(String parentName, String phoneNumber, Integer classId, Integer gradeId) {
 		super();
 		this.parentName = parentName;
 		this.phoneNumber = phoneNumber;
 		this.classId = classId;
+		this.gradeId = gradeId;
 	}
 	public BabyMessageAndParent() {
 		super();

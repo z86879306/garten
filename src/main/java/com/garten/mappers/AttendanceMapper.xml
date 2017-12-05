@@ -37,7 +37,7 @@
     <select id="findPartnerByTokenAndId" resultType="PartnerInfo">
     	select * from partner_info
     	where partnerToken=#{partnerToken}
-    	and UNIX_TIMESTAMP(now()) &lt; tokenExpireTime
+    	and UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE)) &lt; tokenExpireTime
     	and partnerId=#{partnerId}
     </select>
     
@@ -56,20 +56,18 @@
     	where
     		gc.gartenId=g.gartenId
     		and g.token=#{schoolToken}
-    		and gc.isValid=0 and g.isValid=0 
+    		and g.isValid=0 
     </select>
     
     <select id="findBabyByClassId" resultType="BabySimpleInfo">
     	select
     		b.babyName,b.babyId
     	from
-    		baby_info b,worker＿info w
+    		baby_info b
     	where
-    		w.classId=#{classId}
-    		and b.teacherId=w.workerId
-    		and w.isValid=0
+    		b.classId=#{classId}
     		and b.isValid=0
-    	group by b.babyId
+    		group by b.babyId
     </select>
    
     <update id="updateBabyAmCheckLog">
@@ -87,52 +85,51 @@
     <resultMap type="TeacherAndBabyInfo" id="TeachersMap">
     	<result property="babyId" column="workerId"/>
     	<result property="name" column="workerName"/>
-    	<result property="classesId" column="classesId"/>
+    	<result property="classId" column="classId"/>
     	<result property="classesName" column="leadClass"/>
     	<result property="cardNo1" column="cardNo1"/>
     	<result property="cardNo2" column="cardNo2"/>
     	<result property="cardNo3" column="cardNo3"/>
     	<result property="fileUrl" column="headImg"/>
     	<result property="type" column="job"/>
+    	<result property="identity" column="job"/>
     </resultMap>
     <select id="findTeachers" resultMap="TeachersMap">
     	select 
-    		w.workerId,w.workerName,w.classId,gc.leadClass,an.cardNo1,w.headImg,an.job,an.cardNo2,an.cardNo3
-    	from
-    		worker＿info w,attendance_no an,garten_class gc
+    		w.workerId,w.workerName,an.cardNo1,an.cardNo2,an.cardNo3,w.headImg,an.job
+    	from 
+    		worker＿info w ,attendance_no an
     	where
-    		w.gartenId=#{gartenId}
-    		and w.classId=gc.classId
-    		and w.workerId=an.jobId
-    		and an.job='老师'
+    		w.workerId=an.jobId
+    		and w.gartenId=#{gartenId}
     		and w.isValid=0
+    		group by w.workerId
     </select>
     
     <resultMap type="TeacherAndBabyInfo" id="BabysMap">
     	<result property="babyId" column="babyId"/>
     	<result property="name" column="babyName"/>
-    	<result property="classesId" column="classesId"/>
+    	<result property="classId" column="classId"/>
     	<result property="classesName" column="leadClass"/>
     	<result property="cardNo1" column="cardNo1"/>
     	<result property="cardNo2" column="cardNo2"/>
     	<result property="cardNo3" column="cardNo3"/>
     	<result property="fileUrl" column="babyHead"/>
     	<result property="type" column="job"/>
+    	<result property="identity" column="job"/>
     </resultMap>
     
     <select id="findBabys" resultMap="BabysMap">
     	select 
-    		b.babyId,b.babyName,w.classId,gc.leadClass,an.cardNo1,b.babyHead,an.job,an.cardNo2,an.cardNo3
+    		b.babyId,b.babyName,b.classId,gc.leadClass,an.cardNo1,an.cardNo2,an.cardNo3,b.babyHead,an.job
     	from
-    		baby_info b,worker＿info w,attendance_No an,garten_class gc
+    		baby_info b,attendance_No an,garten_class gc
     	where
-    		find_in_set(w.workerId,b.teacherId)
+    		b.babyId=an.jobId
+    		and b.classId=gc.classId
     		and b.gartenId=#{gartenId}
-    		and b.babyId=an.jobId
-    		and an.job='宝宝'
-			and w.classId=gc.classId
-			and b.isValid=0
-			group by b.babyId
+    		and b.isValid=0
+    		group by b.babyId
     </select>
     
  
@@ -364,4 +361,84 @@
     <insert id="addCheckImg">
     	insert into check_img(imgUrl,fileId) values(#{imgPath},#{fileId})
     </insert>
+    <select id="findDakaLogIsRepeat" resultType="Dakalog">
+    	select * from daka_log 
+    	where jobId=#{babyId}
+    	and #{attendanceTime}-unix_timestamp(attendanceTime) &lt; 60
+    </select>
+    
+    <select id="findGartenAttendanceByGartenId" resultType="GartenAttendance">
+    	select * from garten_attendance 
+    	where gartenId=#{gartenId}
+    </select>
+    <update id="updateBabyCheckLog">
+    	update baby_check_log
+    	<set>
+    		<if test=" amArriveTime!=null and amArriveTime!='' ">
+    			amArriveTime=FROM_UNIXTIME(#{amArriveTime},  '%Y-%m-%d %H:%i:%s'),amArriveImg=#{amArriveImg},
+    			amArriveFileId=#{amArriveFileId},amArriveMacId=#{amArriveMacId}
+    		</if>
+    		<if test=" amLeaveTime!=null and amLeaveTime!='' ">
+    			amLeaveTime=FROM_UNIXTIME(#{amLeaveTime},  '%Y-%m-%d %H:%i:%s'),amLeaveImg=#{amLeaveImg},
+    			amLeaveFileId=#{amLeaveFileId},amLeaveMacId=#{amLeaveMacId}
+    		</if>
+    		<if test=" pmArriveTime!=null and pmArriveTime!='' ">
+    			pmArriveTime=FROM_UNIXTIME(#{pmArriveTime},  '%Y-%m-%d %H:%i:%s'),pmArriveImg=#{pmArriveImg},
+    			pmArriveFileId=#{pmArriveFileId},pmArriveMacId=#{pmArriveMacId}
+    		</if>
+    		<if test=" pmLeaveTime!=null and pmLeaveTime!='' ">
+    			pmLeaveTime=FROM_UNIXTIME(#{pmLeaveTime},  '%Y-%m-%d %H:%i:%s'),pmLeaveImg=#{pmLeaveImg},
+    			pmLeaveFileId=#{pmLeaveFileId},pmLeaveMacId=#{pmLeaveMacId}
+    		</if>
+    	</set>
+    	where
+    		babyId=#{babyId}
+    		and time=#{time}
+    </update>
+    <insert id="insertUnusual">
+    	insert into unusual
+    	set
+    	unusualTime=FROM_UNIXTIME(#{unusualTime},  '%Y-%m-%d %H:%i:%s'),
+    	unusualType=#{unusualType},unusualImg=#{unusualImg},job=#{job},
+    	jobId=#{jobId},gartenId=#{gartenId},cardNo=#{cardNo},time=#{time},fileId=#{fileId}
+    </insert>
+    <select id="findAttendanceByJobId" resultType="AttendanceNo">
+    	select * from attendance_no
+    	where jobId=#{jobId} and isValid=0
+    </select>
+    <select id="findBabyById" resultType="BabyInfo">
+    	select * from baby_info
+    	where
+    	babyId=#{babyId}
+    	and isValid=0
+    </select>
+    <update id="updateWorkerCheckLog">
+    	update worker_check_log
+    	<set>
+    		<if test=" amArriveTime!=null and amArriveTime!='' ">
+    			amArriveTime=FROM_UNIXTIME(#{amArriveTime},  '%Y-%m-%d %H:%i:%s'),amArriveImg=#{amArriveImg},
+    			amArriveFileId=#{amArriveFileId},amArriveMacId=#{amArriveMacId}
+    		</if>
+    		<if test=" amLeaveTime!=null and amLeaveTime!='' ">
+    			amLeaveTime=FROM_UNIXTIME(#{amLeaveTime},  '%Y-%m-%d %H:%i:%s'),amLeaveImg=#{amLeaveImg},
+    			amLeaveFileId=#{amLeaveFileId},amLeaveMacId=#{amLeaveMacId}
+    		</if>
+    		<if test=" pmArriveTime!=null and pmArriveTime!='' ">
+    			pmArriveTime=FROM_UNIXTIME(#{pmArriveTime},  '%Y-%m-%d %H:%i:%s'),pmArriveImg=#{pmArriveImg},
+    			pmArriveFileId=#{pmArriveFileId},pmArriveMacId=#{pmArriveMacId}
+    		</if>
+    		<if test=" pmLeaveTime!=null and pmLeaveTime!='' ">
+    			pmLeaveTime=FROM_UNIXTIME(#{pmLeaveTime},  '%Y-%m-%d %H:%i:%s'),pmLeaveImg=#{pmLeaveImg},
+    			pmLeaveFileId=#{pmLeaveFileId},pmLeaveMacId=#{pmLeaveMacId}
+    		</if>
+    	</set>
+    	where
+    		workerId=#{babyId}
+    		and time=#{time}
+    </update>
+    <select id="findWorkerByClassId" resultType="WorkerInfo"> 
+    	select * from worker＿info
+    	where classId=#{classId}
+    	and isValid=0
+    </select>
 </mapper>

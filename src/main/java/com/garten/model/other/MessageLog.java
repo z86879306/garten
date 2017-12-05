@@ -9,7 +9,7 @@ public class MessageLog {
 	private String message;
 	private Integer messageId;
 	private String fromName;
-	private Integer gartenId;
+	private String gartenId;
 	private String title;
 	private String toGartenName;
 	private String fromGartenName;
@@ -40,7 +40,7 @@ public class MessageLog {
 	}
 	
 	public MessageLog(Long registTime, String targetName, String message, Integer messageId, String fromName,
-			Integer gartenId, String title, String toGartenName, String fromGartenName, Integer fromId, String fromJob,
+			String gartenId, String title, String toGartenName, String fromGartenName, Integer fromId, String fromJob,
 			String toclass) {
 		super();
 		this.registTime = registTime;
@@ -88,7 +88,7 @@ public class MessageLog {
 		// TODO Auto-generated constructor stub
 	}
 	public MessageLog(Long registTime, String targetName, String message, Integer messageId, String fromName,
-			Integer gartenId) {
+			String gartenId) {
 		super();
 		this.registTime = registTime;
 		this.targetName = targetName;
@@ -127,12 +127,13 @@ public class MessageLog {
 	public void setFromName(String fromName) {
 		this.fromName = fromName;
 	}
-	public Integer getGartenId() {
+	public String getGartenId() {
 		return gartenId;
 	}
-	public void setGartenId(Integer gartenId) {
+	public void setGartenId(String gartenId) {
 		this.gartenId = gartenId;
 	}
+	
 	
 	
 	

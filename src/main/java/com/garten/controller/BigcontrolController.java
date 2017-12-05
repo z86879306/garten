@@ -113,15 +113,15 @@ public class BigcontrolController {
 		
 		//首页 -信息管理-宝宝信息管理  可选:除了token都可选
 	@RequestMapping("babyMessage")//
-	public  @ResponseBody Map<String,Object> babyMessage(String token,String name ,String province,String city,String countries,Integer pageNo,Integer gartenId,String leadGrade,String leadClass ) throws ParseException {
-		Map<String,Object> map=bigcontrolService.babyMessage( token, name,province,city,countries,pageNo, gartenId,leadGrade,leadClass);
+	public  @ResponseBody Map<String,Object> babyMessage(String token,String name ,String province,String city,String countries,Integer pageNo,Integer gartenId,Integer gradeId,Integer classId ) throws ParseException {
+		Map<String,Object> map=bigcontrolService.babyMessage( token, name,province,city,countries,pageNo, gartenId,gradeId,classId);
 		return map;
 	}
 	
 	@RequestMapping("exportBaby")
 	@ResponseBody
-	public  Map<String,Object> exportBaby(String name ,String province,String city,String countries,Integer gartenId,String leadGrade,String leadClass,HttpServletResponse response) throws IOException{
-		bigcontrolService.exportBaby(name, province, city, countries, gartenId, leadGrade, leadClass, response);
+	public  Map<String,Object> exportBaby(String name ,String province,String city,String countries,Integer gartenId,Integer gradeId,Integer classId,HttpServletResponse response) throws IOException{
+		bigcontrolService.exportBaby(name, province, city, countries, gartenId, gradeId, classId, response);
 		return null;
 	}
 	//首页 -信息管理-老师信息管理  可选:除了token都可选
@@ -324,8 +324,8 @@ public class BigcontrolController {
 		
 		@RequestMapping("order")//查看订单
 		public  @ResponseBody Map<String,Object> order(String token,Integer pageNo,String province,String city,String countries
-				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,String orderDetail,String babyName) throws ParseException, APIConnectionException, APIRequestException {
-			Map<String,Object> map=bigcontrolService.order(  token,pageNo, province, city, countries, gartenId, state, name, phoneNumber, type,orderDetail,babyName);
+				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,String orderDetail,String babyName,Long startTime,Long endTime) throws ParseException, APIConnectionException, APIRequestException {
+			Map<String,Object> map=bigcontrolService.order(  token,pageNo, province, city, countries, gartenId, state, name, phoneNumber, type,orderDetail,babyName,startTime,endTime);
 			return map;
 		}
 
@@ -334,8 +334,8 @@ public class BigcontrolController {
 		@RequestMapping("exportOrder")
 		@ResponseBody
 		public synchronized Map<String,Object> exportOrder(String token,String province,String city,String countries
-				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,HttpServletResponse response,String orderDetail,String babyName){
-			bigcontrolService.exportOrder(token, province, city, countries, gartenId, state, name, phoneNumber, type, response,orderDetail,babyName);
+				,Integer gartenId,Integer state,String name,String phoneNumber,Integer type,HttpServletResponse response,String orderDetail,String babyName,Long startTime,Long endTime){
+			bigcontrolService.exportOrder(token, province, city, countries, gartenId, state, name, phoneNumber, type, response,orderDetail,babyName,startTime,endTime);
 			return null;
 		}
 		
@@ -895,13 +895,13 @@ public class BigcontrolController {
 		
 	//---------------------考勤卡-----------
 		   	
-	   	//员工考勤卡查看
+	   /*	//员工考勤卡查看
 	   	@RequestMapping("employeeCard")
 	   	@ResponseBody
 	   	public Map<String, Object> employeeCard(Long departmentNo,Long jobsNo,Integer employeeNo,Integer pageNo){
 	   		Map<String, Object> map = bigcontrolService.employeeCard(departmentNo, jobsNo, employeeNo,pageNo);
 	   		return map;
-	   	}
+	   	}*/
 	   	//考勤卡查看
 	   	@RequestMapping("cardList")
 	   	@ResponseBody
@@ -911,13 +911,13 @@ public class BigcontrolController {
 	   		return map;
 	   	}
 	   	
-	   	//代理商考勤卡查看
+	   	/*//代理商考勤卡查看
 	   	@RequestMapping("agentCard")
 	   	@ResponseBody
 		public Map<String, Object> agentCard(String province ,String city ,String countries,Integer agentId,Integer pageNo){
 	   		Map<String, Object> map = bigcontrolService.agentCard(province, city, countries, agentId,pageNo);
 	   		return map;
-	   	}
+	   	}*/
 	   	
 	   	//导入考勤卡信息
 	   	@RequestMapping("importCard")
@@ -935,7 +935,6 @@ public class BigcontrolController {
 	   		
 	   		return  null;
 	   	}
-
 	   	//导出员工或代理商考勤卡信息
 	   	@RequestMapping("exportCard")
 	   	@ResponseBody
@@ -1002,4 +1001,41 @@ public class BigcontrolController {
 			Map<String, Object> map = bigcontrolService.downloadAttendanceNoTemplate(response);
 			return  map;
 		}*/
+		
+		//----------修改幼儿园代理商
+		@RequestMapping("changeAgent")
+		@ResponseBody
+		public  Map<String, Object> changeAgent(Integer agentId,Integer agentType,Integer gartenId){
+			Map<String, Object> map = bigcontrolService.changeAgent(agentId, agentType,gartenId);
+			return map;
+		}
+		//----------------------------------总控制端发送给代理商的信息--------------------------------
+		//查找总控制端发送给代理商的信息
+		@RequestMapping(value="findAgentMessage")
+		public  @ResponseBody Map<String, Object> findAgentMessage(Integer pageNo,Long startTime,Long endTime,Integer agentId,Integer state) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+			Map<String, Object> map = bigcontrolService.findAgentMessage(pageNo,startTime,endTime,agentId,state);
+			return map;
+		}
+		
+		//添加总控制端发送给代理商的信息
+		@RequestMapping(value="addAgentMessage")
+		public  @ResponseBody Map<String, Object> addAgentMessage(String token ,String title,String agentMessage,Integer[] agentIds) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+			Map<String, Object> map = bigcontrolService.addAgentMessage(token,title,agentMessage,agentIds);
+			return map;
+		}
+		
+		//删除总控制端发送给代理商的信息
+		@RequestMapping(value="deleteAgentMessage")
+		public  @ResponseBody Map<String, Object> deleteAgentMessage(Integer agentMessageId) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+			Map<String, Object> map = bigcontrolService.deleteAgentMessage(agentMessageId);
+			return map;
+		}
+		
+		//=====================考勤异常处理=============
+	@RequestMapping("yichangResolve")
+	@ResponseBody
+	public Map<String ,Object> yichangResolve(Long startTime , Long endTime,Integer[] gartenIds,String identity){
+		Map<String, Object> map = bigcontrolService.yichangResolve(startTime, endTime, gartenIds, identity);
+		return map;
+	}
 }

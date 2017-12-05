@@ -42,6 +42,7 @@ import com.garten.dao.PrincipalDao;
 import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.agent.AgentAudit;
+import com.garten.model.agent.AgentAuditDetail;
 import com.garten.model.agent.AgentInfo;
 import com.garten.model.agent.AgentMessageAll;
 import com.garten.model.agent.AgentOrder;
@@ -49,7 +50,6 @@ import com.garten.model.agent.SaleService;
 import com.garten.model.agent.WithdrawAll;
 import com.garten.model.agent.WuliaoOrder;
 import com.garten.model.garten.GartenCharge;
-import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.other.EquipmentName;
 import com.garten.model.other.Feedback;
@@ -327,7 +327,7 @@ public class AgentService {
 		public Map<String,Object> childAgentBusiness(String token,Integer agentId,Integer pageNo,Integer type){
 			AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 			 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-			 List<AgentAudit> list = new ArrayList<AgentAudit>();
+			 List<AgentAuditDetail> list = new ArrayList<AgentAuditDetail>();
 			 if(null!=agentInfo){		
 				 if(null!=agentId){		//某个子代理商业绩
 					 list = agentDao.getChildAgentBusiness(agentId);
@@ -343,11 +343,15 @@ public class AgentService {
 							ChildAgent = agentDao.findProChildAgent(agentInfo.getProvince());
 						}
 					 for(AgentInfoAndGarten a:ChildAgent){
-						 List<AgentAudit> agentsList = agentDao.getChildAgentBusiness(a.getAgentId());
+						 List<AgentAuditDetail> agentsList = agentDao.getChildAgentBusiness(a.getAgentId());
 						 list.addAll(agentsList);
 					 }
 				 }
-				
+				 for(AgentAuditDetail a :list){
+						
+						AgentInfo agent = agentDao.findAgentById(a.getResourceId());
+						a.setAgentInfo(agent);
+				}
 				 MyUtil.putMapParams(result,"info", MyPage.listPage16(list, pageNo), "state", 1);
 			 }
 			return result;
@@ -646,7 +650,7 @@ public class AgentService {
 
 
 		//验证
-		public   String wxpayyz(/*String orderNumber, String orderDetail,String price,*/HttpServletRequest httpRequest,
+		public   void wxpayyz(/*String orderNumber, String orderDetail,String price,*/HttpServletRequest httpRequest,
 	            HttpServletResponse httpResponse) throws IOException, JDOMException {
 		          
 		        //读取参数  
@@ -698,8 +702,22 @@ public class AgentService {
 		                String total_fee = (String)packageParams.get("total_fee");  
 		                //////////执行自己的业务逻辑////////////////  
 		                  System.err.println("支付成功");
+		                  System.err.println("支付成功");
+		                  System.err.println("支付成功");
+		                  System.err.println("支付成功");
+		                  System.err.println("支付成功");
 		               // 1完成订单  2增加余额
 		      			AgentOrder a=agentDao.findAgentOrderByOrderNumber(out_trade_no);
+		      			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		      			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		      			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		      			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		      			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		      			
+		      			System.out.println(a);
+		      			System.out.println(a);
+		      			System.out.println(a);
+		      			System.out.println(a);
 		      			Map<String,Object> param=MyUtil.putMapParams("price",a.getPrice(),"agentId",a.getAgentId());
 		      			agentDao.updateAgentCredit(param);
 		      			agentDao.updateAgentOrder(out_trade_no);
@@ -707,7 +725,7 @@ public class AgentService {
 		                //通知微信.异步确认成功.必写.不然会一直通知后台.八次之后就认为交易失败了.  
 		                resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"  
 		                        + "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";  
-		                  return "1.html";
+		                  
 		            } else {  
 		                System.err.println("支付失败,错误信息：" + packageParams.get("err_code"));
 		                System.err.println();
@@ -725,7 +743,7 @@ public class AgentService {
 		        } else{  
 		            System.err.println("通知签名验证失败");
 		        }  
-		          return null;
+		        
 		    
 		}
 		public Map<String, Object> findAgentOrderOne(Long orderNumber) {
@@ -746,5 +764,10 @@ public class AgentService {
 			return result;
 		}
 
+		public Map<String, Object> readAgentMessage(Integer agentMessageId) {
+			bigcontrolDao.readAgentMessage(agentMessageId);
+			Map<String,Object> result=MyUtil.putMapParams("state",1);
+			return result;
+		}
 
 }

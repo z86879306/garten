@@ -124,7 +124,9 @@ public class ParentController {
     		return map;
     	}
   	 
-  	//查询这个宝宝的哪一天代接   哪个宝宝id
+  	 /**查询这个宝宝的哪一天代接   哪个宝宝id
+  	  * [大改 内部 mapper]
+  	  */
      @RequestMapping("daijie")
     	public  @ResponseBody Map<String,Object> daijie(String token,Integer babyId,Long time) throws ParseException  {
         	Map<String ,Object>  map=parentService.daijie( token,babyId,time);
@@ -165,9 +167,13 @@ public class ParentController {
         	Map<String ,Object>  map=parentService.performance(  token, babyId,time );
     		return map;
     	}
-     //这个宝宝的幼儿园
+     /**这个宝宝的幼儿园
+      * 大改 内部 mapper
+     * @throws APIRequestException 
+     * @throws APIConnectionException 
+      */
      @RequestMapping("introduceActivity")
-    	public  @ResponseBody Map<String,Object> introduceActivity(String token,Integer babyId)  {
+    	public  @ResponseBody Map<String,Object> introduceActivity(String token,Integer babyId) throws APIConnectionException, APIRequestException  {
         	Map<String ,Object>  map=parentService.introduceActivity( token,babyId );
     		return map;
     	}
@@ -187,19 +193,23 @@ public class ParentController {
     		return map;
     	}
      
-     //联系人 电话号码
-     @RequestMapping("linkManParent")
-    	public  @ResponseBody Map<String,Object> linkManParent(String token,Integer babyId)  {
-        	Map<String ,Object>  map=parentService.linkManParent( token,babyId );
-    		return map;
-    	}
+     /**联系人 电话号码
+  	 * [大改 内部 classId  mapper]
+  	 */
+  @RequestMapping("linkManParent")
+ 	public  @ResponseBody Map<String,Object> linkManParent(String token,Integer babyId)  {
+     	Map<String ,Object>  map=parentService.linkManParent( token,babyId );
+ 		return map;
+ 	}
      
-   //联系人 电话号码
-     @RequestMapping("linkManWorker")
-    	public  @ResponseBody Map<String,Object> linkManWorker(String token,Integer babyId)  {
-        	Map<String ,Object>  map=parentService.linkManWorker( token,babyId );
-    		return map;
-    	}
+  /**联系人 电话号码
+	 * [大改 内部 classId  mapper]
+	 */
+   @RequestMapping("linkManWorker")
+  	public  @ResponseBody Map<String,Object> linkManWorker(String token,Integer babyId)  {
+      	Map<String ,Object>  map=parentService.linkManWorker( token,babyId );
+  		return map;
+  	}
      
    //送花
      @RequestMapping(value="flower",method=RequestMethod.POST)
@@ -297,11 +307,11 @@ public class ParentController {
    	
    	//获取价格
    	@RequestMapping("getPrice")
-     	@ResponseBody//type 0视频 1考勤 2全部
-     	public Map<String, Object> getPrice(String token,Integer babyId,Integer type,Integer month){
-     		Map<String,Object> result=parentService.getPrice( token,babyId, type,month);
-     		return result;
-     	}
+ 	@ResponseBody//type 0视频 1考勤 2全部
+ 	public Map<String, Object> getPrice(String token,Integer babyId,Integer type,Integer month){
+ 		Map<String,Object> result=parentService.getPrice( token,babyId, type,month);
+ 		return result;
+ 	}
    	
    	//支付宝支付
 	@RequestMapping(value="alipay")

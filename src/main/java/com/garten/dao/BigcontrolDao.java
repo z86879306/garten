@@ -28,7 +28,6 @@ import com.garten.model.company.Jobs;
 import com.garten.model.company.Report;
 import com.garten.model.company.ReportAll;
 import com.garten.model.garten.GartenCharge;
-import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.garten.GartenLesson;
 import com.garten.model.garten.GartenPhotos;
@@ -36,6 +35,7 @@ import com.garten.model.garten.GartenRecipe;
 import com.garten.model.garten.GartenType;
 import com.garten.model.garten.GartenVideo;
 import com.garten.model.garten.PhotoDianZan;
+import com.garten.model.gartenClass.GartenClass;
 import com.garten.model.other.AttendanceNo;
 import com.garten.model.other.Card;
 import com.garten.model.other.CardReturn;
@@ -61,6 +61,7 @@ import com.garten.vo.bigcontrol.DakaCamera;
 import com.garten.vo.bigcontrol.FeedbackDetail;
 import com.garten.vo.bigcontrol.LiveCamera;
 import com.garten.vo.bigcontrol.WorkerMessage;
+import com.garten.vo.garent.GartenAndAgent;
 import com.garten.vo.parent.ParentInfoCharge;
 import com.garten.vo.parent.ParentInfoShort;
 import com.garten.vo.smallcontrol.CardNoDetail;
@@ -125,7 +126,7 @@ public interface BigcontrolDao {
 
 	List<WorkerMessage> findWorkerMessage(Map<String, Object> putMapParams);
 
-	List<GartenInfo> findGartenMessage(Map<String, Object> putMapParams);
+	List<GartenAndAgent> findGartenMessage(Map<String, Object> putMapParams);
 
 	void updateGarten(Map<String, Object> param);
 
@@ -163,7 +164,7 @@ public interface BigcontrolDao {
 
 	AgentInfo findAgentMessgeOne(Map<String, Object> putMapParams);
 
-	List<OrderAll> findOrder(@Param("state")Integer state, @Param("type")Integer type,@Param("province") String province, @Param("city")String city,@Param("countries") String countries,@Param("gartenId") Integer gartenId,@Param("orderDetail")String orderDetail);
+	List<OrderAll> findOrder(Map<String, Object> param);
 
 	void insertGartenInfo(Map<String, Object> param);
 
@@ -421,7 +422,7 @@ public interface BigcontrolDao {
 
 	Card findCardById(Integer cardId);
 
-	void updateCardReturnMoney(Integer cardId);
+	void deleteCard(Integer cardId);
 
 	void addcardReturn(Map<String, Object> params);
 
@@ -436,5 +437,15 @@ public interface BigcontrolDao {
 	void addAgentMessage(Map<String, Object> param);
 
 	void deleteAgentMessage(Integer agentMessageId);
+
+	AttendanceNo findAttendanceNoByInCard(String inCard);
+
+	void deleteYichangLog(Map<String, Object> params);
+
+	void readAgentMessage(Integer agentMessageId);
+
+	void addGartenAttendance(Integer gartenId);
+
+	void removeRepetitionCard();
 
 }

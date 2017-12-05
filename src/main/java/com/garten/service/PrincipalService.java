@@ -17,13 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.garten.dao.ParentDao;
 import com.garten.dao.PrincipalDao;
+import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
 import com.garten.model.activity.ActivityDetail;
 import com.garten.model.activity.ActivityLog;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
 import com.garten.model.baby.BabyPerformanceLog;
-import com.garten.model.garten.GartenClass;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.garten.GartenLesson;
 import com.garten.model.garten.GartenPhotos;
@@ -65,6 +65,8 @@ public class PrincipalService {
 	private ParentDao parentDao;
 	@Autowired
 	private WorkerDao workerDao;
+	@Autowired
+	private SmallcontrolDao smallcontrolDao;
 	public Map<String, Object> login(String phoneNumber, String pwd) {
 		Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
 		WorkerInfo worker=principalDao.findPrincipalByPwd(param);
@@ -181,8 +183,8 @@ public class PrincipalService {
 	}
 	
 	
-	public Map<String, Object> yichangAgree(Integer unusualId) {
-		workerDao.resolveUnusual( unusualId);
+	public Map<String, Object> yichangResolve(Integer unusualId ,Integer state) {
+		workerDao.resolveUnusual( unusualId,state);
 		Map<String,Object> result=MyUtil.putMapParams("state", 1);
 		return result;
 	}
@@ -285,7 +287,7 @@ public class PrincipalService {
 		return result;
 	}
 	public Map<String, Object> getClassAllName(String token) {
-		WorkerInfo workerInfo= principalDao.findPrincipalInfoByToken( token);
+		WorkerInfo workerInfo= smallcontrolDao.findWorkerByToken(token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
 		if(null!=workerInfo){//验证用户
 			List<GartenClassName>  classes=parentDao.findClassesName(MyUtil.putMapParams("token", token));

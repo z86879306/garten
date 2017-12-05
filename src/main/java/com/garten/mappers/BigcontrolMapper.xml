@@ -47,8 +47,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<select id="findOrder"  resultType="OrderAll">
 		SELECT * FROM torder  o
-		
-		left join garten_info g on o.gartenId=g.gartenId
+		join garten_info g on o.gartenId=g.gartenId
 		where 
 		 o.isValid=0 
 		 <if test=" state!=null and state!=''  or state==0">
@@ -72,6 +71,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		  <if test=" orderDetail!=null and orderDetail!='' ">
 		 	and o.orderDetail like '%${orderDetail}%'
 		 </if>
+		 and UNIX_TIMESTAMP(o.orderTime) > #{startTime}-1
+		 and #{endTime}+86400>UNIX_TIMESTAMP(o.orderTime) 
 		 order by o.orderTime desc
 	</select>
 
@@ -97,15 +98,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where  g.isValid=0
 	</select>
 	
-	
-	<select id="findWorkerMessage"  resultType="WorkerMessage">
+	<resultMap id="WorkerMessageMap" type="WorkerMessage" >
+<collection property="gartenClasses" ofType="GartenClass" javaType="ArrayList" column="classId" select="findTeacherByTokenWithGartenClass"/>
+</resultMap>
+<select parameterType="String" resultType="GartenClass" id="findTeacherByTokenWithGartenClass">   
+ select * from garten_class where find_in_set(classId,#{classId})
+  </select>  
+	<select id="findWorkerMessage"  resultMap="WorkerMessageMap">
 		SELECT 	* FROM
 			worker＿info w
 		left join garten_info g on g.gartenId=w.gartenId
 		left join garten_class c on w.classId=c.classId
 		where
 		 w.job not in ('总管理员','园长')
-		and  (c.isvalid=0 or c.isvalid is null) and  (w.isvalid=0 or w.isvalid is null)
+		and  (w.isvalid=0 or w.isvalid is null)
 		 and  (g.isvalid=0 or g.isvalid is null)
 		<if test="	name!=null and name!=''" >
 				and w.workerName=#{name}
@@ -127,7 +133,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			</if>
 	</select>
 	
-	<select id="findGartenMessage"  resultType="GartenInfo">
+	<select id="findGartenMessage"  resultType="GartenAndAgent">
 		SELECT 	* FROM
 			garten_info g 
 		where
@@ -165,18 +171,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	
+	<!--大改  -->
 	<select id="findBabyByIdBig"  resultType="ClassManageBig">
 		SELECT  b.babyName,b.babyId,b.birthday, b.height,
-	 b.health,b.hobby,b.specialty,b.gartenId,b.teacherId, b.babyHead, b.allergy,
-	b.weight,b.sex,b.registTime, w.classId,c.leadClass,c.leadGrade 
+	 b.health,b.hobby,b.specialty,b.gartenId,c.classId, b.babyHead, b.allergy,
+	b.weight,b.sex,b.registTime,c.leadClass,c.leadGrade 
 	FROM
-		baby_info b LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
-		left join garten_class c on  c.classId=w.classId 
+		baby_info b 
+		left join garten_class c on  c.classId=b.classId 
 		WHERE
 		b.babyId = #{babyId}
 		AND (b.isValid = 0 or  b.isValid is null)
-		AND (w.isValid = 0 or w.isvalid is null)
-		AND (c.isValid = 0 or c.isvalid is null)
 		group by b.babyId
 	</select>
 	
@@ -288,11 +293,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT * FROM 
 		baby_info  b 
 		left join  parent_info p on   FIND_IN_SET(b.babyId,p.babyId)
-		left join worker＿info w on FIND_IN_SET(w.workerId, b.teacherId)
-		left join  garten_class c on w.classId=c.classId
+		left join  garten_class c on b.classId=c.classId
 		left join  attendance_no n on n.jobId=b.babyId and n.job='宝宝'
-		left join  garten_info g on   g.gartenId =w.gartenId
-		where  (b.isValid=0 or b.isvalid is null) and (w.isvalid=0 or w.isvalid is null) and (c.isvalid=0 or c.isValid is null)
+		left join  garten_info g on   g.gartenId =b.gartenId
+		where  (b.isValid=0 or b.isvalid is null) 
 		and (n.isvalid=0 or n.isvalid is null)and (g.isvalid=0 or g.isvalid is null)
 		
 		<if test="	name!=null and name!=''" >
@@ -311,11 +315,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="	gartenId!=null and gartenId!=''" >
 				and g.gartenId=#{gartenId}
 			</if>
-			<if test="	leadGrade!=null and leadGrade!=''" >
-				and c.leadGrade=#{leadGrade}
+			<if test="	gradeId!=null and gradeId!=''" >
+				and c.gradeId=#{gradeId}
 			</if>
-			<if test="	leadClass!=null and leadClass!=''" >
-				and c.leadClass=#{leadClass}
+			<if test="	classId!=null and classId!=''" >
+				and c.classId=#{classId}
 			</if>
 			group by b.babyId
 			
@@ -371,7 +375,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT c.leadGrade from garten_class c
 		WHERE
 			 c.gartenId = #{gartenId}
-    	and c.isValid=0 
     	group by c.leadGrade
 	</select>
 	
@@ -380,7 +383,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		WHERE
 			 c.gartenId = #{gartenId}
 			 and c.leadGrade=#{leadGrade}
-    	and c.isValid=0 
     	group by c.leadClass
 	</select>
 	
@@ -432,14 +434,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="getAllGarten" resultType="GartenInfo">
 		select * from garten_info
 	</select>
+	<!--大改  -->
 	<select id="findBabyCheckByToken"  resultType="BabyCheckLogAll">
 		SELECT *		FROM
 		baby_info b LEFT JOIN baby_check_log c on b.babyId=c.babyId
-		LEFT JOIN `worker＿info` w ON FIND_IN_SET(w.workerId, b.teacherId)
+		LEFT JOIN `worker＿info` w ON FIND_IN_SET(b.classId, w.classId)
 		WHERE
 		w.gartenId = #{gartenId}
 		and UNIX_TIMESTAMP(c.time)=#{time}    
-		and b.isValid=0 and c.isValid=0 and w.isValid=0
+		and b.isValid=0 
 		group by b.babyId
 	</select>
 	
@@ -490,7 +493,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			baby_info b,
 			garten_info g
 		WHERE
-			UNIX_TIMESTAMP(b.registTime) > #{start}
+			UNIX_TIMESTAMP(b.registTime) > #{start}-1
 			and #{end}+86400>UNIX_TIMESTAMP(b.registTime) 
 			<if test="	province!=null and province!=''" >
 				and g.province=#{province}
@@ -515,7 +518,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		worker＿info w,
 		garten_info g
 	WHERE
-		UNIX_TIMESTAMP(w.registTime) > #{start}
+		UNIX_TIMESTAMP(w.registTime) > #{start}-1
 			and #{end}+86400>UNIX_TIMESTAMP(w.registTime) 
 	and w.gartenId=g.gartenId
 	and w.job='老师'
@@ -544,7 +547,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			parent_info p,
 			garten_info g
 		WHERE
-			UNIX_TIMESTAMP(p.registTime) > #{start}
+			UNIX_TIMESTAMP(p.registTime) > #{start}-1
 				and #{end}+86400>UNIX_TIMESTAMP(p.registTime) 
 		and g.gartenId=substring_index(p.gartenId,',', 1)<!--对家长的幼儿园ID分割取第一个,这里如果是2是取前2个和的意思'1,2'  -->
 		
@@ -578,7 +581,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			baby_info b,
 			garten_info g
 		WHERE
-			UNIX_TIMESTAMP(b.registTime) > #{start}
+			UNIX_TIMESTAMP(b.registTime) > #{start}-1
 			and #{end}+86400>UNIX_TIMESTAMP(b.registTime)
 			<if test="	province!=null and province!=''" >
 				and g.province=#{province}
@@ -604,7 +607,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		worker＿info w,
 		garten_info g
 	WHERE
-		UNIX_TIMESTAMP(w.registTime) > #{start}
+		UNIX_TIMESTAMP(w.registTime) > #{start}-1
 		and #{end}+86400>UNIX_TIMESTAMP(w.registTime)
 	and w.gartenId=g.gartenId
 	<if test="	province!=null and province!=''" >
@@ -631,7 +634,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			parent_info p,
 			garten_info g
 		WHERE
-			UNIX_TIMESTAMP(p.registTime) > #{start}
+			UNIX_TIMESTAMP(p.registTime) > #{start}-1
 			and #{end}+86400>UNIX_TIMESTAMP(p.registTime)
 		and g.gartenId=substring_index(p.gartenId,',', 1)<!--对家长的幼儿园ID分割取第一个,这里如果是2是取前2个和的意思'1,2'  -->
 		
@@ -775,7 +778,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 				g.monitorTime=FROM_UNIXTIME(#{monitorTime},  '%Y-%m-%d %H:%i:%s'),
 			</if>
 			<if test="	accountState!=null and accountState!=''" >
-				g.accountState=#{accountState}
+				g.accountState=#{accountState},
+			</if>
+			<if test="  agent!=null and agentId!=''  ">
+				g.agent=#{agent},
+			</if>
+			<if test="  agentType!=null and agentType!='' or agentType==0 ">
+				g.agentType=#{agentType}
 			</if>
 		</set>		
 		where g.gartenId=#{gartenId} 
@@ -833,7 +842,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		  name=#{name},
 		  token=#{token},
 		  agentType=#{agentType},
-		  operator=#{operator}
+		  gartenType=#{gartenType}
+		  
 	</insert>
 	
 	<insert id="insertWorkerInfo"  >
@@ -909,8 +919,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		province=#{province},
 		city=#{city},
 		countries=#{countries},
-		token=#{token},
-		operator=#{operator}
+		token=#{token}
+		
 	</insert>
 	
 		<select id="getMachine" resultType="MachineDetail">
@@ -989,14 +999,40 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		</if>
     </select>
     
-    <select id="findVideoByGartenId" resultType="LiveCamera">
-    	select g.gartenName,e.deviceSerial,e.validateCode,gv.type,g.gartenId,
-    	e.cameraIp,e.cameraPort,e.cameraUser,e.cameraPwd,e.cameraId,gv.url,gv.img,gv.pointId
+    <resultMap type="LiveCamera" id="LiveCameraMap">
+    	<id property="cameraId" column="cameraId"/>
+    	<result property="gartenName" column="gartenName"/>
+    	<result property="deviceSerial" column="deviceSerial"/>
+    	<result property="validateCode" column="validateCode"/>
+    	<result property="type" column="gvType"/>
+    	<result property="gartenId" column="gartenId"/>
+    	<result property="cameraIp" column="cameraIp"/>
+		<result property="cameraPort" column="cameraPort"/>    	
+    	<result property="cameraUser" column="cameraUser"/>
+    	<result property="cameraPwd" column="cameraPwd"/>
+    	<result property="url" column="url"/>
+    	<result property="img" column="img"/>
+    	<result property="pointId" column="pointId"/>
+    	<association property="gartenClass" javaType="GartenClass" >
+    		<id property="classId" column="classId"/>
+    		<result property="gradeId" column="gradeId"/>
+    		<result property="leadClass" column="leadClass"/>
+    		<result property="leadGrade" column="leadGrade"/>
+    	</association>
+    </resultMap>
+    
+    <select id="findVideoByGartenId" resultMap="LiveCameraMap">
+    	select 
+    	gv.gartenId,g.gartenName,e.deviceSerial,e.validateCode,gv.url,e.cameraUser,e.cameraPwd,
+    	e.cameraIp,e.cameraPort,e.cameraId,gv.type gvType,gv.pointId,gv.img,gc.*
     	from
-    	equipment e,garten_info g,garten_video gv
-    	where
+    	garten_video gv
+    	left join garten_class gc on gc.classId=gv.pointId
+    	join equipment e   on gv.cameraId=e.cameraId 
+	    join garten_info g on gv.gartenId=g.gartenId
+	    
+    	and  
     	e.isValid=0 and e.macId is null
-    	and e.gartenId=g.gartenId and gv.cameraId=e.cameraId
     	<if test=" province!=null and province!=''">
 			and g.province=#{province}
 		</if>
@@ -1007,7 +1043,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			and g.countries=#{countries}		
 		</if>
 		<if test=" gartenId!=null and gartenId!=''">
-			and g.gartenId=#{gartenId}
+			and gv.gartenId=#{gartenId}
 		</if>
 		group by e.cameraId
     </select>
@@ -1084,7 +1120,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
     <select id="findEquipmentByDeviceSerial" resultType="Equipment">
     	select * from equipment
-    	where deviceSerial=#{deviceSerial}
+    	where deviceSerial=#{deviceSerial} and isValid=0
     </select>
     <select id="findMaxMachineId" resultType="Integer">
 		select max(machineId) from attendance_machine where isvalid=0;  	
@@ -1245,9 +1281,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		phoneNumber=#{newPhoneNumber}
 		where phoneNumber =#{oldPhoneNumber}
 	</update>
+	<!-- 大改  -->
 	<select id="getBabyCardNoList" resultType="CardNoDetail">
 		select an.cardNo1,an.cardNo2,an.cardNo3,an.job,an.jobId,b.babyName name
-		from attendance_no an,garten_info g,baby_info b,worker＿info w
+		from attendance_no an,garten_info g,baby_info b
 		where
 		an.isValid=0
 		and an.gartenId=g.gartenId
@@ -1265,8 +1302,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			and an.gartenId=#{gartenId}
 		</if>
 		<if test=" classId!=null and classId!=''">
-			and w.classId=#{classId}
-			and FIND_IN_SET(w.workerId,b.teacherId)
+			and b.classId=#{classId}
 		</if>
 		group by an.jobId
 	</select>
@@ -1324,7 +1360,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="findClassById" resultType="GartenClass">
 		select * from garten_class
 		where classId=#{classId}
-		and isValid=0
 	</select>
 	<select id="findMachineByMacId" resultType="MachineDetail">
 		select * from attendance_machine 
@@ -1706,11 +1741,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		select * from card
 		where id=#{cardId}
 	</select>
-	<update id="updateCardReturnMoney">
-		update card set returnMoney=0
-		where 
-		id=#{cardId}
-	</update>
+	<delete id="deleteCard">
+		delete from card 
+		where id=#{cardId}
+	</delete>
 	<insert id="addcardReturn">
 		insert into card_return 
 		set
@@ -1724,7 +1758,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			and name=#{name}
 		</if>
 		and UNIX_TIMESTAMP(returnTime) &lt; #{endTime}+86400
-		and UNIX_TIMESTAMP(returnTime) &gt; #{startTime}
+		and UNIX_TIMESTAMP(returnTime) &gt; #{startTime}-1
 	</select>
 	<delete id="deleteCardReturn">
 		delete from card_return
@@ -1732,13 +1766,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</delete>
 	<select id="findAgentMessage" resultType="AgentMessageAll">
 		select  * from    agent_message  where
-		#{startTime} &lt; unix_timestamp(registTime)
-		and unix_timestamp(registTime) &lt; #{endTime}
+		#{startTime}-1 &lt; unix_timestamp(registTime)
+		and unix_timestamp(registTime) &lt; #{endTime}+86400
 		<if test=" agentId!=null  and agentId!='' ">
 			and agentId=#{agentId}
 		</if>
 		<if test="  state!=null  and state!='' ">
-			and state=#{state}
+			and isread=#{state}
 		</if>
 		 order by registTime desc
 	</select>
@@ -1754,5 +1788,35 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		agentId=#{agentId}
 		
 	</insert>
-	
+	<select id="findAttendanceNoByInCard" resultType="AttendanceNo">
+		select * from attendance_no
+		where cardNo1=#{inCard} or cardNo2=#{inCard} or cardNo3=#{inCard}
+	</select>
+	<delete id="deleteYichangLog">
+		delete from unusual
+		where 
+		#{startTime}-1 &lt; unix_timestamp(unusualTime)
+		and unix_timestamp(unusualTime) &lt; #{endTime}+86400
+		and (state=0 or state=2)
+		<if test=" gartenIds!=null and gartenIds!='' ">
+			and find_in_set(gartenId,#{gartenIds})
+		</if>
+		<if test=" identity!=null and identity!='' ">
+			and job=#{identity}
+		</if>
+		
+	</delete>
+	<update id="readAgentMessage" >
+		update     agent_message    set  
+		isread=1 where agentMessageId=#{agentMessageId}
+	</update>
+	<insert id="addGartenAttendance">
+		insert into garten_attendance
+		set gartenId=#{gartenId}
+	</insert>
+	<delete id="removeRepetitionCard">
+		delete from 
+			card 
+		where id not in (select minid from (select min(id) as minid from card group by outCard) b);
+	</delete>
 </mapper> 
