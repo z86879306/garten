@@ -40,7 +40,7 @@ public class BigcontrolController {
 		Map<String,Object> result=bigcontrolService.login( phoneNumber, pwd);
 		return result;
 	}
-	
+	 
 	//发送验证码 在worker里面 sendControl
 	@RequestMapping("updateLogin")//修改密码
 	public  synchronized @ResponseBody Map<String,Object> updateLogin(String phoneNumber,String pwd,String number ) throws ParseException {
