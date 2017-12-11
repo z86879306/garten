@@ -7,49 +7,37 @@ public class WorkerCheckLogAll {
 	
 	private Integer gartenId;
 	private Integer workerId;
-	private Long arriveTime;
-	private Long leaveTime;
 	private Long time;
 	private Integer checkId;
-	private String amFileId;
-	private String pmFileId;
-	private String amMacId;
-	private String pmMacId;
-	private String  arriveImg;
-	private String  leaveImg;
+	private Long amArriveTime;
+	private String amArriveImg;
+	private String amArriveFileId;
+	private String amArriveMacId;
+	private Long amLeaveTime;
+	private String amLeaveImg;
+	private String amLeaveFileId;
+	private String amLeaveMacId;
+	private Long pmArriveTime;
+	private String pmArriveImg;
+	private String pmArriveFileId;
+	private String pmArriveMacId;
+	private Long pmLeaveTime;
+	private String pmLeaveImg;
+	private String pmLeaveFileId;
+	private String pmLeaveMacId;
 	
 	private String workerName;
 	private String workerHead;
 	@Override
 	public String toString() {
-		return "WorkerCheckLogAll [gartenId=" + gartenId + ", workerId=" + workerId + ", arriveTime=" + arriveTime
-				+ ", leaveTime=" + leaveTime + ", time=" + time + ", checkId=" + checkId + ", amFileId=" + amFileId
-				+ ", pmFileId=" + pmFileId + ", amMacId=" + amMacId + ", pmMacId=" + pmMacId + ", arriveImg="
-				+ arriveImg + ", leaveImg=" + leaveImg + ", workerName=" + workerName + ", workerHead=" + workerHead
-				+ "]";
-	}
-	public WorkerCheckLogAll() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-	public WorkerCheckLogAll(Integer gartenId, Integer workerId, Long arriveTime, Long leaveTime, Long time,
-			Integer checkId, String amFileId, String pmFileId, String amMacId,String pmMacID, String arriveImg, String leaveImg,
-			String workerName, String workerHead) {
-		super();
-		this.gartenId = gartenId;
-		this.workerId = workerId;
-		this.arriveTime = arriveTime;
-		this.leaveTime = leaveTime;
-		this.time = time;
-		this.checkId = checkId;
-		this.amFileId = amFileId;
-		this.pmFileId = pmFileId;
-		this.amMacId = amMacId;
-		this.pmMacId = pmMacId;
-		this.arriveImg = arriveImg;
-		this.leaveImg = leaveImg;
-		this.workerName = workerName;
-		this.workerHead = workerHead;
+		return "WorkerCheckLogAll [gartenId=" + gartenId + ", workerId=" + workerId + ", time=" + time + ", checkId="
+				+ checkId + ", amArriveTime=" + amArriveTime + ", amArriveImg=" + amArriveImg + ", amArriveFileId="
+				+ amArriveFileId + ", amArriveMacId=" + amArriveMacId + ", amLeaveTime=" + amLeaveTime + ", amLeaveImg="
+				+ amLeaveImg + ", amLeaveFileId=" + amLeaveFileId + ", amLeaveMacId=" + amLeaveMacId + ", pmArriveTime="
+				+ pmArriveTime + ", pmArriveImg=" + pmArriveImg + ", pmArriveFileId=" + pmArriveFileId
+				+ ", pmArriveMacId=" + pmArriveMacId + ", pmLeaveTime=" + pmLeaveTime + ", pmLeaveImg=" + pmLeaveImg
+				+ ", pmLeaveFileId=" + pmLeaveFileId + ", pmLeaveMacId=" + pmLeaveMacId + ", workerName=" + workerName
+				+ ", workerHead=" + workerHead + "]";
 	}
 	public Integer getGartenId() {
 		return gartenId;
@@ -63,18 +51,6 @@ public class WorkerCheckLogAll {
 	public void setWorkerId(Integer workerId) {
 		this.workerId = workerId;
 	}
-	public Long getArriveTime() {
-		return arriveTime;
-	}
-	public void setArriveTime(Timestamp arriveTime) {
-		this.arriveTime = arriveTime.getTime()/1000;
-	}
-	public Long getLeaveTime() {
-		return leaveTime;
-	}
-	public void setLeaveTime(Timestamp leaveTime) {
-		this.leaveTime = leaveTime.getTime()/1000;
-	}
 	public Long getTime() {
 		return time;
 	}
@@ -86,30 +62,6 @@ public class WorkerCheckLogAll {
 	}
 	public void setCheckId(Integer checkId) {
 		this.checkId = checkId;
-	}
-	public String getAmFileId() {
-		return amFileId;
-	}
-	public void setAmFileId(String amFileId) {
-		this.amFileId = amFileId;
-	}
-	public String getPmFileId() {
-		return pmFileId;
-	}
-	public void setPmFileId(String pmFileId) {
-		this.pmFileId = pmFileId;
-	}
-	public String getArriveImg() {
-		return arriveImg;
-	}
-	public void setArriveImg(String arriveImg) {
-		this.arriveImg = arriveImg;
-	}
-	public String getLeaveImg() {
-		return leaveImg;
-	}
-	public void setLeaveImg(String leaveImg) {
-		this.leaveImg = leaveImg;
 	}
 	public String getWorkerName() {
 		return workerName;
@@ -123,17 +75,133 @@ public class WorkerCheckLogAll {
 	public void setWorkerHead(String workerHead) {
 		this.workerHead = workerHead;
 	}
-	public String getAmMacId() {
-		return amMacId;
+	public Long getAmArriveTime() {
+		return amArriveTime;
 	}
-	public void setAmMacId(String amMacId) {
-		this.amMacId = amMacId;
+	public void setAmArriveTime(Timestamp amArriveTime) {
+		this.amArriveTime = amArriveTime.getTime()/1000;
 	}
-	public String getPmMacId() {
-		return pmMacId;
+	public String getAmArriveImg() {
+		return amArriveImg;
 	}
-	public void setPmMacId(String pmMacId) {
-		this.pmMacId = pmMacId;
+	public void setAmArriveImg(String amArriveImg) {
+		this.amArriveImg = amArriveImg;
+	}
+	public String getAmArriveFileId() {
+		return amArriveFileId;
+	}
+	public void setAmArriveFileId(String amArriveFileId) {
+		this.amArriveFileId = amArriveFileId;
+	}
+	public String getAmArriveMacId() {
+		return amArriveMacId;
+	}
+	public void setAmArriveMacId(String amArriveMacId) {
+		this.amArriveMacId = amArriveMacId;
+	}
+	public Long getAmLeaveTime() {
+		return amLeaveTime;
+	}
+	public void setAmLeaveTime(Timestamp amLeaveTime) {
+		this.amLeaveTime = amLeaveTime.getTime()/1000;
+	}
+	public String getAmLeaveImg() {
+		return amLeaveImg;
+	}
+	public void setAmLeaveImg(String amLeaveImg) {
+		this.amLeaveImg = amLeaveImg;
+	}
+	public String getAmLeaveFileId() {
+		return amLeaveFileId;
+	}
+	public void setAmLeaveFileId(String amLeaveFileId) {
+		this.amLeaveFileId = amLeaveFileId;
+	}
+	public String getAmLeaveMacId() {
+		return amLeaveMacId;
+	}
+	public void setAmLeaveMacId(String amLeaveMacId) {
+		this.amLeaveMacId = amLeaveMacId;
+	}
+	public Long getPmArriveTime() {
+		return pmArriveTime;
+	}
+	public void setPmArriveTime(Timestamp pmArriveTime) {
+		this.pmArriveTime = pmArriveTime.getTime()/1000;
+	}
+	public String getPmArriveImg() {
+		return pmArriveImg;
+	}
+	public void setPmArriveImg(String pmArriveImg) {
+		this.pmArriveImg = pmArriveImg;
+	}
+	public String getPmArriveFileId() {
+		return pmArriveFileId;
+	}
+	public void setPmArriveFileId(String pmArriveFileId) {
+		this.pmArriveFileId = pmArriveFileId;
+	}
+	public String getPmArriveMacId() {
+		return pmArriveMacId;
+	}
+	public void setPmArriveMacId(String pmArriveMacId) {
+		this.pmArriveMacId = pmArriveMacId;
+	}
+	public Long getPmLeaveTime() {
+		return pmLeaveTime;
+	}
+	public void setPmLeaveTime(Timestamp pmLeaveTime) {
+		this.pmLeaveTime = pmLeaveTime.getTime()/1000;
+	}
+	public String getPmLeaveImg() {
+		return pmLeaveImg;
+	}
+	public void setPmLeaveImg(String pmLeaveImg) {
+		this.pmLeaveImg = pmLeaveImg;
+	}
+	public String getPmLeaveFileId() {
+		return pmLeaveFileId;
+	}
+	public void setPmLeaveFileId(String pmLeaveFileId) {
+		this.pmLeaveFileId = pmLeaveFileId;
+	}
+	public String getPmLeaveMacId() {
+		return pmLeaveMacId;
+	}
+	public void setPmLeaveMacId(String pmLeaveMacId) {
+		this.pmLeaveMacId = pmLeaveMacId;
+	}
+	public WorkerCheckLogAll(Integer gartenId, Integer workerId, Long time, Integer checkId, Long amArriveTime,
+			String amArriveImg, String amArriveFileId, String amArriveMacId, Long amLeaveTime, String amLeaveImg,
+			String amLeaveFileId, String amLeaveMacId, Long pmArriveTime, String pmArriveImg, String pmArriveFileId,
+			String pmArriveMacId, Long pmLeaveTime, String pmLeaveImg, String pmLeaveFileId, String pmLeaveMacId,
+			String workerName, String workerHead) {
+		super();
+		this.gartenId = gartenId;
+		this.workerId = workerId;
+		this.time = time;
+		this.checkId = checkId;
+		this.amArriveTime = amArriveTime;
+		this.amArriveImg = amArriveImg;
+		this.amArriveFileId = amArriveFileId;
+		this.amArriveMacId = amArriveMacId;
+		this.amLeaveTime = amLeaveTime;
+		this.amLeaveImg = amLeaveImg;
+		this.amLeaveFileId = amLeaveFileId;
+		this.amLeaveMacId = amLeaveMacId;
+		this.pmArriveTime = pmArriveTime;
+		this.pmArriveImg = pmArriveImg;
+		this.pmArriveFileId = pmArriveFileId;
+		this.pmArriveMacId = pmArriveMacId;
+		this.pmLeaveTime = pmLeaveTime;
+		this.pmLeaveImg = pmLeaveImg;
+		this.pmLeaveFileId = pmLeaveFileId;
+		this.pmLeaveMacId = pmLeaveMacId;
+		this.workerName = workerName;
+		this.workerHead = workerHead;
+	}
+	public WorkerCheckLogAll() {
+		super();
 	}
 	
 }

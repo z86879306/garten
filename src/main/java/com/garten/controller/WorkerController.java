@@ -90,12 +90,13 @@ public class WorkerController {
 	}
 	
 	
-	@RequestMapping("shouye")
-	@ResponseBody
-	public Map<String, Object> shouye(String token){
-		Map<String,Object> result=workerService.shouye( token);
-		return result;
-	}
+	//大改 
+		@RequestMapping("shouye")
+		@ResponseBody
+		public Map<String, Object> shouye(String token){
+			Map<String,Object> result=workerService.shouye( token);
+			return result;
+		}
 	
 	@RequestMapping("getHuanxin")
 	@ResponseBody
@@ -162,15 +163,20 @@ public class WorkerController {
 	/*token"babyName""allergy""birthday""height""hobby"
 	 * "specialty""leadClass""leadGrade""health""babyId"teacherId,weight,sex*/
 
-	//修改某个宝宝
-	@RequestMapping(value="updateBaby",method=RequestMethod.POST)
-	@ResponseBody
-	public synchronized Map<String, Object> updateBaby(String token,String  babyName,String allergy,Long birthday,BigDecimal height,String hobby
-			 ,String specialty ,String leadClass,String leadGrade,String health,Integer babyId,Float  weight,Integer sex ){
-		Map<String,Object> result=workerService.updateBaby(  token,  babyName, allergy, birthday, height, hobby
-				 , specialty , leadClass, leadGrade, health, babyId,weight,sex);
-		return result;
-	}
+		/**
+		 * 修改某个宝宝
+		 * [大改
+		 * 1去掉leadClass ，leadGrade
+		 * 2新增 classId]
+		 */
+		@RequestMapping(value="updateBaby",method=RequestMethod.POST)
+		@ResponseBody
+		public synchronized Map<String, Object> updateBaby(String token,String  babyName,String allergy,Long birthday,BigDecimal height,String hobby
+				 ,String specialty ,Integer classId,String health,Integer babyId,Float  weight,Integer sex ){
+			Map<String,Object> result=workerService.updateBaby(  token,  babyName, allergy, birthday, height, hobby
+					 , specialty , classId, health, babyId,weight,sex);
+			return result;
+		}
 	/**
 	 * 本班级所有的学生表现信息  type 0 未评价 1已评价
 	 * [大改
@@ -244,8 +250,11 @@ public class WorkerController {
    		return map;
    	}
 
-    
-    	//本班级所有代接信息    type  0:申请中  1:已接
+    /**
+     * 本班级所有代接信息    type  0:申请中  1:已接
+     * [大改
+     * 1新增 classId]
+     */
     @RequestMapping("daijie")
    	public  @ResponseBody Map<String,Object> daijie(String token,Integer type,Long time,Integer classId) throws ParseException  {
        	Map<String ,Object>  map=workerService.daijie( token,type,time ,classId);
@@ -258,21 +267,28 @@ public class WorkerController {
        	Map<String ,Object>  map=workerService.agreeDaijie( token,daijieId );
    		return map;
    	}
-    //联系人 电话号码
+    /**联系家长人 电话号码
+     *[ 大改
+     * 新增classId ]
+     */
     @RequestMapping("linkManParent")
-   	public  @ResponseBody Map<String,Object> linkManParent(String token)  {
-       	Map<String ,Object>  map=workerService.linkManParent( token );
+   	public  @ResponseBody Map<String,Object> linkManParent(String token,Integer classId)  {
+       	Map<String ,Object>  map=workerService.linkManParent( token ,classId);
    		return map;
    	}
     
-    //联系人 电话号码
+    /**联系人 老师电话号码
+     * 大改
+     */
     @RequestMapping("linkManWorker")
    	public  @ResponseBody Map<String,Object> linkManWorker(String token )  {
        	Map<String ,Object>  map=workerService.linkManWorker( token );
    		return map;
    	}
     
-  //这个老师的信息
+    /**这个老师的信息
+     * 大改  内部修改
+     */
     @RequestMapping("teacher")
    	public  @ResponseBody Map<String,Object> teacher(String token)  {
        	Map<String ,Object>  map=workerService.teacher( token );
@@ -418,10 +434,13 @@ public class WorkerController {
    		return map;
    	}
   	
-  //视频
+  	/**
+  	 * 视频
+  	 * [大改 新增classId] 
+  	 */
   	@RequestMapping(value="video")
-   	public  @ResponseBody Map<String,Object> video(String token) throws ParseException  {
-       	Map<String ,Object>  map=workerService.video( token);
+   	public  @ResponseBody Map<String,Object> video(String token,Integer classId) throws ParseException  {
+       	Map<String ,Object>  map=workerService.video( token,classId);
    		return map;
    	}
 

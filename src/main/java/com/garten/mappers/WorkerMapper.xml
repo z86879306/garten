@@ -417,7 +417,7 @@ and l.activityId=#{activityId}
 			join worker＿info w on wc.workerId=w.workerId
 		WHERE
 		 w.token = #{token}
-		 and wc.arriveTime is not null
+		 and wc.amArriveTime is not null
     	and wc.isValid=0 and w.isValid=0 
 	</select>
 	

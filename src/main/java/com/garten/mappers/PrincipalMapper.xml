@@ -112,8 +112,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	
     <select id="findWorkerCheckByToken"  resultType="WorkerCheckLogAll">
-			SELECT 	 w.gartenId, w.workerId,c.arriveTime,
-c.leaveTime,c.time,c.checkId, c.amFileId, c.pmFileId, c.amMacId,c.pmMacId, c.arriveImg,  c.leaveImg,
+			SELECT 	 c.*,
 	 w.workerName,w.headImg workerHead 
 	 FROM
 		 		worker_check_log c 
@@ -148,7 +147,7 @@ c.leaveTime,c.time,c.checkId, c.amFileId, c.pmFileId, c.amMacId,c.pmMacId, c.arr
 		LEFT JOIN baby_check_log c ON b.babyId = c.babyId
 		WHERE b.classId = #{classId}
 		AND UNIX_TIMESTAMP(c.time) = #{time}
-		AND b.isValid = 0 AND
+		AND b.isValid = 0
 		GROUP BY b.babyId desc
 	</select>
 	

@@ -98,7 +98,7 @@ public class PrincipalService {
 		if(null!=workerInfo&&!"".equals(workerInfo)){
 			Shouye shouye=workerDao.findWorkerByToken(token);//根据新的token 查找用户构建Shouye对象
 			shouye.setCount(workerDao.findInfoCount(token));//设置通知数
-			MyUtil.putMapParams(result,"state", 1,"info",shouye);//info: token或error  user:首页信息
+			MyUtil.putMapParams(result,"state", 1,"info",shouye,"principal",workerInfo);//info: token或error  user:首页信息
 		}
 		return result;
 	}
@@ -125,7 +125,6 @@ public class PrincipalService {
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
 		if(null!=workerInfo){//验证用户
 			List<WorkerCheckLogAll> workerCheckLogs= principalDao.findWorkerCheckByToken(MyUtil.putMapParams("token", token,"time",time));//获取所有宝宝的晨检 考勤信息
-			System.out.println(workerCheckLogs.get(0));
 			MyUtil.putMapParams(result, "state",1,"info",workerCheckLogs);//排序
 		}
 		return result;

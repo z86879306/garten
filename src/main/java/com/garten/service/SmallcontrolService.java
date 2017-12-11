@@ -929,7 +929,7 @@ public class SmallcontrolService {
 				}
 				AttendanceNo an = new AttendanceNo(job,workerInfo.getGartenId());
 				smallcontrolDao.addAttendanceNo(an);
-				smallcontrolDao.addWorkerTeacher(workerInfo.getGartenId(),an.getJobId(),CryptographyUtil.md5("123456", "lxc"),teacherName,phoneNumber,sex,age,education,certificate,chinese,"老师",jobCall,LyUtils.intChangeToStr(classId),permission,UUID.randomUUID().toString());
+				smallcontrolDao.addWorkerTeacher(workerInfo.getGartenId(),an.getJobId(),CryptographyUtil.md5("123456", "lxc"),teacherName,phoneNumber,sex,age,education,certificate,chinese,job,jobCall,LyUtils.intChangeToStr(classId),permission,UUID.randomUUID().toString());
 				//smallcontrolDao.updateRebootFlag(workerInfo.getGartenId());		//修改信息后 考勤机重启
 			
 				InsertCheckThread insertCheckThread = new InsertCheckThread(an.getJobId(), workerInfo.getGartenId(), 2);

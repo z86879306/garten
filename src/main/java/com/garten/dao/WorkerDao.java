@@ -80,7 +80,7 @@ public interface WorkerDao {
 	public List<BabyLeaveLog> findLeaveLongByClassId(Integer classId);
 	public List<WorkerLeaveLog> findWLeaveLongByToken(Map<String, Object> param);
 	public GartenInfo findGartenInfoById(Integer gartenId);
-	public List<ParentInfoShort> findParentLinkMan(String token);
+	public List<ParentInfoShort> findParentLinkMan(Integer classId);
 	public List<WorkerInfoShort> findTeacherLinkMan(String token);
 	public WorkerInfoShort findTeacherByToken(String token);
 	public List<GartenPhotos> findParentPhotoByToken(Map<String, Object> putMapParams);
@@ -118,7 +118,7 @@ public interface WorkerDao {
 	public ClassManage findBabyById(Integer babyId);
 	public List<UnusualAll> findUnusualAllByClassId(Map<String, Object> param);
 	public void resolveUnusual(@Param("unusualId")Integer unusualId,@Param("state")Integer state);
-	public List<Video> findVideosByToken(String token);
+	public List<Video> findVideosByToken(Map<String, Object> map);
 	public void readNotified(String infoId);
 	public void deleteComment(String commentId);
 	public void deletePhotoComment(String infoId);

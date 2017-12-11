@@ -213,8 +213,8 @@ public class LyUtils {
 	
 	//int数组转为string
 	public static String intChangeToStr(Integer[] inte){
-		String sb="" ;
-		if(inte.length!=0){
+		String sb=null ;
+		if(null!=inte){
 			for(int i=0;i<inte.length;i++)
 			{
 			if(i<inte.length-1)

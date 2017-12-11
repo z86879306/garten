@@ -325,8 +325,10 @@
              <!-- 是否替换资源中的属性-->
              <filtering>false</filtering>
          </resource>
+         
     </resources>
     <plugins>
+    
     	<!-- compiler plugin -->
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>

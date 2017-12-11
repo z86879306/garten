@@ -140,7 +140,7 @@ public class WorkerService{
 				shouye.setSign(null==workerCheckLog||null==workerCheckLog.getAmArriveTime()?0:1);//为null或签到时间没有都是没有签到(基本不为空,基本记录事先已经建好)
 				MyUtil.setShouyeClass(shouye);
 			}
-			MyUtil.putMapParams(result,"state", 1,"info",shouye);//改变返回的数据
+			MyUtil.putMapParams(result,"state", 1,"info",shouye,"worker",workerInfo);//改变返回的数据
 		}
 		return result;
 	}
@@ -216,7 +216,7 @@ public class WorkerService{
 				//请求一次接口 访问次数加一
 				long current = System.currentTimeMillis();
 	            long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
-				Map<String, Object> params = MyUtil.putMapParams("gartenId",babyCheckLogs.get(0).getGartenId(),"type",1,"time",zero/1000);
+				Map<String, Object> params = MyUtil.putMapParams("gartenId",workerInfo.getGartenId(),"type",1,"time",zero/1000);
 	            VisitCount visitCount = parentDao.findVisitCount(params);
 				if(null==visitCount){
 					parentDao.addVisitCount(params);
@@ -320,32 +320,23 @@ public class WorkerService{
 		return result;
 	}
 
+	/**
+	 * 大改
+	 */
 	public Map<String, Object> updateBaby(String token,String  babyName,String allergy,Long birthday,BigDecimal height,String hobby
-			 ,String specialty ,String leadClass,String leadGrade,String health,Integer babyId,Float  weight,Integer sex) {
+			 ,String specialty ,Integer classId ,String health,Integer babyId,Float  weight,Integer sex) {
 		WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-		Map<String,Object> param=MyUtil.putMapParams("token", token,"babyName",  babyName,"allergy", allergy,"birthday", birthday,"height", height,"hobby", hobby
-				 ,"specialty", specialty , "leadClass",leadClass,"leadGrade", leadGrade,"health", health, "babyId",babyId,"weight" , weight,"sex", sex);
+		Map<String,Object> param=MyUtil.putMapParams("token", token,"babyName",  babyName,"allergy", allergy,"birthday", birthday,"height", height,"hobby", hobby,"sex", sex);
+		MyUtil.putMapParams(param,"specialty", specialty , "classId", classId,"health", health ,"babyId",babyId,"weight" , weight );
 		if(null!=workerInfo){//验证用户
-			param.put("gartenId", workerInfo.getGartenId());
-			List<WorkerInfo> workerId=workerDao.findWorkerInfoByClass(param);//是否有这个班级?获取老师编号:返回
-			if(0!=workerId.size()){
-				String str="";
-				for(WorkerInfo w:workerId){
-					str=str+","+w.getWorkerId();
-				}
-				str=str.substring(1,str.length());
-				param.put("teacherId", str);
-				int res=workerDao.findUpdateBabyByToken(param );//修改宝宝
-				ClassManage baby=workerDao.findBabyById(babyId);
-				MyUtil.putMapParams(result,"state", 0==res?0:1,"info",baby);
-			}else{
-				MyUtil.putMapParams(result,"state", 2);//没有这个班级
-			}
-			
+				workerDao.findUpdateBabyByToken(param );//修改宝宝
+				ClassManage baby=workerDao.findBabyById(babyId);//大改
+				MyUtil.putMapParams(result,"state", 1,"info",baby);
 		}
 		return result;
 	}
+
 
 	/**
 	 * 大改
@@ -491,16 +482,19 @@ public class WorkerService{
 			
 		}
 
-		public Map<String, Object> daijie(String token,Integer type,Long time,Integer classId) throws ParseException {
-			time=MyUtil.getYMDLong(time);
-			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
-			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
-			if(null!=workerInfo){//验证用户
-				List<Daijie> daijieInfo=workerDao.findDaijieByClassId(classId);
-				MyUtil.putMapParams(result, "state",1, "info", MyUtil.paixuDaijieLog(daijieInfo,type,time).get("info"));
-			}
-			return result;
-		}
+		/**
+		 * 大改
+		 */
+				public Map<String, Object> daijie(String token,Integer type,Long time,Integer classId) throws ParseException {
+					time=MyUtil.getYMDLong(time);
+					WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
+					Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
+					if(null!=workerInfo){//验证用户
+						List<Daijie> daijieInfo=workerDao.findDaijieByClassId(classId);
+						MyUtil.putMapParams(result, "state",1, "info", MyUtil.paixuDaijieLog(daijieInfo,type,time).get("info"));
+					}
+					return result;
+				}
 		
 		public Map<String, Object> agreeDaijie(String token,Integer daijieId) {
 			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
@@ -541,7 +535,7 @@ public class WorkerService{
 				BabyInfo babyInfo = attendanceDao.findBabyById(unusual.getJobId());
 				ParentInfo parentInfo = parentDao.findParentById(babyInfo.getParentId());
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				String content = "您的孩子"+babyInfo.getBabyName()+"于"+sdf.format(unusual.getUnusualTime());
+				String content = "您的孩子"+babyInfo.getBabyName()+"于"+sdf.format(unusual.getUnusualTime()*1000);
 				Integer mode = unusual.getUnusualType();
 				String type = mode==5?"上午迟到":(mode==6?"上午早退":(mode==7?"下午迟到":(mode==8?"下午早退":(mode==9?"下午提前入园":"下午推迟离园"))));
 				String message = content +type;
@@ -567,11 +561,14 @@ public class WorkerService{
 			return result;
 		}
 
-		public Map<String, Object> linkManParent(String token ) {
+		/**
+		 * 大改
+		 */
+		public Map<String, Object> linkManParent(String token ,Integer classId) {
 			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null,"infoAndroid",null);
 			if(null!=workerInfo){//验证用户
-				List<ParentInfoShort> parents=workerDao.findParentLinkMan(token);
+				List<ParentInfoShort> parents=workerDao.findParentLinkMan(classId);
 				List<WorkerInfoShort> teachers=workerDao.findTeacherLinkMan(token);//该幼儿园所有的职工和园长
 				Map<String,Map> all=MyUtil.paixuParentByZiMu(parents,teachers,0,workerInfo.getGartenId());
 
@@ -579,12 +576,14 @@ public class WorkerService{
 			}
 			return  result;
 		}
-		
+		/**
+		 * 大改
+		 */
 		public Map<String, Object> linkManWorker(String token ) {
 			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null,"infoAndroid",null);
 			if(null!=workerInfo){//验证用户
-				List<ParentInfoShort> parents=workerDao.findParentLinkMan(token);
+				List<ParentInfoShort> parents=null;
 				List<WorkerInfoShort> teachers=workerDao.findTeacherLinkMan(token);//该幼儿园所有的职工和园长
 				Map<String,Map> all=MyUtil.paixuParentByZiMu(parents,teachers,1,workerInfo.getGartenId());
 				MyUtil.putMapParams(result, "state",1, "info",all.get("result"),"infoAndroid",all.get("resultAndroid").get("result"));//一个给安卓用一个给IOS用
@@ -595,7 +594,9 @@ public class WorkerService{
 		
 		
 		
-		
+		/**
+		 * 大改
+		 */
 		public Map<String, Object> teacher(String token) {
 			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0);
@@ -781,28 +782,29 @@ public class WorkerService{
 	}
 	
 
-	public Map<String, Object> video(String token) {
-		WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
-		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-		if(null!=workerInfo){//验证用户
-			List<Video> videos=workerDao.findVideosByToken(token);
-			
-			//请求一次接口 访问次数加一
-			long current = System.currentTimeMillis();
-            long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
-			Map<String, Object> params = MyUtil.putMapParams("gartenId",workerInfo.getGartenId(),"type",2,"time",zero/1000);
-            VisitCount visitCount = parentDao.findVisitCount(params);
-			if(null==visitCount){
-				parentDao.addVisitCount(params);
-			}else{
-				parentDao.updateVisitCount(params);
+	/**
+	 * 大改
+	 */
+		public Map<String, Object> video(String token,Integer classId) {
+			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
+			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+			if(null!=workerInfo){//验证用户
+				List<Video> videos=workerDao.findVideosByToken(MyUtil.putMapParams("token", token, "classId", classId));
+				
+				//请求一次接口 访问次数加一
+				long current = System.currentTimeMillis();
+	            long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
+				Map<String, Object> params = MyUtil.putMapParams("gartenId",workerInfo.getGartenId(),"type",2,"time",zero/1000);
+	            VisitCount visitCount = parentDao.findVisitCount(params);
+				if(null==visitCount){
+					parentDao.addVisitCount(params);
+				}else{
+					parentDao.updateVisitCount(params);
+				}
+				MyUtil.putMapParams(result,"state",1,"info",videos);
 			}
-			
-			MyUtil.putMapParams(result,"state",1,"info",videos);
+			return result;
 		}
-		return result;
-	}
-	
 	
 
 	public Map<String, Object> workerToLeave(String token, String reason, Long startTime, Long endTime) throws ParseException {

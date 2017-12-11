@@ -701,8 +701,8 @@ public  class MyUtil implements ApplicationContextAware{
 			 Set<Long> lons=new HashSet<Long>();
 				for(WorkerCheckLogAll bc:listall){
 						//有异常的Long加入List
-					if(bc.getArriveTime()-getYMDLong(bc.getArriveTime())-getSecond(gartenStartEnd.getArriveEndTime())>0||bc.getLeaveTime()-getYMDLong(bc.getArriveTime())-getSecond(gartenStartEnd.getLeaveStartTime())<0){
-						lons.add(getYMDLong(bc.getArriveTime()));
+					if(bc.getAmArriveTime()-getYMDLong(bc.getAmArriveTime())-getSecond(gartenStartEnd.getArriveEndTime())>0||bc.getPmLeaveTime()-getYMDLong(bc.getAmArriveTime())-getSecond(gartenStartEnd.getLeaveStartTime())<0){
+						lons.add(getYMDLong(bc.getAmArriveTime()));
 					}
 				}
 				return lons;

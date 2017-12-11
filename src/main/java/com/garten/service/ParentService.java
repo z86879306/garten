@@ -183,12 +183,11 @@ public class ParentService {
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null,"attendanceState",null);
 		if(null!=parentInfo){//验证用户
 			List<BabyCheckLogAll> babyCheckLogs= parentDao.findBabyCheckByToken(MyUtil.putMapParams("babyId", babyId,"time",time));//获取所有宝宝的晨检 考勤信息
-			System.err.println(babyCheckLogs.size());
-			
+			ClassManage babyById = parentDao.findBabyById(babyId);
 			//请求一次接口 访问次数加一
 			long current = System.currentTimeMillis();
             long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
-			Map<String, Object> params = MyUtil.putMapParams("gartenId",babyCheckLogs.get(0).getGartenId(),"type",1,"time",zero/1000);
+			Map<String, Object> params = MyUtil.putMapParams("gartenId",babyById.getGartenId(),"type",1,"time",zero/1000);
             VisitCount visitCount = parentDao.findVisitCount(params);
 			if(null==visitCount){
 				parentDao.addVisitCount(params);

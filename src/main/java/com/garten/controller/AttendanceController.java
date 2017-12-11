@@ -35,7 +35,7 @@ public class AttendanceController {
 		String tms= info.getString("tms");
 		String md5tms= info.getString("md5tms");
 		String macId= info.getString("macId");
-		Map<String, Object> result = attendanceService.getPartnerToken(partnerId, tms, md5tms,macId);
+		Map<String, Object> result = attendanceService.getPartnerTokenNew(partnerId, tms, md5tms,macId);
 		return result;
 	}
 	
@@ -69,7 +69,7 @@ public class AttendanceController {
 		String schoolToken= info.getString("schoolToken");
 		String partnerToken= info.getString("partnerToken");
 		String partnerId= info.getString("partnerId");
-		Map<String, Object> result = attendanceService.getPlayTime( schoolToken, partnerToken, partnerId);
+		Map<String, Object> result = attendanceService.getPlayTimeNew( schoolToken, partnerToken, partnerId);
 		return result;
 	}
 	
@@ -90,9 +90,9 @@ public class AttendanceController {
 	}*/
 	
 	//宝宝考勤数据上传{ 新  （4个时间）}
-		@RequestMapping(value="/sendAttendanceDataNew",method=RequestMethod.POST)
+		@RequestMapping(value="/sendAttendanceData",method=RequestMethod.POST)
 		@ResponseBody
-		public synchronized Map<String,Object> sendAttendanceDataNew(@RequestBody JSONObject info){
+		public synchronized Map<String,Object> sendAttendanceData(@RequestBody JSONObject info){
 //			JSONObject jsonObject = JSONObject.parseObject(info);
 			JSONArray array = info.getJSONArray("attendanceInfoList");
 			String js = JSONObject.toJSONString(array);

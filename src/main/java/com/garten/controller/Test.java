@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
@@ -42,6 +43,10 @@ public class Test {
 	
 	public static void main(String[] args) throws ParseException, UnsupportedEncodingException, APIConnectionException, APIRequestException {
 
+		
+		HashMap<Object,Object> hashMap = new HashMap<>();
+		hashMap.put("test1", "value1");
+		System.out.println(hashMap.size());
 	}
 	public static String test1(){
 		Long lon=57600l;
