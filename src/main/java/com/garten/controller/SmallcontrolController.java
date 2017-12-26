@@ -499,7 +499,13 @@ public class SmallcontrolController {
 			Map<String,Object> map=smallcontrolService.messagelog(  token,start,end,pageNo);
 			return map;
 		}
-
+	   	//删除消息历史
+	   	@RequestMapping("deleteMessage")
+	   	@ResponseBody
+	   	public synchronized Map<String,Object> deleteMessage(String token ,Integer messageId){
+	   		Map<String, Object> map = smallcontrolService.deleteMessage(token,messageId);
+	   		return map;
+	   	}
 	   	// 查看老师短信申请列表
 	   	@RequestMapping("teacherMessage")
 	   	@ResponseBody

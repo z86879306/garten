@@ -125,7 +125,7 @@ public class AttendanceService {
 		if(partnerInfo!=null){
 			//合伙商不为空，验证密码md5 加密
 			String md5 = md5Util.getMD5(partnerInfo.getPartnerSecret()+tms).toLowerCase();
-			if(md5tms.equals(md5)){
+			if(md5tms.toLowerCase().equals(md5)){
 				uuid=UUID.randomUUID().toString();
 				MyUtil.putMapParams(param,"token", uuid, "partnerId", partnerId);
 				attendanceDao.updateToken(param);
@@ -166,11 +166,6 @@ public class AttendanceService {
 			}
 			return result;
 		}
-		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
-			result.put("respCode", 600009);
-			result.put("respDesc", "考勤服务到期，请联系成长记忆续费");
-			return result;
-		}
 		//幼儿园   合伙商不为空
 		List<AttGartenClass> list = attendanceDao.findGartenClass(schoolToken);
 		result.put("list", list);
@@ -207,11 +202,6 @@ public class AttendanceService {
 			}
 			return result;
 		}
-		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
-			result.put("respCode", 600009);
-			result.put("respDesc", "考勤服务到期，请联系成长记忆续费");
-			return result;
-		}
 			//幼儿园   合伙商不为空
 			List<BabySimpleInfo> babyList = attendanceDao.findBabyByClassId(classId);
 			result.put("babyList", babyList);
@@ -243,11 +233,8 @@ public class AttendanceService {
 			}
 			return result;
 		}
-		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
-			MyUtil.putMapParams("respCode", 600009, "respDesc", "考勤服务到期，请联系成长记忆续费");
-			if(1==gartenInfo.getAccountState()){
-				MyUtil.putMapParams(result, "respCode", 600011, "respDesc", "幼儿园已被冻结");
-			}
+		if(1==gartenInfo.getAccountState()){
+			MyUtil.putMapParams(result, "respCode", 600011, "respDesc", "幼儿园已被冻结");
 			return result;
 		}	//-----------------------身份 参数验证结束-------------
 		
@@ -328,14 +315,14 @@ public class AttendanceService {
 							//主监护人
 						ParentInfo parent = parentDao.findParentById(baby.getParentId());
 							try {
-								bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,"您的孩子"+baby.getBabyName()+content,parent.getPhoneNumber());
+								bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,"您的孩子"+baby.getBabyName()+content,parent.getPhoneNumber(),2,bai.getBabyId(),baby.getClassId());
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
 							//该班级所有老师
 						for(WorkerInfo w : workers){
 							try {
-								bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,"您的学生"+baby.getBabyName()+content,w.getPhoneNumber());
+								bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,"您的学生"+baby.getBabyName()+content,w.getPhoneNumber(),2,bai.getBabyId(),baby.getClassId());
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -346,7 +333,7 @@ public class AttendanceService {
 						attendanceDao.updateWorkerCheckLog(params);
 						//发送通知
 						try {
-							bigcontrolService.pushOne(MyParamAll.JIGUANG_PRINCIPAL_APP,MyParamAll.JIGUANG_PRINCIPAL_MASTER,workerInfo.getWorkerName()+"老师"+content,principal.getPhoneNumber());
+							bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_PRINCIPAL_APP,MyParamAll.JIGUANG_PRINCIPAL_MASTER,workerInfo.getWorkerName()+"老师"+content,principal.getPhoneNumber(),2,bai.getBabyId(),null);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -364,7 +351,7 @@ public class AttendanceService {
 						for(WorkerInfo w : workers){
 							attendanceDao.addInfoLog(gartenInfo.getGartenId(),info,sdf.format(new Date(bai.getExamDate())),"老师",w.getWorkerId(),baby.getBabyName());
 							try {
-								bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,"您的学生"+baby.getBabyName()+content,w.getPhoneNumber());
+								bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,"您的学生"+baby.getBabyName()+content,w.getPhoneNumber(),3,bai.getBabyId(),baby.getClassId());
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -379,7 +366,7 @@ public class AttendanceService {
 						attendanceDao.addInfoLog(gartenInfo.getGartenId(),info,sdf.format(new Date(bai.getExamDate())),"园长",principal.getWorkerId(),workerInfo.getWorkerName());
 						
 						try {
-							bigcontrolService.pushOne(MyParamAll.JIGUANG_PRINCIPAL_APP,MyParamAll.JIGUANG_PRINCIPAL_MASTER,workerInfo.getWorkerName()+content,principal.getPhoneNumber());
+							bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_PRINCIPAL_APP,MyParamAll.JIGUANG_PRINCIPAL_MASTER,workerInfo.getWorkerName()+content,principal.getPhoneNumber(),3,bai.getBabyId(),null);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -475,7 +462,7 @@ public class AttendanceService {
 								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
 								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"迟到";
 							
-									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
+									bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
 								
 								//添加老师通知记录
 								String teacherIds =(String)param.get("teacherId");
@@ -486,7 +473,7 @@ public class AttendanceService {
 									//添加通知的同时推送通知
 									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
 									
-										bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
+										bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
 									
 								}
 							}else{		//正常签到发送推送
@@ -494,7 +481,7 @@ public class AttendanceService {
 								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
 								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"入园签到";
 								
-									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
+									bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
 								
 								String teacherIds =(String)param.get("teacherId");
 								String[] teacherId = teacherIds.split(",");
@@ -502,7 +489,7 @@ public class AttendanceService {
 								for(String id:teacherId){
 									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
 									
-									bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
+									bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
 									
 								}	
 							}
@@ -515,7 +502,7 @@ public class AttendanceService {
 								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
 								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"早退";
 								
-									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
+									bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
 								
 								//添加老师通知记录
 								String teacherIds =(String)param.get("teacherId");
@@ -525,7 +512,7 @@ public class AttendanceService {
 									attendanceDao.addInfoLog(gartenInfo.getGartenId(),"早退",sdf.format(new Date(bai.getExamDate())),"老师",Integer.valueOf(id),(String)param.get("babyName"));
 									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
 									
-									bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
+									bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
 									
 								}
 							}else{		//正常签到
@@ -533,7 +520,7 @@ public class AttendanceService {
 								String parentPhone = attendanceDao.findParentPhoneById((Integer)param.get("parentId"));
 								content = "您的孩子"+(String)param.get("babyName")+"于"+sdf.format(new Date(bai.getExamDate()))+"离园签退";
 								
-									bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
+									bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,parentPhone);
 								
 								String teacherIds =(String)param.get("teacherId");
 								String[] teacherId = teacherIds.split(",");
@@ -541,7 +528,7 @@ public class AttendanceService {
 								for(String id:teacherId){
 									String teacherPhone = attendanceDao.getTeacherPhoneById(id);
 									
-										bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
+										bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,teacherPhone);
 									
 								}	
 							}
@@ -613,11 +600,6 @@ public class AttendanceService {
 			}
 			return result;
 		}
-		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
-			result.put("respCode", 600009);
-			result.put("respDesc", "考勤服务到期，请联系成长记忆续费");
-			return result;
-		}
 			List<TeacherAndBabyInfo> teacherList = attendanceDao.findTeachers(gartenInfo.getGartenId());
 			List<TeacherAndBabyInfo> babyList = attendanceDao.findBabys(gartenInfo.getGartenId());
 			
@@ -656,11 +638,6 @@ public class AttendanceService {
 			}
 			return result;
 		}
-		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
-			result.put("respCode", 600009);
-			result.put("respDesc", "考勤服务到期，请联系成长记忆续费");
-			return result;
-		}
 		if(gartenInfo==null||partnerInfo==null){
 			result.put("respCode", 600006);
 			result.put("respDesc", "心跳接口调用失败");
@@ -684,13 +661,8 @@ public class AttendanceService {
 		}
 		GartenInfo gartenInfo = attendanceDao.findGartenByToken(schoolToken);
 		PartnerInfo partnerInfo = attendanceDao.findPartnerByTokenAndId(partnerToken, partnerId);
-		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
-			result.put("respCode", 600009);
-			result.put("respDesc", "考勤服务到期，请联系成长记忆续费");
-			
-			if(1==gartenInfo.getAccountState()){
-				MyUtil.putMapParams(result, "respCode", 600011, "respDesc", "幼儿园已被冻结");
-			}
+		if(1==gartenInfo.getAccountState()){
+			MyUtil.putMapParams(result, "respCode", 600011, "respDesc", "幼儿园已被冻结");
 			return result;
 		}
 		if(gartenInfo==null||partnerInfo==null){
@@ -769,10 +741,7 @@ public class AttendanceService {
 			}
 			return result;
 		}
-		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
-			MyUtil.putMapParams(result,"respCode", 600009, "respDesc", "考勤服务到期，请联系成长记忆续费");
-			return result;
-		}//-----------------身份验证结束------------
+		//-----------------身份验证结束------------
 		GartenAttendance attendance = attendanceDao.findGartenAttendanceByGartenId(gartenInfo.getGartenId());
 		if(null==attendance){
 			return MyUtil.putMapParams(result,"respCode", 600010, "respDesc", "考勤时间或者是否允许出入园未设置");
@@ -814,9 +783,10 @@ public class AttendanceService {
 			}
 			return result;
 		}
-		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
-			MyUtil.putMapParams(result,"respCode", 600009, "respDesc", "考勤服务到期，请联系成长记忆续费");
+		if(1==gartenInfo.getAccountState()){
+			MyUtil.putMapParams(result, "respCode", 600011, "respDesc", "幼儿园已被冻结");
 			return result;
+		
 		}//-----------------身份验证结束------------
 		GartenAttendance attendance = attendanceDao.findGartenAttendanceByGartenId(gartenInfo.getGartenId());
 		if(null==attendance){
@@ -859,11 +829,6 @@ public class AttendanceService {
 			}
 			return result;
 		}
-		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
-			result.put("respCode", 600009);
-			result.put("respDesc", "考勤服务到期，请联系成长记忆续费");
-			return result;
-		}
 		//身份、参数正常
 		Map<String, Object> map = attendanceDao.findPlayTimeByGartenToken(schoolToken);
 		String arriveStartTime = (String)map.get("arriveStartTime");
@@ -895,22 +860,6 @@ public class AttendanceService {
 		}
 		if(partnerId==null){
 			return MyUtil.putMapParams(result,"respCode", 1, "respDesc", "请求参数错误，partnerId为空或格式不正确");
-		}
-		GartenInfo gartenInfo = attendanceDao.findGartenByToken(schoolToken);
-		PartnerInfo partnerInfo = attendanceDao.findPartnerByTokenAndId(partnerToken, partnerId);
-		if(null==gartenInfo||null==partnerInfo){
-			result.put("respCode", 600001);
-			result.put("respDesc", "无效合作商或者无效schoolToken");
-			if(null==partnerInfo){
-				result.put("respCode", 600003);
-				result.put("respDesc", "无效的访问令牌或者令牌已过期");
-			}
-			return result;
-		}
-		if(attendanceDao.findAttendanceUseful(schoolToken)==0){
-			result.put("respCode", 600009);
-			result.put("respDesc", "考勤服务到期，请联系成长记忆续费");
-			return result;
 		}
 		Integer rebootFlag = attendanceDao.findGartenRebootFlag(macId);
 		if(rebootFlag==1){

@@ -603,7 +603,12 @@ public class ParentService {
 			ParentInfo parentInfo= parentDao.findParentInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null,"monitor",null);
 		if(null!=parentInfo){//验证用户
+			Integer frost =0;
 			ClassManage baby=findBaby(babyId);
+			GartenInfo gartenInfo = workerDao.findGartenInfoById(baby.getGartenId());
+			if(gartenInfo.getAccountState()==1){
+				frost=1;
+			}
 			Integer monitor=MyUtil.findMonitor(babyId,parentInfo);
 			List<Video> videos=parentDao.findVideos(MyUtil.putMapParams("babyId", babyId,"classId",baby.getClassId()));
 			
@@ -618,7 +623,7 @@ public class ParentService {
 				parentDao.updateVisitCount(params);
 			}
 			
-			MyUtil.putMapParams(result,"state",1,"info",videos,"monitor",monitor);
+			MyUtil.putMapParams(result,"state",1,"info",videos,"monitor",monitor,"frost",frost);	//state 2幼儿园被冻结状态	
 		}
 		return result;
 	}
@@ -695,26 +700,32 @@ public class ParentService {
 												}else if(1==i){
 													big2=MyUtil.getRealPrice(gartenCharge,month);
 												}
-										 	}else{//按照全国的标准
-												//没找到发送反馈	parentDao.insertFeedback(new Feedback(garten.getGartenId(),"家长",new Date().getTime()/1000,parentInfo.getParentId(),garten.getProvince()+"没有"+(0==i?"视频":"考勤")+"收费标准",null,parentInfo.getParentName(),parentInfo.getPhoneNumber()));
-										 		gartenCharge=bigcontrolDao.gartenChargeOne(MyUtil.putMapParams( "province","","city","","countries","","gartenId", 0, "type",i+ 4));
-										 		if(null==gartenCharge){
-										 			return MyUtil.putMapParams("state", 3);			//没有该幼儿园的收费标准
-										 		}
-										 		gartenCharges.add(gartenCharge);
-										 		System.err.println("测试"+gartenCharge);
-										 		if(0==i){
-													big1=MyUtil.getRealPrice(gartenCharge,month);
-												}else if(1==i){
-													big2=MyUtil.getRealPrice(gartenCharge,month);
-												}
 										 	}
 								 	}
 						 	}
 					}
 				}
-				big3=big1.add(big2);
-				MyUtil.putMapParams(result,"state", 1, "info", 0==type?big1:(1==type?big2:big3));
+				if(null==big1){
+					 MyUtil.putMapParams(result,"state", 4,"info","没有视频标准");//么有视频标准
+				}
+				if(null==big2){
+					 MyUtil.putMapParams(result,"state", 5,"info","没有考勤标准");//没有考勤标准
+				}
+				if(null==big2&&null==big1){
+					 MyUtil.putMapParams(result,"state", 3,"info","没有收费标准");//没有收费标准
+				}
+			
+				if(0==type&&null!=big1){//查看视频标准
+					MyUtil.putMapParams(result,"state", 1, "info", big1);
+				}
+				if(1==type&&null!=big2){//查看考勤标准
+					MyUtil.putMapParams(result,"state", 1, "info", big2);
+				}
+				if(2==type&&null!=big1&&null!=big2){//查看全园标准
+					big3=big1.add(big2);
+					MyUtil.putMapParams(result,"state", 1, "info", big3);
+				}
+
 			}
 			
 			return result;
@@ -732,7 +743,7 @@ public class ParentService {
 				BigDecimal big=(BigDecimal) getPrice.get("info");
 				Long orderNumber=System.currentTimeMillis();
 				String orderDetail=0==type?"购买视频":(1==type?"购买考勤":"购买视频和考勤");
-				Order o=new Order(orderNumber,new Date().getTime()/1000,null,"家长",big,orderDetail,parentInfo.getParentId(),type+4,0,0,monthCount,babyId,baby.getGartenId());
+				Order o=new Order(orderNumber,new Date().getTime()/1000,null,"家长",big,orderDetail,parentInfo.getParentId(),type+4,0,0,monthCount,babyId,baby.getGartenId(),null,null);
 				parentDao.insertOrdr(o);//创建未支付订单
 				System.err.println("成功创建==支付宝");
 				System.err.println("成功创建==支付宝");
@@ -873,7 +884,7 @@ public class ParentService {
 				BigDecimal big=(BigDecimal) getPrice.get("info");
 				Long orderNumber=System.currentTimeMillis();
 				String orderDetail=0==type?"购买视频":(1==type?"购买考勤":"购买视频和考勤");
-				Order o=new Order(orderNumber,new Date().getTime()/1000,null,"家长",big,orderDetail,parentInfo.getParentId(),type+4,1,0,monthCount,babyId,baby.getGartenId());
+				Order o=new Order(orderNumber,new Date().getTime()/1000,null,"家长",big,orderDetail,parentInfo.getParentId(),type+4,1,0,monthCount,babyId,baby.getGartenId(),null,null);
 				parentDao.insertOrdr(o);//创建未支付订单
 				System.err.println("成功创建==微信");
 				System.err.println("成功创建==微信");

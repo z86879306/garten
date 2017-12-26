@@ -18,29 +18,26 @@ public class Order {
 	private Integer monthCount;
 	private Integer relateId;
 	private Integer gartenId;
+	private Integer employeeNo;
+	private String employeeName;
 	
+	
+	public Integer getEmployeeNo() {
+		return employeeNo;
+	}
+	public void setEmployeeNo(Integer employeeNo) {
+		this.employeeNo = employeeNo;
+	}
+	public String getEmployeeName() {
+		return employeeName;
+	}
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
 	public Integer getGartenId() {
 		return gartenId;
 	}
 	public void setGartenId(Integer gartenId) {
-		this.gartenId = gartenId;
-	}
-	public Order(Long orderNumber, Long orderTime, Integer orderId, String job, BigDecimal orderMoney,
-			String orderDetail, Integer id, Integer type, Integer payType, Integer state, Integer monthCount,
-			Integer relateId, Integer gartenId) {
-		super();
-		this.orderNumber = orderNumber;
-		this.orderTime = orderTime;
-		this.orderId = orderId;
-		this.job = job;
-		this.orderMoney = orderMoney;
-		this.orderDetail = orderDetail;
-		this.id = id;
-		this.type = type;
-		this.payType = payType;
-		this.state = state;
-		this.monthCount = monthCount;
-		this.relateId = relateId;
 		this.gartenId = gartenId;
 	}
 	public Integer getRelateId() {
@@ -49,9 +46,10 @@ public class Order {
 	public void setRelateId(Integer relateId) {
 		this.relateId = relateId;
 	}
+	
 	public Order(Long orderNumber, Long orderTime, Integer orderId, String job, BigDecimal orderMoney,
 			String orderDetail, Integer id, Integer type, Integer payType, Integer state, Integer monthCount,
-			Integer relateId) {
+			Integer relateId, Integer gartenId, Integer employeeNo, String employeeName) {
 		super();
 		this.orderNumber = orderNumber;
 		this.orderTime = orderTime;
@@ -65,6 +63,9 @@ public class Order {
 		this.state = state;
 		this.monthCount = monthCount;
 		this.relateId = relateId;
+		this.gartenId = gartenId;
+		this.employeeNo = employeeNo;
+		this.employeeName = employeeName;
 	}
 	public Integer getMonthCount() {
 		return monthCount;
@@ -72,44 +73,16 @@ public class Order {
 	public void setMonthCount(Integer monthCount) {
 		this.monthCount = monthCount;
 	}
-	public Order(Long orderNumber, Long orderTime, Integer orderId, String job, BigDecimal orderMoney,
-			String orderDetail, Integer id, Integer type, Integer payType, Integer state, Integer monthCount) {
-		super();
-		this.orderNumber = orderNumber;
-		this.orderTime = orderTime;
-		this.orderId = orderId;
-		this.job = job;
-		this.orderMoney = orderMoney;
-		this.orderDetail = orderDetail;
-		this.id = id;
-		this.type = type;
-		this.payType = payType;
-		this.state = state;
-		this.monthCount = monthCount;
-	}
 	@Override
 	public String toString() {
 		return "Order [orderNumber=" + orderNumber + ", orderTime=" + orderTime + ", orderId=" + orderId + ", job="
 				+ job + ", orderMoney=" + orderMoney + ", orderDetail=" + orderDetail + ", id=" + id + ", type=" + type
-				+ ", payType=" + payType + ", state=" + state + "]";
+				+ ", payType=" + payType + ", state=" + state + ", monthCount=" + monthCount + ", relateId=" + relateId
+				+ ", gartenId=" + gartenId + ", employeeNo=" + employeeNo + ", employeeName=" + employeeName + "]";
 	}
 	public Order() {
 		super();
 		// TODO Auto-generated constructor stub
-	}
-	public Order(Long orderNumber, Long orderTime, Integer orderId, String job, BigDecimal orderMoney,
-			String orderDetail, Integer id, Integer type, Integer payType, Integer state) {
-		super();
-		this.orderNumber = orderNumber;
-		this.orderTime = orderTime;
-		this.orderId = orderId;
-		this.job = job;
-		this.orderMoney = orderMoney;
-		this.orderDetail = orderDetail;
-		this.id = id;
-		this.type = type;
-		this.payType = payType;
-		this.state = state;
 	}
 	public Long getOrderNumber() {
 		return orderNumber;

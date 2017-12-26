@@ -152,11 +152,12 @@ public class BigcontrolController {
 	}
 	//修改幼儿园信息
 	@RequestMapping("updateGarten")//
+	//修改幼儿园信息  操作记录
 	public synchronized  @ResponseBody Map<String,Object> updateGarten(String token,Integer gartenId,String gartenName ,String name,String phoneNumber,String contractNumber,Long  contractStart,Long  contractEnd,String province,String city,String countries ,String address,Integer accountState,BigDecimal charge,Long attendanceTime,Long monitorTime) throws ParseException {
 		Map<String,Object> map=bigcontrolService.updateGarten(  token, gartenId, gartenName , name, phoneNumber, contractNumber,  contractStart,  contractEnd, province, city, countries , address, accountState, charge, attendanceTime, monitorTime);
 		return map;
 	}
-	@RequestMapping("accountGarten")//冻结 解冻
+	@RequestMapping("accountGarten")//冻结 解冻  操作记录
 	public synchronized  @ResponseBody Map<String,Object> accountGarten(String token,Integer gartenId,Integer accountState) throws ParseException {
 		Map<String,Object> map=bigcontrolService.accountGarten(  token, gartenId,accountState);
 		return map;
@@ -181,7 +182,7 @@ public class BigcontrolController {
 		Map<String,Object> map=bigcontrolService.agentAudit( token,resource,pageNo);
 		return map;
 	}
-	//通过开园审核
+	//通过开园审核	操作记录
 		@RequestMapping("agreeAgentAudit")//
 		public synchronized  @ResponseBody Map<String,Object> agreeAgentAudit(String token ,Integer auditId,Integer gartenGrade,Long attendanceTime,Long monitorTime,Long contractStart,Long contractEnd) throws ParseException, IOException {
 			Map<String,Object> map=bigcontrolService.agreeAgentAudit(  token , auditId, gartenGrade, attendanceTime, monitorTime, contractStart, contractEnd);
@@ -189,15 +190,15 @@ public class BigcontrolController {
 		}
 	//不通过开园申请
 		@RequestMapping("refuseAgentAudit")
-		public synchronized  @ResponseBody Map<String,Object> refuseAgentAudit(Integer auditId,String reason){
-			Map<String, Object> map = bigcontrolService.refuseAgentAudit(auditId, reason);
+		public synchronized  @ResponseBody Map<String,Object> refuseAgentAudit(String token,Integer auditId,String reason){
+			Map<String, Object> map = bigcontrolService.refuseAgentAudit(token,auditId, reason);
 			return map;
 		}
-//增加忽略时间(手动)
-		@RequestMapping("ignore")//
-		public synchronized  @ResponseBody void ignore(Integer gartenId) throws ParseException, IOException {
-			bigcontrolService.ignore( gartenId);
-		}
+//增加忽略时间(手动)	 准备删除
+	/*	@RequestMapping("ignore")//
+		public synchronized  @ResponseBody void ignore(String token,Integer gartenId) throws ParseException, IOException {
+			bigcontrolService.ignore( token,gartenId);
+		}*/
 		
 		//首页-幼儿园管理——添加幼儿园
 				@RequestMapping("addGarten")//
@@ -273,18 +274,19 @@ public class BigcontrolController {
 		}
 		//代理商管理-代理商管理 [修改]
 		@RequestMapping("updateAgentMessge")//
-		public synchronized  @ResponseBody Map<String,Object> updateAgentMessge(String token,Integer agentId,String agentName,String phoneNumber,String province,String city,String countries,String cardFragment ) throws ParseException {
-			Map<String,Object> map=bigcontrolService.updateAgentMessge(  token, agentId, agentName, phoneNumber, province, city, countries, cardFragment );
+		public synchronized  @ResponseBody Map<String,Object> updateAgentMessge(String token,Integer agentId,String agentName,String phoneNumber,String province,String city,String countries,String cardFragment,
+				String creditMoney,String agentMoney ,Integer rebate) throws ParseException {
+			Map<String,Object> map=bigcontrolService.updateAgentMessge(  token, agentId, agentName, phoneNumber, province, city, countries, cardFragment,creditMoney,agentMoney,rebate);
 			return map;
 		}
-		//代理商财务管理修改
+		/*//代理商财务管理修改	准备删除
 		@RequestMapping("updateAgentFinance")
 		@ResponseBody
 		public synchronized Map<String,Object> updateAgentFinance(String token, Integer agentId,String creditMoney,String agentMoney ,Integer rebate){
 			Map<String, Object> map = bigcontrolService.updateAgentFinance(token, agentId, creditMoney, agentMoney, rebate);
 			return map;
 			
-		}
+		}*/
 		
 		//代理商管理-代理商业绩统计    (暂时记录代理商签单的幼儿园)
 		@RequestMapping("agentPerformance")//
@@ -311,8 +313,8 @@ public class BigcontrolController {
 		}
 		
 		@RequestMapping("changeGartenDredge")//改变幼儿园视频考勤开通状态  0视频 1考勤   count0 置0  其他 +count月
-		public synchronized  @ResponseBody Map<String,Object> changeGartenDredge(Integer count ,Integer type,Integer gartenId ) throws ParseException {
-			Map<String,Object> map=bigcontrolService.changeGartenDredge(   count,type ,gartenId);
+		public synchronized  @ResponseBody Map<String,Object> changeGartenDredge(String token, Integer count ,Integer type,Integer gartenId ) throws ParseException {
+			Map<String,Object> map=bigcontrolService.changeGartenDredge( token,count,type ,gartenId);
 			return map;
 		}
 		
@@ -348,8 +350,8 @@ public class BigcontrolController {
 		
 		//支付宝支付
 		@RequestMapping(value="alipay")
-		public synchronized  @ResponseBody Map<String, Object> alipay(String token,Integer type,Integer monthCount,Integer gartenId ,Integer parentId,Integer babyId) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException {
-	    	Map<String, Object> map = bigcontrolService.alipay(token,type,monthCount,gartenId ,parentId,babyId);
+		public synchronized  @ResponseBody Map<String, Object> alipay(String token,Integer type,Integer monthCount,Integer gartenId ,Integer parentId,Integer babyId,BigDecimal orderPrice) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, AlipayApiException, APIConnectionException, APIRequestException, IOException {
+	    	Map<String, Object> map = bigcontrolService.alipay(token,type,monthCount,gartenId ,parentId,babyId,orderPrice);
 			return map;
 		}
 	   	
@@ -486,8 +488,8 @@ public class BigcontrolController {
   	//家长关系 添加
   		@RequestMapping("addrelation")
   		@ResponseBody
-  		public synchronized Map<String,Object> addrelation(String relation){
-  			Map<String, Object> map = bigcontrolService.addrelation(relation);
+  		public synchronized Map<String,Object> addrelation(String token , String relation){
+  			Map<String, Object> map = bigcontrolService.addrelation(token ,relation);
   			return map;
   		}
   		
@@ -495,8 +497,8 @@ public class BigcontrolController {
   	//家长关系 删除
   		@RequestMapping("deleterelation")
   		@ResponseBody
-  		public synchronized Map<String,Object> deleterelation(Integer relationId){
-  			Map<String, Object> map = bigcontrolService.deleterelation(relationId);
+  		public synchronized Map<String,Object> deleterelation(String token,Integer relationId){
+  			Map<String, Object> map = bigcontrolService.deleterelation(token , relationId);
   			return map;
   		}
   		
@@ -516,8 +518,8 @@ public class BigcontrolController {
 	   	//删除消息历史
 	   	@RequestMapping("deleteMessage")
 	   	@ResponseBody
-	   	public synchronized Map<String,Object> deleteMessage(Integer messageId){
-	   		Map<String, Object> map = bigcontrolService.deleteMessage(messageId);
+	   	public synchronized Map<String,Object> deleteMessage(String token ,Integer messageId){
+	   		Map<String, Object> map = bigcontrolService.deleteMessage(token,messageId);
 	   		return map;
 	   	}
 	   	
@@ -531,15 +533,15 @@ public class BigcontrolController {
 		
 		 //新增设备及价格
 		@RequestMapping("addEquipmentName")
-		public  @ResponseBody Map<String,Object> addEquipmentName(String equipmentName,BigDecimal  price ) throws ParseException {
-			Map<String, Object> map = bigcontrolService.addEquipmentName(equipmentName,price);
+		public  @ResponseBody Map<String,Object> addEquipmentName(String token , String equipmentName,BigDecimal  price ) throws ParseException {
+			Map<String, Object> map = bigcontrolService.addEquipmentName(token , equipmentName,price);
 			return map;
 		}
 		  
 		 //删除设备及价格
 		@RequestMapping("deleteEquipmentName")
-		public  @ResponseBody Map<String,Object> deleteEquipmentName(Integer equipmentId) throws ParseException {
-			Map<String, Object> map = bigcontrolService.deleteEquipmentName(equipmentId);
+		public  @ResponseBody Map<String,Object> deleteEquipmentName(String token ,Integer equipmentId) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteEquipmentName(token ,equipmentId);
 			return map;
 		}
 
@@ -552,8 +554,8 @@ public class BigcontrolController {
 		}
 		//处理代理商的物料订单 
 		@RequestMapping("resolveWuliaoOrder")//1待发送 2已发送 3拒发送
-		public  @ResponseBody Map<String,Object> resolveWuliaoOrder(Integer wuliaoId,Integer state,String toPhoneNumber,String remark) throws ParseException {
-			Map<String, Object> map = bigcontrolService.resolveWuliaoOrder(wuliaoId,state,toPhoneNumber,remark);
+		public  @ResponseBody Map<String,Object> resolveWuliaoOrder(String token ,Integer wuliaoId,Integer state,String toPhoneNumber,String remark) throws ParseException {
+			Map<String, Object> map = bigcontrolService.resolveWuliaoOrder(token ,wuliaoId,state,toPhoneNumber,remark);
 			return map;
 		}
 		
@@ -582,14 +584,14 @@ public class BigcontrolController {
 		}  
 		//回复售后订单
 		@RequestMapping("replySaleService")
-		public  @ResponseBody Map<String,Object> replySaleService(Long saleServiceId,String reply) throws ParseException {
-			Map<String, Object> map = bigcontrolService.replySaleService(saleServiceId,reply);
+		public  @ResponseBody Map<String,Object> replySaleService(String token ,Long saleServiceId,String reply) throws ParseException {
+			Map<String, Object> map = bigcontrolService.replySaleService(token,saleServiceId,reply);
 			return map;
 		}  
 		//删除售后订单 
 		@RequestMapping("deleteSaleService")
-		public  @ResponseBody Map<String,Object> deleteSaleService(Long saleServiceId) throws ParseException {
-			Map<String, Object> map = bigcontrolService.deleteSaleService(saleServiceId);
+		public  @ResponseBody Map<String,Object> deleteSaleService(String token ,Long saleServiceId) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteSaleService(token,saleServiceId);
 			return map;
 		}  	
 		
@@ -611,8 +613,8 @@ public class BigcontrolController {
 		}  
 		//删除员工
 		@RequestMapping("deleteEmployee")
-		public  @ResponseBody Map<String,Object> deleteEmployee(Integer  employeeNo) throws ParseException {
-			Map<String, Object> map = bigcontrolService.deleteEmployee(employeeNo);
+		public  @ResponseBody Map<String,Object> deleteEmployee(String token ,Integer  employeeNo) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteEmployee(token,employeeNo);
 			return map;
 		}  
 		//修改员工
@@ -672,8 +674,8 @@ public class BigcontrolController {
 		
 		//删除活动
 		@RequestMapping("deleteCpActivity")
-		public  @ResponseBody Map<String,Object> deleteCpActivity(Integer  cpActivityId) throws ParseException {
-			Map<String, Object> map = bigcontrolService.deleteCpActivity(cpActivityId);
+		public  @ResponseBody Map<String,Object> deleteCpActivity(String token ,Integer  cpActivityId) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteCpActivity(token,cpActivityId);
 			return map;
 		}  
 		
@@ -689,9 +691,9 @@ public class BigcontrolController {
 			
 		//修改活动
 		@RequestMapping("updateCpActivity")
-		public  @ResponseBody Map<String,Object> updateCpActivity(Integer cpActivityId,String state
+		public  @ResponseBody Map<String,Object> updateCpActivity(String token ,Integer cpActivityId,String state
 		) throws ParseException {
-			Map<String, Object> map = bigcontrolService.updateCpActivity(  cpActivityId, state);
+			Map<String, Object> map = bigcontrolService.updateCpActivity( token, cpActivityId, state);
 			return map;
 		} 
 
@@ -712,8 +714,8 @@ public class BigcontrolController {
 		}  
 		//删除报表
 		@RequestMapping("deleteReport")
-		public  @ResponseBody Map<String,Object> deleteReport(Integer reportId) throws ParseException {
-			Map<String, Object> map = bigcontrolService.deleteReport(reportId);
+		public  @ResponseBody Map<String,Object> deleteReport(String token ,Integer reportId) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteReport(token ,reportId);
 			return map;
 		}  
 				
@@ -783,8 +785,8 @@ public class BigcontrolController {
 		 * 删除部门
 		 */
 		@RequestMapping("deleteDepartment")
-		public  @ResponseBody Map<String,Object> deleteDepartment( Long departmentNo) throws ParseException {
-			Map<String, Object> map = bigcontrolService.deleteDepartment( departmentNo);
+		public  @ResponseBody Map<String,Object> deleteDepartment( String token ,Long departmentNo) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteDepartment( token,departmentNo);
 			return map;
 		}  
 		
@@ -794,8 +796,8 @@ public class BigcontrolController {
 		 * 添加部门
 		 */
 		@RequestMapping("addDepartment")
-		public  @ResponseBody Map<String,Object> addDepartment( String departmentName,String mark) throws ParseException {
-			Map<String, Object> map = bigcontrolService.addDepartment( departmentName,mark);
+		public  @ResponseBody Map<String,Object> addDepartment( String token ,String departmentName,String mark) throws ParseException {
+			Map<String, Object> map = bigcontrolService.addDepartment( token,departmentName,mark);
 			return map;
 		}  
 //-------------------------- ---- 岗位管理     ----------------         ----------------	
@@ -813,8 +815,8 @@ public class BigcontrolController {
 		 * 删除岗位
 		 */
 		@RequestMapping("deleteJobs")
-		public  @ResponseBody Map<String,Object> deleteJobs( Long jobsNo) throws ParseException {
-			Map<String, Object> map = bigcontrolService.deleteJobs( jobsNo);
+		public  @ResponseBody Map<String,Object> deleteJobs( String token ,Long jobsNo) throws ParseException {
+			Map<String, Object> map = bigcontrolService.deleteJobs( token,jobsNo);
 			return map;
 		}  
 		
@@ -822,8 +824,8 @@ public class BigcontrolController {
 		 * 添加岗位
 		 */
 		@RequestMapping("addJobs")
-		public  @ResponseBody Map<String,Object> addJobs( String jobsName,String mark) throws ParseException {
-			Map<String, Object> map = bigcontrolService.addJobs( jobsName,mark);
+		public  @ResponseBody Map<String,Object> addJobs( String token ,String jobsName,String mark) throws ParseException {
+			Map<String, Object> map = bigcontrolService.addJobs( token,jobsName,mark);
 			return map;
 		}  
 		
@@ -877,8 +879,8 @@ public class BigcontrolController {
 		
 		@RequestMapping("deleteWithdraw")//
 		@ResponseBody
-		public synchronized Map<String,Object> deleteWithdraw(Integer withdrawId){
-			Map<String, Object> map = bigcontrolService.deleteWithdraw( withdrawId);
+		public synchronized Map<String,Object> deleteWithdraw(String token ,Integer withdrawId){
+			Map<String, Object> map = bigcontrolService.deleteWithdraw(token, withdrawId);
 			return map;
 		}
 	
@@ -930,16 +932,16 @@ public class BigcontrolController {
 	   	//下载考勤卡导入模板
 	   	@RequestMapping("downloadCardTemplate")
 	   	@ResponseBody
-	   	public Map<String,Object> downloadCardTemplate(HttpServletResponse response) throws IOException{
-	   		bigcontrolService.downloadCardTemplate(response);
+	   	public Map<String,Object> downloadCardTemplate(String token ,HttpServletResponse response) throws IOException{
+	   		bigcontrolService.downloadCardTemplate(token,response);
 	   		
 	   		return  null;
 	   	}
 	   	//导出员工或代理商考勤卡信息
 	   	@RequestMapping("exportCard")
 	   	@ResponseBody
-	   	public Map<String,Object> exportCard(Integer agentId,Integer agentType ,HttpServletResponse response) throws IOException{
-	   		bigcontrolService.exportCard(agentId, agentType, response);
+	   	public Map<String,Object> exportCard(String token ,Integer agentId,Integer agentType ,HttpServletResponse response) throws IOException{
+	   		bigcontrolService.exportCard(token,agentId, agentType, response);
 	   		return null;
 	   	}
 	   	
@@ -962,8 +964,8 @@ public class BigcontrolController {
 	   	//删除押金退还记录
 	   	@RequestMapping("deleteCardReturn")
 	   	@ResponseBody
-	   	public Map<String,Object> deleteCardReturn(Integer returnId){
-	   		Map<String, Object> map = bigcontrolService.deleteCardReturn(returnId);
+	   	public Map<String,Object> deleteCardReturn(String token ,Integer returnId){
+	   		Map<String, Object> map = bigcontrolService.deleteCardReturn(token,returnId);
 	   		return map;
 	   	}
 	  //---------------------------------幼儿园类型-----------------------	
@@ -973,8 +975,8 @@ public class BigcontrolController {
 			return map;
 		}
 		@RequestMapping(value="deleteGartentype")
-		public  @ResponseBody Map<String, Object> deleteGartentype(Integer gartenType) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
-			Map<String, Object> map = bigcontrolService.deleteGartentype(gartenType);
+		public  @ResponseBody Map<String, Object> deleteGartentype(String token ,Integer gartenType) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+			Map<String, Object> map = bigcontrolService.deleteGartentype(token,gartenType);
 			return map;
 		}
 	   	
@@ -989,8 +991,8 @@ public class BigcontrolController {
 		//---------批量绑定考勤卡----------------
 		@RequestMapping("importAttendanceNo")
 		@ResponseBody
-		public  Map<String, Object> importAttendanceNo(String str , String fileName){
-			Map<String, Object> map = bigcontrolService.importAttendanceNo(str, fileName);
+		public  Map<String, Object> importAttendanceNo(String token ,String str , String fileName){
+			Map<String, Object> map = bigcontrolService.importAttendanceNo(token,str, fileName);
 			return map;
 		}
 		
@@ -1005,8 +1007,8 @@ public class BigcontrolController {
 		//----------修改幼儿园代理商
 		@RequestMapping("changeAgent")
 		@ResponseBody
-		public  Map<String, Object> changeAgent(Integer agentId,Integer agentType,Integer gartenId){
-			Map<String, Object> map = bigcontrolService.changeAgent(agentId, agentType,gartenId);
+		public  Map<String, Object> changeAgent(String token ,Integer agentId,Integer agentType,Integer gartenId){
+			Map<String, Object> map = bigcontrolService.changeAgent(token,agentId, agentType,gartenId);
 			return map;
 		}
 		//----------------------------------总控制端发送给代理商的信息--------------------------------
@@ -1038,4 +1040,13 @@ public class BigcontrolController {
 		Map<String, Object> map = bigcontrolService.yichangResolve(startTime, endTime, gartenIds, identity);
 		return map;
 	}
+	
+	//----------------------------------------------------
+	//查找操作记录
+	@RequestMapping(value="findOperateLog")
+	public  @ResponseBody Map<String, Object> findOperateLog(Integer type,String fromName,String toName,String content,Long startTime,Long endTime,Integer pageNo) throws ParseException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, UnsupportedEncodingException, AlipayApiException, APIConnectionException, APIRequestException {
+		Map<String, Object> map = bigcontrolService.findOperateLog( type, fromName, toName, content, startTime, endTime,pageNo);
+		return map;
+	}	
+
 }

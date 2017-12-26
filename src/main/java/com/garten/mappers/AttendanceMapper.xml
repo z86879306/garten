@@ -110,7 +110,7 @@
     	<result property="babyId" column="babyId"/>
     	<result property="name" column="babyName"/>
     	<result property="classId" column="classId"/>
-    	<result property="classesName" column="leadClass"/>
+    	<result property="classesName" column="classesName"/>
     	<result property="cardNo1" column="cardNo1"/>
     	<result property="cardNo2" column="cardNo2"/>
     	<result property="cardNo3" column="cardNo3"/>
@@ -121,7 +121,7 @@
     
     <select id="findBabys" resultMap="BabysMap">
     	select 
-    		b.babyId,b.babyName,b.classId,gc.leadClass,an.cardNo1,an.cardNo2,an.cardNo3,b.babyHead,an.job
+    		b.babyId,b.babyName,b.classId,CONCAT(gc.leadGrade,gc.leadClass) classesName,an.cardNo1,an.cardNo2,an.cardNo3,b.babyHead,an.job
     	from
     		baby_info b,attendance_No an,garten_class gc
     	where
@@ -355,7 +355,7 @@
     </select>
     
     <select id="findAttendanceUseful" resultType="Integer">
-    	SELECT unix_timestamp(attendanceTime)>unix_timestamp(NOW()) from garten_info WHERE token=#{schoolToken}
+    	SELECT unix_timestamp(attendanceTime)>UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE)) from garten_info WHERE token=#{schoolToken}
     </select>
     
     <insert id="addCheckImg">
@@ -364,7 +364,8 @@
     <select id="findDakaLogIsRepeat" resultType="Dakalog">
     	select * from daka_log 
     	where jobId=#{babyId}
-    	and #{attendanceTime}-unix_timestamp(attendanceTime) &lt; 60
+    	and #{attendanceTime}-unix_timestamp(attendanceTime) &lt; 10
+    	and #{attendanceTime}-unix_timestamp(attendanceTime) &gt; 0
     </select>
     
     <select id="findGartenAttendanceByGartenId" resultType="GartenAttendance">

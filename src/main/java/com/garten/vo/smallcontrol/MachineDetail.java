@@ -3,16 +3,25 @@ package com.garten.vo.smallcontrol;
 public class MachineDetail {
 
 	private String gartenName;
+	private Integer gartenId;
 	private Integer type;
 	private String macId;
 	private Integer machineId;
 	private String partnerId;
 	private String partnerSecret;
+
+	
 	public String getGartenName() {
 		return gartenName;
 	}
 	public void setGartenName(String gartenName) {
 		this.gartenName = gartenName;
+	}
+	public Integer getGartenId() {
+		return gartenId;
+	}
+	public void setGartenId(Integer gartenId) {
+		this.gartenId = gartenId;
 	}
 	public Integer getType() {
 		return type;
@@ -44,6 +53,20 @@ public class MachineDetail {
 	public void setPartnerSecret(String partnerSecret) {
 		this.partnerSecret = partnerSecret;
 	}
+	public MachineDetail() {
+		super();
+	}
+	public MachineDetail(String gartenName, Integer gartenId, Integer type, String macId, Integer machineId,
+			String partnerId, String partnerSecret) {
+		super();
+		this.gartenName = gartenName;
+		this.gartenId = gartenId;
+		this.type = type;
+		this.macId = macId;
+		this.machineId = machineId;
+		this.partnerId = partnerId;
+		this.partnerSecret = partnerSecret;
+	}
 	public MachineDetail(String gartenName, Integer type, String macId, Integer machineId, String partnerId,
 			String partnerSecret) {
 		super();
@@ -53,9 +76,6 @@ public class MachineDetail {
 		this.machineId = machineId;
 		this.partnerId = partnerId;
 		this.partnerSecret = partnerSecret;
-	}
-	public MachineDetail() {
-		super();
 	}
 	
 }

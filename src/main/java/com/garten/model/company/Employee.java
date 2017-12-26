@@ -1,6 +1,5 @@
 package com.garten.model.company;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class Employee {

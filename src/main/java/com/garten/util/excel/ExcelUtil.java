@@ -179,7 +179,7 @@ public class ExcelUtil {
 				//3.2、创建列标题行；并且设置列标
 				HSSFRow row = sheet.createRow(1);
 
-				String titles[]= {"幼儿园名字","注册时间","签约人","联系人手机号码","所属区域","上午入园起始时间","上午入园结束时间","下午离园起始时间","下午离园结束时间","token","考勤期间老师是否允许出园","考勤期间学生是否允许出园","合同号","合同起始时间","合同结束时间","合同机构码"};
+				String titles[]= {"幼儿园名字","注册时间","签约人","联系人手机号码","所属区域","token","合同号","合同起始时间","合同结束时间"};
 				for(int i=0;i<titles.length;i++){
 					HSSFCell cell2 = row.createCell(i);
 					cell2.setCellStyle(style2);
@@ -200,27 +200,13 @@ public class ExcelUtil {
 						HSSFCell cell4 = row2.createCell(4);
 						cell4.setCellValue(list.get(i).getProvince()+list.get(i).getCity()+list.get(i).getCountries());
 						HSSFCell cell5 = row2.createCell(5);
-						cell5.setCellValue(list.get(i).getArriveStartTime());
+						cell5.setCellValue(list.get(i).getToken());
 						HSSFCell cell6 = row2.createCell(6);
-						cell6.setCellValue(list.get(i).getArriveEndTime());
+						cell6.setCellValue(list.get(i).getContractNumber());
 						HSSFCell cell7 = row2.createCell(7);
-						cell7.setCellValue(list.get(i).getLeaveStartTime());
+						cell7.setCellValue(new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date(list.get(i).getContractStart()*1000)));
 						HSSFCell cell8 = row2.createCell(8);
-						cell8.setCellValue(list.get(i).getLeaveEndTime());
-						HSSFCell cell9 = row2.createCell(9);
-						cell9.setCellValue(list.get(i).getToken());
-						HSSFCell cell10 = row2.createCell(10);
-						cell10.setCellValue(0==list.get(i).getTeacherAttendanceFlag()?"允许":"不允许");
-						HSSFCell cell11 = row2.createCell(11);
-						cell11.setCellValue(0==list.get(i).getStudentAttendanceFlag()?"允许":"不允许");
-						HSSFCell cell12 = row2.createCell(12);
-						cell12.setCellValue(list.get(i).getContractNumber());
-						HSSFCell cell13 = row2.createCell(13);
-						cell13.setCellValue(new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date(list.get(i).getContractStart()*1000)));
-						HSSFCell cell14 = row2.createCell(14);
-						cell14.setCellValue(new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date(list.get(i).getContractEnd()*1000)));
-						HSSFCell cell15 = row2.createCell(15);
-						cell15.setCellValue(list.get(i).getOrganizationCode());
+						cell8.setCellValue(new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date(list.get(i).getContractEnd()*1000)));
 						
 					}
 				}

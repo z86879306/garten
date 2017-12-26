@@ -17,25 +17,16 @@ public class GartenInfo {
 	private Long attendanceTime;
 	private Long monitorTime;
 	private BigDecimal charge;
-	private String agent;
-	private String arriveStartTime;
-	private String arriveEndTime;
-	private String leaveStartTime;
-	private String leaveEndTime;
+	private Integer agent;
 	private String token;
-	private Long tokenTime;
 	private String  introduceHtml;
 	private String  introduceImgs;
 	private String  province;
 	private String  city;
 	private String  countries;
-	private Integer  teacherAttendanceFlag;
-	private Integer  studentAttendanceFlag;
-	private Integer  rebootFlag;
 	private String  contractNumber;//合同号
 	private Long  contractStart;
 	private Long  contractEnd;
-	private String  organizationCode;//合同编码
 	private String  name;//签约人
 	private Integer agentType;	//0 员工  1代理商
 	private Integer gartenType;	//幼儿园类型
@@ -66,25 +57,22 @@ public class GartenInfo {
 				+ ", gartenGrade=" + gartenGrade + ", pwd=" + pwd + ", accountState=" + accountState + ", gartenName="
 				+ gartenName + ", applicationState=" + applicationState + ", address=" + address + ", attendanceTime="
 				+ attendanceTime + ", monitorTime=" + monitorTime + ", charge=" + charge + ", agent=" + agent
-				+ ", arriveStartTime=" + arriveStartTime + ", arriveEndTime=" + arriveEndTime + ", leaveStartTime="
-				+ leaveStartTime + ", leaveEndTime=" + leaveEndTime + ", token=" + token + ", tokenTime=" + tokenTime
-				+ ", introduceHtml=" + introduceHtml + ", introduceImgs=" + introduceImgs + ", province=" + province
-				+ ", city=" + city + ", countries=" + countries + ", teacherAttendanceFlag=" + teacherAttendanceFlag
-				+ ", studentAttendanceFlag=" + studentAttendanceFlag + ", rebootFlag=" + rebootFlag
-				+ ", contractNumber=" + contractNumber + ", contractStart=" + contractStart + ", contractEnd="
-				+ contractEnd + ", organizationCode=" + organizationCode + "]";
+				+ ", token=" + token + ", introduceHtml=" + introduceHtml + ", introduceImgs=" + introduceImgs
+				+ ", province=" + province + ", city=" + city + ", countries=" + countries + ", contractNumber="
+				+ contractNumber + ", contractStart=" + contractStart + ", contractEnd=" + contractEnd + ", name="
+				+ name + ", agentType=" + agentType + ", gartenType=" + gartenType + "]";
 	}
 	public GartenInfo() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
+	
 	public GartenInfo(Integer gartenId, String phoneNumber, Long registTime, Integer gartenGrade, String pwd,
 			Integer accountState, String gartenName, Integer applicationState, String address, Long attendanceTime,
-			Long monitorTime, BigDecimal charge, String agent, String arriveStartTime, String arriveEndTime,
-			String leaveStartTime, String leaveEndTime, String token, Long tokenTime, String introduceHtml,
-			String introduceImgs, String province, String city, String countries, Integer teacherAttendanceFlag,
-			Integer studentAttendanceFlag, Integer rebootFlag, String contractNumber, Long contractStart,
-			Long contractEnd, String organizationCode) {
+			Long monitorTime, BigDecimal charge, Integer agent, String token, String introduceHtml,
+			String introduceImgs, String province, String city, String countries, String contractNumber,
+			Long contractStart, Long contractEnd, String name, Integer agentType, Integer gartenType) {
 		super();
 		this.gartenId = gartenId;
 		this.phoneNumber = phoneNumber;
@@ -99,111 +87,18 @@ public class GartenInfo {
 		this.monitorTime = monitorTime;
 		this.charge = charge;
 		this.agent = agent;
-		this.arriveStartTime = arriveStartTime;
-		this.arriveEndTime = arriveEndTime;
-		this.leaveStartTime = leaveStartTime;
-		this.leaveEndTime = leaveEndTime;
 		this.token = token;
-		this.tokenTime = tokenTime;
 		this.introduceHtml = introduceHtml;
 		this.introduceImgs = introduceImgs;
 		this.province = province;
 		this.city = city;
 		this.countries = countries;
-		this.teacherAttendanceFlag = teacherAttendanceFlag;
-		this.studentAttendanceFlag = studentAttendanceFlag;
-		this.rebootFlag = rebootFlag;
 		this.contractNumber = contractNumber;
 		this.contractStart = contractStart;
 		this.contractEnd = contractEnd;
-		this.organizationCode = organizationCode;
-	}
-	
-	
-	public GartenInfo(Integer gartenId, String phoneNumber, Long registTime, Integer gartenGrade, String pwd,
-			Integer accountState, String gartenName, Integer applicationState, String address, Long attendanceTime,
-			Long monitorTime, BigDecimal charge, String agent, String arriveStartTime, String arriveEndTime,
-			String leaveStartTime, String leaveEndTime, String token, Long tokenTime, String introduceHtml,
-			String introduceImgs, String province, String city, String countries, Integer teacherAttendanceFlag,
-			Integer studentAttendanceFlag, Integer rebootFlag, String contractNumber, Long contractStart,
-			Long contractEnd, String organizationCode, String name, Integer agentType, Integer gartenType) {
-		super();
-		this.gartenId = gartenId;
-		this.phoneNumber = phoneNumber;
-		this.registTime = registTime;
-		this.gartenGrade = gartenGrade;
-		this.pwd = pwd;
-		this.accountState = accountState;
-		this.gartenName = gartenName;
-		this.applicationState = applicationState;
-		this.address = address;
-		this.attendanceTime = attendanceTime;
-		this.monitorTime = monitorTime;
-		this.charge = charge;
-		this.agent = agent;
-		this.arriveStartTime = arriveStartTime;
-		this.arriveEndTime = arriveEndTime;
-		this.leaveStartTime = leaveStartTime;
-		this.leaveEndTime = leaveEndTime;
-		this.token = token;
-		this.tokenTime = tokenTime;
-		this.introduceHtml = introduceHtml;
-		this.introduceImgs = introduceImgs;
-		this.province = province;
-		this.city = city;
-		this.countries = countries;
-		this.teacherAttendanceFlag = teacherAttendanceFlag;
-		this.studentAttendanceFlag = studentAttendanceFlag;
-		this.rebootFlag = rebootFlag;
-		this.contractNumber = contractNumber;
-		this.contractStart = contractStart;
-		this.contractEnd = contractEnd;
-		this.organizationCode = organizationCode;
 		this.name = name;
 		this.agentType = agentType;
 		this.gartenType = gartenType;
-	}
-	public GartenInfo(Integer gartenId, String phoneNumber, Long registTime, Integer gartenGrade, String pwd,
-			Integer accountState, String gartenName, Integer applicationState, String address, Long attendanceTime,
-			Long monitorTime, BigDecimal charge, String agent, String arriveStartTime, String arriveEndTime,
-			String leaveStartTime, String leaveEndTime, String token, Long tokenTime, String introduceHtml,
-			String introduceImgs, String province, String city, String countries, Integer teacherAttendanceFlag,
-			Integer studentAttendanceFlag, Integer rebootFlag, String contractNumber, Long contractStart,
-			Long contractEnd, String organizationCode, String name, Integer agentType) {
-		super();
-		this.gartenId = gartenId;
-		this.phoneNumber = phoneNumber;
-		this.registTime = registTime;
-		this.gartenGrade = gartenGrade;
-		this.pwd = pwd;
-		this.accountState = accountState;
-		this.gartenName = gartenName;
-		this.applicationState = applicationState;
-		this.address = address;
-		this.attendanceTime = attendanceTime;
-		this.monitorTime = monitorTime;
-		this.charge = charge;
-		this.agent = agent;
-		this.arriveStartTime = arriveStartTime;
-		this.arriveEndTime = arriveEndTime;
-		this.leaveStartTime = leaveStartTime;
-		this.leaveEndTime = leaveEndTime;
-		this.token = token;
-		this.tokenTime = tokenTime;
-		this.introduceHtml = introduceHtml;
-		this.introduceImgs = introduceImgs;
-		this.province = province;
-		this.city = city;
-		this.countries = countries;
-		this.teacherAttendanceFlag = teacherAttendanceFlag;
-		this.studentAttendanceFlag = studentAttendanceFlag;
-		this.rebootFlag = rebootFlag;
-		this.contractNumber = contractNumber;
-		this.contractStart = contractStart;
-		this.contractEnd = contractEnd;
-		this.organizationCode = organizationCode;
-		this.name = name;
-		this.agentType = agentType;
 	}
 	public Integer getGartenId() {
 		return gartenId;
@@ -277,47 +172,17 @@ public class GartenInfo {
 	public void setCharge(BigDecimal charge) {
 		this.charge = charge;
 	}
-	public String getAgent() {
+	public Integer getAgent() {
 		return agent;
 	}
-	public void setAgent(String agent) {
+	public void setAgent(Integer agent) {
 		this.agent = agent;
-	}
-	public String getArriveStartTime() {
-		return arriveStartTime;
-	}
-	public void setArriveStartTime(String arriveStartTime) {
-		this.arriveStartTime = arriveStartTime;
-	}
-	public String getArriveEndTime() {
-		return arriveEndTime;
-	}
-	public void setArriveEndTime(String arriveEndTime) {
-		this.arriveEndTime = arriveEndTime;
-	}
-	public String getLeaveStartTime() {
-		return leaveStartTime;
-	}
-	public void setLeaveStartTime(String leaveStartTime) {
-		this.leaveStartTime = leaveStartTime;
-	}
-	public String getLeaveEndTime() {
-		return leaveEndTime;
-	}
-	public void setLeaveEndTime(String leaveEndTime) {
-		this.leaveEndTime = leaveEndTime;
 	}
 	public String getToken() {
 		return token;
 	}
 	public void setToken(String token) {
 		this.token = token;
-	}
-	public Long getTokenTime() {
-		return tokenTime;
-	}
-	public void setTokenTime(Timestamp tokenTime) {
-		this.tokenTime = tokenTime.getTime()/1000;
 	}
 	public String getIntroduceHtml() {
 		return introduceHtml;
@@ -349,24 +214,6 @@ public class GartenInfo {
 	public void setCountries(String countries) {
 		this.countries = countries;
 	}
-	public Integer getTeacherAttendanceFlag() {
-		return teacherAttendanceFlag;
-	}
-	public void setTeacherAttendanceFlag(Integer teacherAttendanceFlag) {
-		this.teacherAttendanceFlag = teacherAttendanceFlag;
-	}
-	public Integer getStudentAttendanceFlag() {
-		return studentAttendanceFlag;
-	}
-	public void setStudentAttendanceFlag(Integer studentAttendanceFlag) {
-		this.studentAttendanceFlag = studentAttendanceFlag;
-	}
-	public Integer getRebootFlag() {
-		return rebootFlag;
-	}
-	public void setRebootFlag(Integer rebootFlag) {
-		this.rebootFlag = rebootFlag;
-	}
 	public String getContractNumber() {
 		return contractNumber;
 	}
@@ -384,12 +231,6 @@ public class GartenInfo {
 	}
 	public void setContractEnd(Timestamp contractEnd) {
 		this.contractEnd = contractEnd.getTime()/1000;
-	}
-	public String getOrganizationCode() {
-		return organizationCode;
-	}
-	public void setOrganizationCode(String organizationCode) {
-		this.organizationCode = organizationCode;
 	}
 
 }

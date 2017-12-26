@@ -166,26 +166,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT * FROM wuliao_order  w
 		where w.isvalid=0
 		
+		<if test="	resource!=null and resource!=''" >
+				and resource=#{resource}
+		</if>
 		<if test="	agentId!=null and agentId!=''" >
 				and agentId=#{agentId}
-			</if>
-			<if test="	state!=null and state!=''" >
-				and w.state=#{state}
-			</if>
-			<if test="	wuliaoId!=null and wuliaoId!=''" >
-				and w.wuliaoId=#{wuliaoId}
-			</if>
+		</if>
+		<if test="	state!=null and state!=''" >
+			and w.state=#{state}
+		</if>
+		<if test="	wuliaoId!=null and wuliaoId!=''" >
+			and w.wuliaoId=#{wuliaoId}
+		</if>
 			 
 	</select>
 	
-	<insert id="addWuliaoOrder"  >
+	<insert id="addWuliaoOrder" useGeneratedKeys="true" keyProperty="wuliaoId" parameterType="WuliaoOrder">
 		insert into  wuliao_order  
 		set 
 		equipmentAll=#{equipmentAll},
 		address=#{address},
 		postalcode=#{postalcode},
 		agentId=#{agentId},
-		fromPhonenumber=#{fromPhoneNumber},
+		fromPhonenumber=#{fromPhonenumber},
 		totalPrice=#{totalPrice},
 		resource=#{resource},
 		remark=#{remark}

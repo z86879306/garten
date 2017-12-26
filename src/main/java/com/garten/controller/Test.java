@@ -15,11 +15,13 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 import com.garten.Thread.HuanXinThread;
 import com.garten.service.BigcontrolService;
 import com.garten.util.LyParam;
 import com.garten.util.lxcutil.MyParamAll;
+import com.garten.util.md5.md5Util;
 import com.garten.util.myutil.MyUtil;
 import com.mysql.fabric.xmlrpc.base.Array;
 
@@ -42,11 +44,13 @@ public class Test {
 	private static BigcontrolService bigcontrolService;
 	
 	public static void main(String[] args) throws ParseException, UnsupportedEncodingException, APIConnectionException, APIRequestException {
-
+		//bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,"测试12.18老师端","18367803779",3,3,368);
+		//bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,"测试13:31","18767793269");
+		//System.out.println(md5Util.getMD5("a1bf8994-704a-4bb3-956f-2bf5ad29e3ba"+"1513652217000"));
+		Integer a =1;
+		Integer b =1;
+		System.out.println(a.equals(b));
 		
-		HashMap<Object,Object> hashMap = new HashMap<>();
-		hashMap.put("test1", "value1");
-		System.out.println(hashMap.size());
 	}
 	public static String test1(){
 		Long lon=57600l;
@@ -202,5 +206,7 @@ public class Test {
 		  return flag;
 		  
 	  }
+	  
+	  
 	  
 }

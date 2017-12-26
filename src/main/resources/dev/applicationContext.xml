@@ -15,8 +15,16 @@
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd    
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd ">  
 	<!-- 自动扫描 -->
-<context:component-scan base-package="com.garten.service" />
+	<context:component-scan base-package="com.garten.service" />
+	
+	
+	<!-- 	<context:component-scan base-package="com.garten.Aspect" />
 		
+		开启aop注解方式,默认为false    
+       <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+		 -->
+		 
+		 
 		<!-- 定时任务的注解驱动 -->
 	<task:annotation-driven /> <!-- 定时器开关-->  
      <bean id="timeTask" class="com.garten.util.TimeTask"></bean>  

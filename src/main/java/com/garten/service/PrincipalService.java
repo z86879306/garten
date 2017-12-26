@@ -379,8 +379,13 @@ public class PrincipalService {
 		WorkerInfo workerInfo= principalDao.findPrincipalInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		if(null!=workerInfo){//验证用户
+			Integer frost =0;
+			GartenInfo gartenInfo = workerDao.findGartenInfoById(workerInfo.getGartenId());
+			if(gartenInfo.getAccountState()==1){
+				frost=1;
+			}
 			List<Video> videos=principalDao.findVideosByToken(MyUtil.putMapParams("token", token,"classId",classId));
-			MyUtil.putMapParams(result,"state",1,"info",videos);
+			MyUtil.putMapParams(result,"state",1,"info",videos,"frost",frost);//frost 1被冻结状态	
 		}
 		return result;
 	}

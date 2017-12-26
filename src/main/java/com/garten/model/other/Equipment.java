@@ -2,15 +2,23 @@ package com.garten.model.other;
 
 public class Equipment {
 	
+	private Integer cameraId;
 	private Integer gartenId;
 	private String cameraIp;
 	private Integer cameraPort;
 	private String cameraUser;
 	private String cameraPwd;
 	private Integer type;
-	private Integer macId;
+	private String macId;
 	private String deviceSerial;
 	private String validateCode;
+	
+	public Integer getCameraId() {
+		return cameraId;
+	}
+	public void setCameraId(Integer cameraId) {
+		this.cameraId = cameraId;
+	}
 	public Integer getGartenId() {
 		return gartenId;
 	}
@@ -47,12 +55,6 @@ public class Equipment {
 	public void setType(Integer type) {
 		this.type = type;
 	}
-	public Integer getMacId() {
-		return macId;
-	}
-	public void setMacId(Integer macId) {
-		this.macId = macId;
-	}
 	public String getDeviceSerial() {
 		return deviceSerial;
 	}
@@ -65,9 +67,17 @@ public class Equipment {
 	public void setValidateCode(String validateCode) {
 		this.validateCode = validateCode;
 	}
-	public Equipment(Integer gartenId, String cameraIp, Integer cameraPort, String cameraUser, String cameraPwd,
-			Integer type, Integer macId, String deviceSerial, String validateCode) {
+	
+	public String getMacId() {
+		return macId;
+	}
+	public void setMacId(String macId) {
+		this.macId = macId;
+	}
+	public Equipment(Integer cameraId, Integer gartenId, String cameraIp, Integer cameraPort, String cameraUser,
+			String cameraPwd, Integer type, String macId, String deviceSerial, String validateCode) {
 		super();
+		this.cameraId = cameraId;
 		this.gartenId = gartenId;
 		this.cameraIp = cameraIp;
 		this.cameraPort = cameraPort;

@@ -546,7 +546,9 @@ WHERE v.type = 0 AND (v.pointId!=#{classId}  or #{classId} is null)	)
 		monthCount=#{monthCount},
 		relateId=#{relateId},
         gartenId=#{gartenId},
-        state=#{state}
+        state=#{state},
+        employeeNo=#{employeeNo},
+        employeeName=#{employeeName}
     </insert>
     
     

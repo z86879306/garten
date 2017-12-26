@@ -60,14 +60,14 @@ public class MyParamAll {
 	//Alipay ALIPAY_PUBLIC_KEY支付宝公钥
 	public static final String MYALIPAY_ALIPAYPUBLICKEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlBjo88f7bFy5267QD4rCPYaH7ZOD881n0hAPVfOO4Mcxq1tyL7tGLEWp2Q3ZmaGLmZREMGCJ1h8ol3ruTOx1Y9sJc+9XPhyQG9j31rUSNMbe8KhIWiCQhe1fcHs5j3kNCU/t8goELb8QZBfmlBiMDPmpYuju/ow1Rpf22tnBWrEt+KJgmC5D/E5Vu7PdPzOT4zwOPCR6WJtXhDP+aqQ20QlfDHZ/KhytfRCWLnNbhXIQzdSd1ltX2NBykaZUVuZFar+WocT55nWgbDq4dtKssTuL7EUTgX2bXv50tBZ2d3dx6QVndAhR5tINiT+KzCFWmROuQLBOTM1yS8cDp81pAQIDAQAB";
 	//Alipay NotifyUrl支付宝回调函数						  
-	public static final String MYALIPAY_NOTIFYURL = "http://cms.ahczjy.cc/parent/alipayyz.do";
-	public static final String MYALIPAY_NOTIFYURL_CONTROL = "http://cms.ahczjy.cc/smallcontrol/alipayyz.do";
+	public static final String MYALIPAY_NOTIFYURL = "http://cms.ahczjy.cc:8081/parent/alipayyz.do";
+	public static final String MYALIPAY_NOTIFYURL_CONTROL = "http://cms.ahczjy.cc:8081/smallcontrol/alipayyz.do";
 	//幼儿园后台主页面
-	public static final String MYALIPAY_NOTIFYURL_MANAGE = "http://cms.ahczjy.cc/smallcontrol/manage.html#/payQuery";
+	public static final String MYALIPAY_NOTIFYURL_MANAGE = "http://cms.ahczjy.cc:8081/smallcontrol/manage.html#/payQuery";
 	//代理商购买信用额度的回调
-	public static final String MYALIPAY_NOTIFYURL_AGENT = "http://cms.ahczjy.cc/agent/alipayyz.do";
+	public static final String MYALIPAY_NOTIFYURL_AGENT = "http://cms.ahczjy.cc:8081/agent/alipayyz.do";
 	//代理商购买信用额度完成的会跳
-	public static final String MYALIPAY_NOTIFYURL_MANAGE_AGENT = "http://cms.ahczjy.cc/agentcontrol/manage.html";
+	public static final String MYALIPAY_NOTIFYURL_MANAGE_AGENT = "http://cms.ahczjy.cc:8081/agentcontrol/manage.html";
 
 	//Wxin 微信appid
 	public static final String MYWXIN_APPID = "wx5016949865cc41f1";

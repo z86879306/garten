@@ -73,7 +73,7 @@ public interface AgentDao {
 	
 	List<WuliaoOrder> findWuliaoOrder(Map<String, Object> param);
 
-	void addWuliaoOrder(Map<String, Object> param);
+	void addWuliaoOrder(WuliaoOrder wuliaoOrder);
 
 	void deleteWuliaoOrder(Integer wuliaoId);
 

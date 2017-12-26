@@ -45,6 +45,8 @@ import com.garten.model.other.Equipment;
 import com.garten.model.other.EquipmentName;
 import com.garten.model.other.Feedback;
 import com.garten.model.other.InfoLog;
+import com.garten.model.other.MessageLog;
+import com.garten.model.other.OperateLog;
 import com.garten.model.other.Order;
 import com.garten.model.other.Version;
 import com.garten.model.parent.ParentInfo;
@@ -166,7 +168,7 @@ public interface BigcontrolDao {
 
 	List<OrderAll> findOrder(Map<String, Object> param);
 
-	void insertGartenInfo(Map<String, Object> param);
+	Integer insertGartenInfo(GartenInfo gartenInfo);
 
 	void insertWorkerInfo(Map<String, Object> param);
 
@@ -217,8 +219,7 @@ public interface BigcontrolDao {
 	
 	List<LiveCamera> findVideoByGartenId(@Param("gartenId")Integer gartenId, @Param("province")String province, @Param("city")String city, @Param("countries")String countries);
 
-	void addDakaCamera(@Param("gartenId")Integer gartenId,@Param("cameraIp") String cameraIp, @Param("cameraPort")String cameraPort, @Param("cameraPwd")String cameraPwd, @Param("cameraUser")String cameraUser,
-			@Param("type")Integer type, @Param("macId")String macId, @Param("deviceSerial")String deviceSerial, @Param("validateCode")String validateCode);
+	Integer addDakaCamera(Equipment equipment);
 
 	String getDeviceSerialById(Integer cameraId);
 
@@ -260,7 +261,7 @@ public interface BigcontrolDao {
 	
 	List<Relation> relation();
 
-	void addrelation(String relation);
+	Integer addrelation(Relation relation);
 
 	void deleterelation(Integer relationId);
 
@@ -296,7 +297,7 @@ public interface BigcontrolDao {
 
 	List<EquipmentName> findEquipmentName();
 
-	void addEquipmentName(Map<String, Object> putMapParams);
+	void addEquipmentName(EquipmentName equipmentName);
 
 	void deleteEquipmentName(Integer equipmentId);
 
@@ -334,13 +335,13 @@ public interface BigcontrolDao {
 
 	void updateEmployee(Map<String, Object> param);
 
-	void addEmployee(Map<String, Object> param);
+	void addEmployee(Employee employee);
 
 	List<CpActivity> findCpActivity(Map<String, Object> param);
 
 	void deleteCpActivity(Integer cpActivityId);
 
-	void addCpActivity(Map<String, Object> param);
+	void addCpActivity(CpActivity cpActivity);
 
 	void updateCpActivity(Map<String, Object> param);
 
@@ -350,7 +351,7 @@ public interface BigcontrolDao {
 
 	void deleteReport(Integer reportId);
 
-	void addReport(Map<String, Object> param);
+	void addReport(Report report);
 	
 	List<Report> findMyReport(Map<String, Object> param);
 
@@ -368,7 +369,7 @@ public interface BigcontrolDao {
 
 	void deleteDepartment(Long departmentno);
 
-	void addDepartment(Map<String, Object> param);
+	void addDepartment(Department department);
 
 	Boolean ifExistDepartment(String departmentName);
 
@@ -380,7 +381,7 @@ public interface BigcontrolDao {
 
 	Boolean ifExistJobs(String jobsName);
 
-	void addJobs(Map<String, Object> param);
+	void addJobs(Jobs jobs);
 
 	Jobs findJobsByEmployeeNo(Integer employeeNo);
 
@@ -412,7 +413,7 @@ public interface BigcontrolDao {
 
 	List<Card> findCard(@Param("agentId")Integer agentId, @Param("agentType")Integer agentType,@Param("gartenId")Integer gartenId);
 
-	void addGartentype(Map<String, Object> param);
+	void addGartentype(GartenType gartenType);
 
 	void deleteGartentype(Integer gartenType);
 
@@ -448,4 +449,26 @@ public interface BigcontrolDao {
 
 	void removeRepetitionCard();
 
+	void insertOperateLog(OperateLog log);
+
+	GartenCharge findChargeById(Integer chargeId);
+
+	Equipment findEquipmentById(Integer cameraId);
+
+	Relation findParentRelationById(Integer relationId);
+
+	MessageLog findMessageLogById(Integer messageId);
+
+	EquipmentName findEquipmentNameById(Integer equipmentId);
+
+	CpActivity findcpActivityById(Integer cpActivityId);
+
+	com.garten.model.company.Department findDepartMentById(Long departmentNo);
+
+	Jobs findJobsById(Long jobsNo);
+
+	GartenType findGartenTypeById(Integer gartenType);
+
+	List<OperateLog> findOperateLog(Map<String, Object> param);
+	
 }

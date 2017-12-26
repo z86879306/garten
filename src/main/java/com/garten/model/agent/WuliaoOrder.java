@@ -9,7 +9,7 @@ import com.alibaba.fastjson.JSON;
 
 public class WuliaoOrder {
 	
-	private  List<Map<String,Object>> equipmentAll;
+	private String equipmentAll;
 	private Integer wuliaoId;
 	private String address;
 	private String postalcode;
@@ -28,9 +28,22 @@ public class WuliaoOrder {
 	public void setResource(Integer resource) {
 		this.resource = resource;
 	}
-	public WuliaoOrder(List<Map<String, Object>> equipmentAll, Integer wuliaoId, String address, String postalcode,
-			Long registTime, Integer agentId, Integer state, String toPhonenumber, String fromPhonenumber,
-			BigDecimal totalPrice, String remark, Integer resource) {
+	public BigDecimal getTotalPrice() {
+		return totalPrice;
+	}
+	public void setTotalPrice(BigDecimal totalPrice) {
+		this.totalPrice = totalPrice;
+	}
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	
+	public WuliaoOrder(String equipmentAll, Integer wuliaoId, String address, String postalcode, Long registTime,
+			Integer agentId, Integer state, String toPhonenumber, String fromPhonenumber, BigDecimal totalPrice,
+			String remark, Integer resource) {
 		super();
 		this.equipmentAll = equipmentAll;
 		this.wuliaoId = wuliaoId;
@@ -45,34 +58,6 @@ public class WuliaoOrder {
 		this.remark = remark;
 		this.resource = resource;
 	}
-	public BigDecimal getTotalPrice() {
-		return totalPrice;
-	}
-	public void setTotalPrice(BigDecimal totalPrice) {
-		this.totalPrice = totalPrice;
-	}
-	public String getRemark() {
-		return remark;
-	}
-	public void setRemark(String remark) {
-		this.remark = remark;
-	}
-	public WuliaoOrder(List<Map<String, Object>> equipmentAll, Integer wuliaoId, String address, String postalcode,
-			Long registTime, Integer agentId, Integer state, String toPhonenumber, String fromPhonenumber,
-			BigDecimal totalPrice, String remark) {
-		super();
-		this.equipmentAll = equipmentAll;
-		this.wuliaoId = wuliaoId;
-		this.address = address;
-		this.postalcode = postalcode;
-		this.registTime = registTime;
-		this.agentId = agentId;
-		this.state = state;
-		this.toPhonenumber = toPhonenumber;
-		this.fromPhonenumber = fromPhonenumber;
-		this.totalPrice = totalPrice;
-		this.remark = remark;
-	}
 	@Override
 	public String toString() {
 		return "WuliaoOrder [equipmentAll=" + equipmentAll + ", wuliaoId=" + wuliaoId + ", address=" + address
@@ -83,26 +68,11 @@ public class WuliaoOrder {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public WuliaoOrder(List<Map<String, Object>> equipmentAll, Integer wuliaoId, String address, String postalcode, Long registTime,
-			Integer agentId, Integer state, String toPhonenumber, String fromPhonenumber) {
-		super();
-		this.equipmentAll = equipmentAll;
-		this.wuliaoId = wuliaoId;
-		this.address = address;
-		this.postalcode = postalcode;
-		this.registTime = registTime;
-		this.agentId = agentId;
-		this.state = state;
-		this.toPhonenumber = toPhonenumber;
-		this.fromPhonenumber = fromPhonenumber;
-	}
-	public List<Map<String, Object>> getEquipmentAll() {
+	public String getEquipmentAll() {
 		return equipmentAll;
 	}
 	public void setEquipmentAll(String equipmentAll) {
-        Object succesResponse = JSON.parse(equipmentAll);    //先转换成Object
-        List<Map<String,Object>> list = ( List<Map<String,Object>>)succesResponse;         //Object强转换为Map
-		this.equipmentAll = list;
+		this.equipmentAll = equipmentAll;
 	}
 	public Integer getWuliaoId() {
 		return wuliaoId;

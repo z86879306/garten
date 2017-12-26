@@ -239,7 +239,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT * FROM parent_info  p 
 		left join garten_info g on   g.gartenId=substring_index(p.gartenId,',', 1)
 		where  (p.isValid=0 or p.isvalid is null)  and (g.isvalid=0  or g.isvalid is null)
-		
+		and (p.babyId!='' or p.babyId!=null)
 		<if test="	name!=null and name!=''" >
 				and p.parentName=#{name}
 			</if>
@@ -268,7 +268,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT count(1) FROM parent_info  p 
 		left join garten_info g on   g.gartenId=substring_index(p.gartenId,',', 1)
 		where  (p.isValid=0 or p.isvalid is null)  and (g.isvalid=0  or g.isvalid is null)
-		
+		and (p.babyId!='' or p.babyId!=null)
 		<if test="	name!=null and name!=''" >
 				and p.parentName=#{name}
 			</if>
@@ -726,7 +726,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<update id="updateAgentMessge"  >
 		update   agent_info i
 		set agentName=#{agentName},phoneNumber=#{phoneNumber},
-		province=#{province},city=#{city},countries=#{countries},cardFragment=#{cardFragment},agentGrade=#{agentGrade}
+		province=#{province},city=#{city},countries=#{countries},cardFragment=#{cardFragment},agentGrade=#{agentGrade},
+		creditMoney=#{creditMoney},agentMoney=#{agentMoney},rebate=#{rebate}
 		where agentId=#{agentId} 
 		and i.isvalid=0
 	</update>
@@ -816,7 +817,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</insert>
 	
 	
-		<insert id="insertGartenInfo"  >
+		<insert id="insertGartenInfo" useGeneratedKeys="true" keyProperty="gartenId" parameterType="GartenInfo">
 		insert into garten_info 
 		set  phoneNumber=#{phoneNumber}, 
 		gartenGrade=#{gartenGrade}, 
@@ -827,15 +828,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		 monitorTime=FROM_UNIXTIME(#{monitorTime},  '%Y-%m-%d %H:%i:%s'), 
 		 charge=#{charge}, 
 		  agent=#{agent}, 
-		 arriveStartTime=#{arriveStartTime}, 
-		 leaveStartTime=#{leaveStartTime}, 
-		  arriveEndTime=#{arriveEndTime}, 
-		   leaveEndTime=#{leaveEndTime}, 
 		 province=#{province}, 
 		 city=#{city}, 
 		  countries=#{countries}, 
-		  teacherAttendanceFlag=#{teacherAttendanceFlag}, 
-		 studentAttendanceFlag=#{studentAttendanceFlag}, 
 		 contractNumber=#{contractNumber}, 
 		 contractStart=FROM_UNIXTIME(#{contractStart},  '%Y-%m-%d %H:%i:%s'), 
 		 contractEnd=FROM_UNIXTIME(#{contractEnd},  '%Y-%m-%d %H:%i:%s'), 
@@ -1048,7 +1043,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		group by e.cameraId
     </select>
     
-    <insert id="addDakaCamera">
+    <insert id="addDakaCamera" useGeneratedKeys="true" keyProperty="cameraId" parameterType="Equipment">
     	insert into equipment(gartenId,cameraIp,cameraPort,cameraPwd,
     		cameraUser,type,macId,deviceSerial,validateCode)
     	values(#{gartenId},#{cameraIp},#{cameraPort},#{cameraPwd},
@@ -1144,7 +1139,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT * FROM parent_relation  w
 	</select>
 	
-	<insert id="addrelation"  >
+	<insert id="addrelation" useGeneratedKeys="true" keyProperty="relationId" parameterType="Relation">
 		insert  into  parent_relation  set relation=#{relation}
 	</insert>
 	
@@ -1253,7 +1248,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		SELECT * FROM equipment_name  e
 	</select>
 	
-	<insert id="addEquipmentName"  >
+	<insert id="addEquipmentName"  useGeneratedKeys="true" keyProperty="equipmentId" parameterType="EquipmentName">
 		insert into  equipment_name   set
 		equipmentName=#{equipmentName},   price=#{price}
 	</insert>
@@ -1369,10 +1364,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="findWuliaoOrder" resultType="WuliaoOrder">
 		SELECT * FROM wuliao_order
 		where isValid=0
+		and resource=1
 		<if test=" state!=null and state!='' ">
 			state=#{state}
 		</if>
 	</select>
+
 	
 	<select id="findEmployee" resultType="Employee">
 		SELECT * FROM employee
@@ -1425,7 +1422,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where employeeNo=#{employeeNo}
 	</update>
 	
-	<insert id="addEmployee" >
+	<insert id="addEmployee" useGeneratedKeys="true" keyProperty="employeeNo" parameterType="Employee"> 
 		insert  into employee 
 		set
 		name=#{name},
@@ -1470,7 +1467,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		 cpActivityId=#{cpActivityId}
 	</delete>
 	
-	<insert id="addCpActivity" >
+	<insert id="addCpActivity" useGeneratedKeys="true" keyProperty="cpActivityId" parameterType="CpActivity"> 
 		insert  into company_activity 
 		set
 		employeeNo=#{employeeNo},
@@ -1516,7 +1513,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		reportId=#{reportId}
 	</delete>
 	
-	<insert id="addReport" >
+	<insert id="addReport" useGeneratedKeys="true" keyProperty="reportId" parameterType="Report"> 
 		insert  into company_report 
 		set
 		startTime=#{startTime},
@@ -1556,7 +1553,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		delete  from department  where  departmentNo=#{departmentNo}
 	</delete>
 	
-	<insert id="addDepartment" >
+	<insert id="addDepartment" useGeneratedKeys="true" keyProperty="departmentNo" parameterType="Department"> 
 		insert  into department  set
 		departmentNo=unix_timestamp(now()),
 		departmentName=#{departmentName},
@@ -1596,7 +1593,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where e.employeeNo=#{employeeNo}
 	</select>
 	
-	<insert id="addJobs" >
+	<insert id="addJobs" useGeneratedKeys="true" keyProperty="jobsNo" parameterType="Jobs">
 		insert into jobs  set
 		jobsNo=unix_timestamp(now()),
 		jobsName=#{jobsName},
@@ -1658,12 +1655,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		select * from wuliao_order
 		where 
 		resource=0
+		and isvalid=0
 		<if test=" state!=null and state!='' ">
 			and state=#{state}
 		</if>
 		and FIND_IN_SET(agentId,#{departmentIds})
 		
 	</select>
+
 	
 	<insert id="addCard" parameterType="java.util.List">
 		insert into card(inCard,outCard,agentId,agentType,returnMoney)
@@ -1703,7 +1702,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		</if>
 	</select>
 	
-	<insert id="addGartentype" >
+	<insert id="addGartentype" useGeneratedKeys="true" keyProperty="gartenType" parameterType="GartenType">
 		insert into    garten_type    set
 		typeName=#{typeName},
 		operator=#{operator},
@@ -1819,4 +1818,70 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			card 
 		where id not in (select minid from (select min(id) as minid from card group by outCard) b);
 	</delete>
+	<insert id="insertOperateLog" >
+		insert into    operate_log    set  
+		fromName=#{fromName},
+		toName=#{toName},
+		fromId=#{fromId},
+		toId=#{toId},
+		toJob=#{toJob},
+		type=#{type},
+		content=#{content}
+	</insert>
+	<select id="findChargeById" resultType="GartenCharge">
+		select * from garten_charge
+		where chargeId=#{chargeId} and isvalid=0
+	</select>
+	<select id="findEquipmentById" resultType="Equipment">
+		select * from equipment
+		where cameraId=#{cameraId} and isvalid=0
+	</select>
+	<select id="findParentRelationById" resultType="Relation">
+		select * from parent_relation
+		where relationId=#{relationId}
+	</select>
+	<select id="findMessageLogById" resultType="MessageLog">
+		select * from message_log
+		where messageId=#{messageId} 
+	</select>
+	<select id="findEquipmentNameById" resultType="EquipmentName">
+		select * from equipment_name 
+		where equipmentId=#{equipmentId}
+	</select>
+	<select id="findcpActivityById" resultType="CpActivity">
+		select * from company_activity
+		where cpActivityId=#{cpActivityId}
+	</select>
+	<select id="findDepartMentById">
+		select * from department
+		where departmentNo=#{departmentNo}
+	</select>
+	<select id="findJobsById">
+		select * from jobs
+		where jobsNo=#{jobsNo}
+	</select>
+	<select id="findGartenTypeById" resultType="GartenType">
+		select * from garten_type
+		where gartenType=#{gartenType}
+	</select>
+	
+	<select id="findOperateLog" resultType="OperateLog">
+		select  * from    operate_log  where
+		#{startTime}-1 &lt; unix_timestamp(registTime)
+		and unix_timestamp(registTime) &lt; #{endTime}+86400
+		<if test=" type!=null  and type!='' ">
+			and type=#{type}-1
+		</if>
+		<if test="  fromName!=null  and fromName!='' ">
+			and fromName=#{fromName}
+		</if>
+		<if test="  toName!=null  and toName!='' ">
+			and toName=#{toName}
+		</if>
+		<if test="  content!=null  and content!='' ">
+			and content like '%${content}%'
+		</if>
+		 order by registTime desc
+	</select>
+	
 </mapper> 

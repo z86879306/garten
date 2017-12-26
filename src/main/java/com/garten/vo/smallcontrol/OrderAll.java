@@ -22,41 +22,6 @@ public class OrderAll  extends Order{
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public OrderAll(Long orderNumber, Long orderTime, Integer orderId, String job, BigDecimal orderMoney,
-			String orderDetail, Integer id, Integer type, Integer payType, Integer state, Integer monthCount,
-			Integer relateId, Integer gartenId) {
-		super(orderNumber, orderTime, orderId, job, orderMoney, orderDetail, id, type, payType, state, monthCount, relateId,
-				gartenId);
-		// TODO Auto-generated constructor stub
-	}
-	public OrderAll(Long orderNumber, Long orderTime, Integer orderId, String job, BigDecimal orderMoney,
-			String orderDetail, Integer id, Integer type, Integer payType, Integer state, Integer monthCount,
-			Integer relateId) {
-		super(orderNumber, orderTime, orderId, job, orderMoney, orderDetail, id, type, payType, state, monthCount, relateId);
-		// TODO Auto-generated constructor stub
-	}
-	public OrderAll(Long orderNumber, Long orderTime, Integer orderId, String job, BigDecimal orderMoney,
-			String orderDetail, Integer id, Integer type, Integer payType, Integer state, Integer monthCount) {
-		super(orderNumber, orderTime, orderId, job, orderMoney, orderDetail, id, type, payType, state, monthCount);
-		// TODO Auto-generated constructor stub
-	}
-	public OrderAll(Long orderNumber, Long orderTime, Integer orderId, String job, BigDecimal orderMoney,
-			String orderDetail, Integer id, Integer type, Integer payType, Integer state) {
-		super(orderNumber, orderTime, orderId, job, orderMoney, orderDetail, id, type, payType, state);
-		// TODO Auto-generated constructor stub
-	}
-	public OrderAll(Long orderNumber, Long orderTime, Integer orderId, String job, BigDecimal orderMoney,
-			String orderDetail, Integer id, Integer type, Integer payType, Integer state, Integer monthCount,
-			Integer relateId, Integer gartenId, String name, String phoneNumber, String head, String babyName,
-			String babyHead) {
-		super(orderNumber, orderTime, orderId, job, orderMoney, orderDetail, id, type, payType, state, monthCount,
-				relateId, gartenId);
-		this.name = name;
-		this.phoneNumber = phoneNumber;
-		this.head = head;
-		this.babyName = babyName;
-		this.babyHead = babyHead;
-	}
 	public String getName() {
 		return name;
 	}
@@ -86,6 +51,25 @@ public class OrderAll  extends Order{
 	}
 	public void setBabyHead(String babyHead) {
 		this.babyHead = babyHead;
+	}
+	public OrderAll(Long orderNumber, Long orderTime, Integer orderId, String job, BigDecimal orderMoney,
+			String orderDetail, Integer id, Integer type, Integer payType, Integer state, Integer monthCount,
+			Integer relateId, Integer gartenId, Integer employeeNo, String employeeName, String name,
+			String phoneNumber, String head, String babyName, String babyHead) {
+		super(orderNumber, orderTime, orderId, job, orderMoney, orderDetail, id, type, payType, state, monthCount,
+				relateId, gartenId, employeeNo, employeeName);
+		this.name = name;
+		this.phoneNumber = phoneNumber;
+		this.head = head;
+		this.babyName = babyName;
+		this.babyHead = babyHead;
+	}
+	public OrderAll(Long orderNumber, Long orderTime, Integer orderId, String job, BigDecimal orderMoney,
+			String orderDetail, Integer id, Integer type, Integer payType, Integer state, Integer monthCount,
+			Integer relateId, Integer gartenId, Integer employeeNo, String employeeName) {
+		super(orderNumber, orderTime, orderId, job, orderMoney, orderDetail, id, type, payType, state, monthCount, relateId,
+				gartenId, employeeNo, employeeName);
+		// TODO Auto-generated constructor stub
 	}
 	
 	

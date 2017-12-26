@@ -68,6 +68,7 @@ import com.garten.model.gartenClass.GartenGrade;
 import com.garten.model.other.AttendanceNo;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.MessageLog;
+import com.garten.model.other.OperateLog;
 import com.garten.model.other.Order;
 import com.garten.model.other.TPermission;
 import com.garten.model.other.Unusual;
@@ -511,7 +512,7 @@ public class SmallcontrolService {
 				String type = mode==5?"上午迟到":(mode==6?"上午早退":(mode==7?"下午迟到":(mode==8?"下午早退":(mode==9?"下午提前入园":"下午推迟离园"))));
 				String message = content +type;
 				try {
-					bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP, MyParamAll.JIGUANG_PARENT_MASTER, message, parentInfo.getPhoneNumber());
+					bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_PARENT_APP, MyParamAll.JIGUANG_PARENT_MASTER, message, parentInfo.getPhoneNumber(),3,babyInfo.getBabyId(),null);
 				}catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -637,11 +638,14 @@ public class SmallcontrolService {
 				MyUtil.putMapParams(params, "startTime", startTime, "endTime", endTime);
 				List<OrderAll> order=bigcontrolDao.findOrder(params);
 				int pageCount = new DividePage(16, order.size(), pageNo).getPageCount();
+				List<OrderAll> suborder=null;
 				if(order.size()>16){
-					order.subList((pageNo-1)*16, (pageNo)*16);
+					suborder = order.subList((pageNo-1)*16, (pageNo)*16);
+				}else{
+					suborder=order;
 				}
 				order=MyUtil.appendOrderName(order,name,phoneNumber,babyName);
-					MyUtil.putMapParams(result,"state", 1,"info",order,"pageCount",pageCount);
+					MyUtil.putMapParams(result,"state", 1,"info",suborder,"pageCount",pageCount);
 			}
 			return result;
 	}
@@ -1131,10 +1135,10 @@ public class SmallcontrolService {
 				GartenAndAgent gartenInfo = smallcontrolDao.getGartenById(workerInfo.getGartenId());
 							
 				if(gartenInfo.getAgentType()==1){		//0是员工  1是代理商
-					AgentInfo agentInfo = agentDao.findAgentById(Integer.parseInt(gartenInfo.getAgent()));
+					AgentInfo agentInfo = agentDao.findAgentById(gartenInfo.getAgent());
 					gartenInfo.setAgentInfo(agentInfo);
 				}else if(gartenInfo.getAgentType()==0){
-					Employee employee = bigcontrolDao.findEmployeeById(Integer.parseInt(gartenInfo.getAgent()));
+					Employee employee = bigcontrolDao.findEmployeeById(gartenInfo.getAgent());
 					gartenInfo.setEmployee(employee);
 				}
 				MyUtil.putMapParams(result, "state",1,"info",gartenInfo);
@@ -1241,7 +1245,7 @@ public class SmallcontrolService {
 */
 			Long orderNumber=System.currentTimeMillis();
 			String orderDetail=2==type?"购买幼儿园所有家长视频":(3==type?"购买幼儿园所有家长考勤":"购买幼儿园所有家长考勤和视频");
-			Order o=new Order(orderNumber,new Date().getTime()/1000,null,"园长",price,orderDetail,workerInfo.getWorkerId(),type,0,0,monthCount,null,workerInfo.getGartenId());
+			Order o=new Order(orderNumber,new Date().getTime()/1000,null,"园长",price,orderDetail,workerInfo.getWorkerId(),type,0,0,monthCount,null,workerInfo.getGartenId(),null,null);
 			parentDao.insertOrdr(o);//创建未支付订单
 			Map<String,Object> payResult=MyUtilAll.myAlipayControl(orderNumber+"", orderDetail,price.toString() , httpRequest,
 		             httpResponse);
@@ -1331,10 +1335,10 @@ public class SmallcontrolService {
 							 // 1找到这个幼儿园所有的宝宝的主要监护人+附加宝宝主键
 							List<ParentInfoCharge>  parentInfoCharge=bigcontrolDao.findParentInfoCharge(gartenInfo.getGartenId());
 							if(2==orderType||6==orderType){//修改幼儿园表里面的到期时间
-								bigcontrolService.changeGartenDredge(  order.getMonthCount() ,  0,  order.getGartenId());
+								bigcontrolService.changeGartenDredge( null, order.getMonthCount() ,  0,  order.getGartenId());
 							}
 							if(3==orderType||6==orderType){
-								bigcontrolService.changeGartenDredge(  order.getMonthCount() ,  1,  order.getGartenId());
+								bigcontrolService.changeGartenDredge( null, order.getMonthCount() ,  1,  order.getGartenId());
 							}
 
 							for(ParentInfoCharge p:parentInfoCharge){//为每个家长找到自己的主宝宝添加对应的时间
@@ -1430,7 +1434,7 @@ public class SmallcontrolService {
 */
 					Long orderNumber=System.currentTimeMillis();
 					String orderDetail=2==type?"购买幼儿园所有家长视频":(3==type?"购买幼儿园所有家长考勤":"购买幼儿园所有家长考勤和视频");
-					Order o=new Order(orderNumber,new Date().getTime()/1000,null,"园长",price,orderDetail,workerInfo.getWorkerId(),type,1,0,monthCount,null,workerInfo.getGartenId());
+					Order o=new Order(orderNumber,new Date().getTime()/1000,null,"园长",price,orderDetail,workerInfo.getWorkerId(),type,1,0,monthCount,null,workerInfo.getGartenId(),null,null);
 					parentDao.insertOrdr(o);//创建未支付订单
 					Map<String,Object> payResult=MyUtilAll.myWxpayControl(orderNumber+"", orderDetail,price.multiply(new BigDecimal(100)).toString() , httpRequest,
 				             httpResponse);
@@ -1537,10 +1541,10 @@ public class SmallcontrolService {
 		  							 // 1找到这个幼儿园所有的宝宝的主要监护人+附加宝宝主键
 		  							List<ParentInfoCharge>  parentInfoCharge=bigcontrolDao.findParentInfoCharge(gartenInfo.getGartenId());
 		  							if(2==orderType||6==orderType){//修改幼儿园表里面的到期时间
-		  								bigcontrolService.changeGartenDredge(  order.getMonthCount() ,  0,  order.getGartenId());
+		  								bigcontrolService.changeGartenDredge(null,  order.getMonthCount() ,  0,  order.getGartenId());
 		  							}
 		  							if(3==orderType||6==orderType){
-		  								bigcontrolService.changeGartenDredge(  order.getMonthCount() ,  1,  order.getGartenId());
+		  								bigcontrolService.changeGartenDredge(null,  order.getMonthCount() ,  1,  order.getGartenId());
 		  							}
 
 		  							for(ParentInfoCharge p:parentInfoCharge){//为每个家长找到自己的主宝宝添加对应的时间
@@ -1996,7 +2000,7 @@ public class SmallcontrolService {
 		for(WorkerInfo w:workers){
 				infoLogs.add(new InfoLog(w.getGartenId(),content,null,"老师",w.getWorkerId(),null,null,title,0));
 				try {
-					bigcontrolService.pushOne(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,w.getPhoneNumber());
+					bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,content,w.getPhoneNumber(),1,null,null);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -2005,7 +2009,7 @@ public class SmallcontrolService {
 			for(ParentInfo p:parents){
 				infoLogs.add(new InfoLog(Integer.valueOf(p.getGartenId().split(",")[0]),content,null,"家长",p.getParentId(),null,null,title,0));
 				try {
-					bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,p.getPhoneNumber());
+					bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,content,p.getPhoneNumber(),1,null,null);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -2037,16 +2041,22 @@ public class SmallcontrolService {
 				return result;
 		}
 
+		public synchronized Map<String,Object> deleteMessage(String token ,Integer messageId){
+			bigcontrolDao.deleteMessageLog(messageId);
+	   		Map<String, Object> result = MyUtil.putMapParams("state", 1);
+	   		return result;
+	   	}
+		
 		public Map<String,Object> teacherMessage(String token,Long startTime , Long endTime,Integer pageNo, Integer state){
 			WorkerInfo workerInfo=smallcontrolDao.findWorkerByToken(token);//根据账号查找到用户,手机号
-			  Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
-				if(null!=workerInfo){
-					Map<String, Object> params = MyUtil.putMapParams("gartenId",workerInfo.getGartenId(), "startTime", startTime, "endTime", endTime,"state",state);
-					List<WorkerNameMessage> list = smallcontrolDao.findWorkerApplyMessage(params);
-					MyUtil.putMapParams(result, "state", 1, "info",MyPage.listPage16(list, pageNo));
+			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
+			if(null!=workerInfo){
+				Map<String, Object> params = MyUtil.putMapParams("gartenId",workerInfo.getGartenId(), "startTime", startTime, "endTime", endTime,"state",state);
+				List<WorkerNameMessage> list = smallcontrolDao.findWorkerApplyMessage(params);
+				MyUtil.putMapParams(result, "state", 1, "info",MyPage.listPage16(list, pageNo));
 					
-				}
-				return result;
+			}
+			return result;
 	   	}
 		
 		public Map<String,Object> agreeMessage(String token,Integer messageId){

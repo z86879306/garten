@@ -277,6 +277,12 @@ public class AgentController {
 			Map<String, Object> map = agentService.findWithdraw( token, startTime,  endTime);
 			return map;
 		}
+		@RequestMapping("deleteWithdraw")//
+		@ResponseBody
+		public synchronized Map<String,Object> deleteWithdraw(String token ,Integer withdrawId){
+			Map<String, Object> map = agentService.deleteWithdraw(token, withdrawId);
+			return map;
+		}
 		//提现默认填空  银行卡		
 		@RequestMapping("agentMessage")//
 		@ResponseBody

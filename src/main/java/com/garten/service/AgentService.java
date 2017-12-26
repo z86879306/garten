@@ -423,7 +423,7 @@ public class AgentService {
 		AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 		 Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		 if(null!=agentInfo){
-			 Map<String,Object> param=MyUtil.putMapParams("agentId",agentInfo.getAgentId(),"state",state);
+			 Map<String,Object> param=MyUtil.putMapParams("agentId",agentInfo.getAgentId(),"state",state,"resource",1);
 			List<WuliaoOrder> wuliaoOrder=agentDao.findWuliaoOrder(param);
 			 MyUtil.putMapParams(result,"state", 1,"info",MyPage.listPage16(wuliaoOrder, pageNo));
 		 }
@@ -435,9 +435,8 @@ public class AgentService {
 		AgentInfo agentInfo= agentDao.findAgentInfoByToken( token);
 		 Map<String,Object> result=MyUtil.putMapParams("state", 0);
 		 if(null!=agentInfo){
-			 Map<String,Object> param=MyUtil.putMapParams("agentId",agentInfo.getAgentId(),"equipmentAll",equipmentAll,"address",address,"postalcode",postalcode,"fromPhoneNumber",fromPhoneNumber,"totalPrice",totalPrice,"resource",1);
-			 MyUtil.putMapParams(param, "remark", remark);
-			 agentDao.addWuliaoOrder(param);
+			 WuliaoOrder wuliaoOrder = new WuliaoOrder(equipmentAll, null, address, postalcode, null, agentInfo.getAgentId(), null, null, fromPhoneNumber, totalPrice, remark, 1);
+			 agentDao.addWuliaoOrder(wuliaoOrder);
 			 MyUtil.putMapParams(result,"state", 1);
 		 }
 		 return result;
@@ -767,6 +766,13 @@ public class AgentService {
 		public Map<String, Object> readAgentMessage(Integer agentMessageId) {
 			bigcontrolDao.readAgentMessage(agentMessageId);
 			Map<String,Object> result=MyUtil.putMapParams("state",1);
+			return result;
+		}
+
+		public Map<String, Object> deleteWithdraw(String token, Integer withdrawId) {
+			bigcontrolDao.deleteWithdraw(withdrawId);
+			Map<String,Object> result=MyUtil.putMapParams("state", 1);
+				
 			return result;
 		}
 

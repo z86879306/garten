@@ -540,7 +540,7 @@ public class WorkerService{
 				String type = mode==5?"上午迟到":(mode==6?"上午早退":(mode==7?"下午迟到":(mode==8?"下午早退":(mode==9?"下午提前入园":"下午推迟离园"))));
 				String message = content +type;
 				try {
-					bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP, MyParamAll.JIGUANG_PARENT_MASTER, message, parentInfo.getPhoneNumber());
+					bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_PARENT_APP, MyParamAll.JIGUANG_PARENT_MASTER, message, parentInfo.getPhoneNumber(),3,babyInfo.getBabyId(),null);
 				}catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -789,6 +789,11 @@ public class WorkerService{
 			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 			if(null!=workerInfo){//验证用户
+				Integer frost =0;
+				GartenInfo gartenInfo = workerDao.findGartenInfoById(workerInfo.getGartenId());
+				if(gartenInfo.getAccountState()==1){
+					frost=1;
+				}
 				List<Video> videos=workerDao.findVideosByToken(MyUtil.putMapParams("token", token, "classId", classId));
 				
 				//请求一次接口 访问次数加一
@@ -801,7 +806,7 @@ public class WorkerService{
 				}else{
 					parentDao.updateVisitCount(params);
 				}
-				MyUtil.putMapParams(result,"state",1,"info",videos);
+				MyUtil.putMapParams(result,"state",1,"info",videos,"frost",frost);//frost 1被冻结状态	
 			}
 			return result;
 		}
