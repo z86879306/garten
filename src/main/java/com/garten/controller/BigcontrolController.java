@@ -533,8 +533,16 @@ public class BigcontrolController {
 		
 		 //新增设备及价格
 		@RequestMapping("addEquipmentName")
-		public  @ResponseBody Map<String,Object> addEquipmentName(String token , String equipmentName,BigDecimal  price ) throws ParseException {
-			Map<String, Object> map = bigcontrolService.addEquipmentName(token , equipmentName,price);
+		public  @ResponseBody Map<String,Object> addEquipmentName(String token , String equipmentName,BigDecimal  price, String img ,String remark) throws ParseException {
+			Map<String, Object> map = bigcontrolService.addEquipmentName(token , equipmentName,price,img ,remark);
+			return map;
+		}
+		
+		//修改设备及价格
+		@RequestMapping("updateEquipmentName")
+		@ResponseBody
+		public Map<String,Object> updateEquipmentName(String token ,Integer equipmentId, String equipmentName,BigDecimal  price , String img ,String remark){
+			Map<String, Object> map = bigcontrolService.updateEquipmentName(token, equipmentId, equipmentName, price, img, remark);
 			return map;
 		}
 		  

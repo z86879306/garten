@@ -17,12 +17,17 @@ import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+import com.alibaba.fastjson.JSONObject;
 import com.garten.Thread.HuanXinThread;
+import com.garten.model.baby.BabyInfo;
+import com.garten.model.parent.Relation;
 import com.garten.service.BigcontrolService;
 import com.garten.util.LyParam;
 import com.garten.util.lxcutil.MyParamAll;
+import com.garten.util.lxcutil.MyUtilAll;
 import com.garten.util.md5.md5Util;
 import com.garten.util.myutil.MyUtil;
+import com.google.gson.JsonObject;
 import com.mysql.fabric.xmlrpc.base.Array;
 
 import cn.jiguang.common.resp.APIConnectionException;
@@ -44,12 +49,12 @@ public class Test {
 	private static BigcontrolService bigcontrolService;
 	
 	public static void main(String[] args) throws ParseException, UnsupportedEncodingException, APIConnectionException, APIRequestException {
-		//bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,"测试12.18老师端","18367803779",3,3,368);
+		//bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_WORKER_APP,MyParamAll.JIGUANG_WORKER_MASTER,"测试1.17","18367803779",2,3,368);
 		//bigcontrolService.pushOne(MyParamAll.JIGUANG_PARENT_APP,MyParamAll.JIGUANG_PARENT_MASTER,"测试13:31","18767793269");
 		//System.out.println(md5Util.getMD5("a1bf8994-704a-4bb3-956f-2bf5ad29e3ba"+"1513652217000"));
-		Integer a =1;
-		Integer b =1;
-		System.out.println(a.equals(b));
+		bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_PARENT_APP, MyParamAll.JIGUANG_PARENT_MASTER, MyParamAll.JIGUANG_LESSON_MESSAGE, "15356506227", 4, 5, 1);
+		//System.out.println(JsonObject.);
+		//MyUtilAll.deleteOldOSS("http://ahczjy.oss-cn-hangzhou.aliyuncs.com/cleaning/images/recipe=1515035219794.jpg");
 		
 	}
 	public static String test1(){

@@ -38,11 +38,8 @@ import com.garten.dao.BigcontrolDao;
 import com.garten.dao.ParentDao;
 import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
-import com.garten.model.activity.ActivityDetail;
-import com.garten.model.activity.ActivityLog;
 import com.garten.model.baby.BabyInfo;
 import com.garten.model.baby.BabyLeaveLog;
-import com.garten.model.baby.BabyPerformanceLog;
 import com.garten.model.garten.GartenCharge;
 import com.garten.model.garten.GartenInfo;
 import com.garten.model.garten.GartenLesson;
@@ -51,24 +48,20 @@ import com.garten.model.garten.GartenRecipe;
 import com.garten.model.garten.PhotoDianZan;
 import com.garten.model.garten.Video;
 import com.garten.model.other.Comment;
-import com.garten.model.other.Feedback;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.Order;
 import com.garten.model.other.Version;
 import com.garten.model.other.VisitCount;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerInfo;
-import com.garten.model.worker.WorkerLeaveLog;
 import com.garten.util.lxcutil.MyParamAll;
 import com.garten.util.lxcutil.MyUtilAll;
 import com.garten.util.md5.CryptographyUtil;
 import com.garten.util.myutil.MyUtil;
-import com.garten.util.mywxpay.ConfigUtil;
 import com.garten.util.mywxpay.PayCommonUtil;
 import com.garten.util.mywxpay.XMLUtil;
 import com.garten.util.page.MyPage;
 import com.garten.vo.baby.UnusualAll;
-import com.garten.vo.bigcontrol.ClassManageBig;
 import com.garten.vo.parent.ParentInfoShort;
 import com.garten.vo.teacher.ActivityDetailAll;
 import com.garten.vo.teacher.BabyCheckLogAll;
@@ -95,6 +88,8 @@ public class ParentService {
 	private WorkerDao workerDao;
 	@Autowired
 	private SmallcontrolDao smallcontrolDao;
+	@Autowired
+	private BigcontrolService bigcontrolService;
 	public Map<String, Object> login(String phoneNumber, String pwd) {
 		Map<String,Object> result=MyUtil.putMapParams("state", 0, "info", "error");
 		Map<String,Object> param=MyUtil.putMapParams("phoneNumber", phoneNumber,"pwd",CryptographyUtil.md5(pwd, "lxc"));
@@ -182,12 +177,18 @@ public class ParentService {
 		ParentInfo parentInfo= parentDao.findParentInfoByToken(token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null,"attendanceState",null);
 		if(null!=parentInfo){//验证用户
+			//检验幼儿园冻结
+			Integer frost =0;
+			ClassManage baby = parentDao.findBabyById(babyId);
+			GartenInfo gartenInfo = workerDao.findGartenInfoById(baby.getGartenId());
+			if(gartenInfo.getAccountState()==1){
+				frost=1;
+			}
 			List<BabyCheckLogAll> babyCheckLogs= parentDao.findBabyCheckByToken(MyUtil.putMapParams("babyId", babyId,"time",time));//获取所有宝宝的晨检 考勤信息
-			ClassManage babyById = parentDao.findBabyById(babyId);
 			//请求一次接口 访问次数加一
 			long current = System.currentTimeMillis();
             long zero = current/(1000*3600*24)*(1000*3600*24) - TimeZone.getDefault().getRawOffset();
-			Map<String, Object> params = MyUtil.putMapParams("gartenId",babyById.getGartenId(),"type",1,"time",zero/1000);
+			Map<String, Object> params = MyUtil.putMapParams("gartenId",baby.getGartenId(),"type",1,"time",zero/1000);
             VisitCount visitCount = parentDao.findVisitCount(params);
 			if(null==visitCount){
 				parentDao.addVisitCount(params);
@@ -195,7 +196,8 @@ public class ParentService {
 				parentDao.updateVisitCount(params);
 			}
 			
-			MyUtil.putMapParams(result, "state",1,"info",MyUtil.paixuBabyCheckLog(babyCheckLogs),"attendanceState",MyUtil.getParentAttendance(parentInfo,babyId)/*这个家长有没有这个宝宝的考勤权限*/);//排序 体温0的在前面 总的按id排序
+			MyUtil.putMapParams(result, "state",1,"info",MyUtil.paixuBabyCheckLog(babyCheckLogs),"attendanceState",MyUtil.getParentAttendance(parentInfo,babyId)/*这个家长有没有这个宝宝的考勤权限*/
+					,"frost",frost);//排序 体温0的在前面 总的按id排序
 		}
 		return result;
 	}
@@ -240,12 +242,20 @@ public class ParentService {
 		//stateEarly 0正常1早退 2同意
 		public Map<String, Object> yichang(String token,Long time,Integer babyId) throws ParseException {
 			time=MyUtil.getYMDLong(time);
+			
 			ParentInfo parentInfo= parentDao.findParentInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null,"attendanceState",null);
 			if(null!=parentInfo){//验证用户
+				//检验幼儿园冻结
+				Integer frost =0;
+				ClassManage baby = parentDao.findBabyById(babyId);
+				GartenInfo gartenInfo = workerDao.findGartenInfoById(baby.getGartenId());
+				if(gartenInfo.getAccountState()==1){
+					frost=1;
+				}
 				Map<String,Object> param=MyUtil.putMapParams("babyId", babyId, "time", time);
 				List<UnusualAll> yichangs= parentDao.findYichangByToken(param);
-				MyUtil.putMapParams(result, "state",1,"info",yichangs,"attendanceState",MyUtil.getParentAttendance(parentInfo,babyId));
+				MyUtil.putMapParams(result, "state",1,"info",yichangs,"attendanceState",MyUtil.getParentAttendance(parentInfo,babyId),"frost",frost);
 			}
 			return result;
 		}
@@ -284,6 +294,15 @@ public class ParentService {
 				MyUtil.putMapParams(param,"parentId",parentInfo.getParentId(),"phoneNumber",parentInfo.getPhoneNumber(),"arrivedTime",arriveTime,"babyId",babyId,"babyImg",baby.getBabyHead());
 				parentDao.createDaijieById(param );//增加宝宝的代接
 				
+				//给该班级老师推送 代接通知
+				List<WorkerInfo> workerInfos = workerDao.findWorkerByClassId(baby.getGartenId(),baby.getClassId());
+				for(WorkerInfo w : workerInfos){
+					try {
+						bigcontrolService.pushOneWithType(MyParamAll.JIGUANG_WORKER_APP, MyParamAll.JIGUANG_WORKER_MASTER, MyParamAll.JIGUANG_WORKER_DAIJIE_MESSAGE, w.getPhoneNumber(), 6, babyId, baby.getClassId());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 				MyUtil.putMapParams(result, "state",1);//获取其中是今天的代接
 			}
 			return result;
@@ -297,7 +316,7 @@ public class ParentService {
 			if(null!=parentInfo){//验证用户
 				List<GartenLesson> lesson=parentDao.findLessonById(MyUtil.putMapParams("babyId", babyId,"time",time) );//增加宝宝的代接
 				
-				MyUtil.putMapParams(result, "state",1,"info",lesson);//获取其中是今天的代接
+				MyUtil.putMapParams(result, "state",1,"info",MyUtil.lessonClassify(lesson));//获取其中是今天的代接
 			}
 			return result;
 		}
@@ -603,6 +622,7 @@ public class ParentService {
 			ParentInfo parentInfo= parentDao.findParentInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null,"monitor",null);
 		if(null!=parentInfo){//验证用户
+			//冻结检验
 			Integer frost =0;
 			ClassManage baby=findBaby(babyId);
 			GartenInfo gartenInfo = workerDao.findGartenInfoById(baby.getGartenId());
@@ -623,7 +643,7 @@ public class ParentService {
 				parentDao.updateVisitCount(params);
 			}
 			
-			MyUtil.putMapParams(result,"state",1,"info",videos,"monitor",monitor,"frost",frost);	//state 2幼儿园被冻结状态	
+			MyUtil.putMapParams(result,"state",1,"info",videos,"monitor",monitor,"frost",frost);	
 		}
 		return result;
 	}

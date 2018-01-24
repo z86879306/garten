@@ -329,6 +329,7 @@ WHERE v.type = 0 AND (v.pointId!=#{classId}  or #{classId} is null)	)
 			AND #{time} &lt;= unix_timestamp(r.time)
 			AND unix_timestamp(r.time) &lt; #{time}+86400
 			AND r.isValid = 0 AND b.isValid = 0 
+			order by recipeId
 	</select>
 	
 	
@@ -393,6 +394,7 @@ WHERE v.type = 0 AND (v.pointId!=#{classId}  or #{classId} is null)	)
 		 and job='家长'
 		 and i.type=#{type}
 		 and p.isValid=0 and i.isValid=0
+		 order by infoId desc
 	</select>
 	
 	

@@ -9,13 +9,23 @@ import com.garten.service.WorkerService;
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
 
-public class AddRecipeNotify implements Runnable{
+public class PushNotify implements Runnable{
 
 	private Integer gartenId;
+	private Integer classId;
+	private String content;
+	private Integer type;
 
-	public AddRecipeNotify(Integer gartenId) {
+	public PushNotify(Integer gartenId, Integer classId, String content, Integer type) {
+		super();
 		this.gartenId = gartenId;
+		this.classId = classId;
+		this.content = content;
+		this.type = type;
 	}
+
+
+
 
 	@Override
 	public void run() {
@@ -24,7 +34,7 @@ public class AddRecipeNotify implements Runnable{
 		SmallcontrolService  smallcontrolService = (SmallcontrolService)context.getBean("smallcontrolService");
 		
 		try {
-			smallcontrolService.addrecipeNotify(gartenId);
+			smallcontrolService.pushNotify(gartenId,classId,content,type);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

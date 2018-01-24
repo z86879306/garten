@@ -518,15 +518,15 @@ public class WorkerController {
  	}
   
   
-//解压GZ 文件readMessage()  读取解压后的文件readFileByLines()
- @RequestMapping("test")
+  	//解压GZ 文件readMessage()  读取解压后的文件readFileByLines()
+  	@RequestMapping("test")
 	public  @ResponseBody Map<String, Object> readMessage() throws Exception  {
  	Map<String, Object> result=workerService.readFileByLines();
 		return result;
 	}
- 
-//构建简介 活动页面
-@RequestMapping("testHtml")
+ 	
+ 	//构建简介 活动页面
+ 	@RequestMapping("testHtml")
 	public  @ResponseBody Map<String, Object> getMyHtml() throws Exception  {
 	Map<String, Object> result=workerService.getMyHtml();
 		return result;

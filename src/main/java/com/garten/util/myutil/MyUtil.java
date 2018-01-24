@@ -644,19 +644,35 @@ public  class MyUtil implements ApplicationContextAware{
 		 
 		//课程早上下午分类
 		 public static Map<String,Object> lessonClassify(List<GartenLesson> list)  {
-			List<GartenLesson> listAm=new ArrayList<GartenLesson>();
-			List<GartenLesson> listPm=new ArrayList<GartenLesson>();
-			for(GartenLesson g:list){
-				if(g.getAmpm()==0){
-					listAm.add(g);
-				}else{
-					listPm.add(g);
+				List<GartenLesson> listAm=new ArrayList<GartenLesson>();
+				List<GartenLesson> listPm=new ArrayList<GartenLesson>();
+				for(GartenLesson g:list){
+					if(g.getAmpm()==0){
+						listAm.add(g);
+					}else{
+						listPm.add(g);
+					}
 				}
-			}
-			Map<String,Object> result=putMapParams("am", listAm, "pm", listPm);
-			 return result;
-		 }  
+				Map<String,Object> result=putMapParams("am", paixuLessonClassify(listAm), "pm", paixuLessonClassify(listPm));
+				 return result;
+			 }  
+
 	
+		 public static List<GartenLesson> paixuLessonClassify(List<GartenLesson> classes) {
+				for (int i = 0; i < classes.size(); i++) {   
+			        int k = i;   
+			        for (int j = classes.size() - 1; j >i; j--)  {   
+			            if (getSecond(classes.get(j).getStartTime()) < getSecond(classes.get(k).getStartTime()))  k = j;   
+			        }   
+			        GartenLesson  temp = classes.get(i);   
+			        classes.set(i,classes.get(k));   
+			        classes.set(k,temp);   
+			    }   
+
+				
+				return classes;
+			}
+
 		//获取时间 8:30的秒数
 		 public static long getSecond(String time)  {
 			 System.err.println(time);

@@ -470,5 +470,7 @@ public interface BigcontrolDao {
 	GartenType findGartenTypeById(Integer gartenType);
 
 	List<OperateLog> findOperateLog(Map<String, Object> param);
+
+	void updateEquipMentName(EquipmentName equipmentName);
 	
 }

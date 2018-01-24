@@ -3,6 +3,7 @@ package com.garten.service;
 
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.garten.Thread.BigControlSendNotify;
 import com.garten.Thread.DeleteGartenAll;
 import com.garten.Thread.DeleteGartenBaby;
@@ -76,6 +78,7 @@ import com.garten.util.LyUtils;
 import com.garten.util.excel.ExcelUtil;
 import com.garten.util.excel.ExcelUtils;
 import com.garten.util.lxcutil.MyParamAll;
+import com.garten.util.lxcutil.MyUtilAll;
 import com.garten.util.md5.CryptographyUtil;
 import com.garten.util.myutil.MyUtil;
 import com.garten.util.page.DividePage;
@@ -98,6 +101,7 @@ import com.garten.vo.smallcontrol.CardNoDetail;
 import com.garten.vo.smallcontrol.MachineDetail;
 import com.garten.vo.smallcontrol.OrderAll;
 import com.garten.vo.teacher.BabyCheckLogAll;
+import com.google.gson.JsonObject;
 
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
@@ -1097,7 +1101,7 @@ public class BigcontrolService {
 			System.err.println("s:="+result);*/
 		}
 		/*
-		 * type 1 正常通知  2 考勤通知 3 考勤异常
+		 * type 1 正常通知  2 考勤通知 3 考勤异常 4课程 5 食谱 6代接  7校园活动
 		 */
 		public static void pushOneWithType(String appKey,String materSecret,String message,String phoneNumber,Integer type,Integer babyId,Integer classId) throws APIConnectionException, APIRequestException{
 			System.err.println(phoneNumber+"准备发送");
@@ -1116,6 +1120,35 @@ public class BigcontrolService {
 	                                .addExtra("type", type)
 	                                .addExtra("babyId", babyId)
 	                                .addExtra("classId", classId)
+	                                .setAlert(message)
+	                                .build())
+	                        .build())
+	                .setOptions(Options.newBuilder()
+	                        .setApnsProduction(false)//true-推送生产环境 false-推送开发环境（测试使用参数）
+	                        .setTimeToLive(90)//消息在JPush服务器的失效时间（测试使用参数）
+	                        .build())
+	                .build();
+			PushResult result=jPushCilent.sendPush(payload);
+			System.err.println(phoneNumber+"发送完成");
+		}
+		
+		public static void pushOneWithTypeBabyInfo(String appKey,String materSecret,String message,String phoneNumber,Integer type,Integer classId,String babyInfo) throws APIConnectionException, APIRequestException{
+			System.err.println(phoneNumber+"准备发送");
+			JPushClient jPushCilent=new JPushClient(materSecret,appKey);
+			PushPayload payload=PushPayload.newBuilder()
+					.setPlatform(Platform.android_ios())
+	                .setAudience(Audience.alias(phoneNumber))
+	                .setNotification(Notification.newBuilder()
+	                        .addPlatformNotification(AndroidNotification.newBuilder()
+	                                .addExtra("type", type)
+	                                .addExtra("classId", classId)
+	                                .addExtra("babyInfo", babyInfo)
+	                                .setAlert(message)
+	                                .build())
+	                        .addPlatformNotification(IosNotification.newBuilder()
+	                                .addExtra("type", type)
+	                                .addExtra("classId", classId)
+	                                .addExtra("babyInfo", babyInfo)
 	                                .setAlert(message)
 	                                .build())
 	                        .build())
@@ -2254,7 +2287,7 @@ public class BigcontrolService {
 			return result;
 		}
 
-		public Map<String, Object> addEquipmentName(String token ,String equipmentName, BigDecimal price) {
+		public Map<String, Object> addEquipmentName(String token ,String equipmentName, BigDecimal price ,String img ,String remark) {
 			Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
 
 			Map<String,Object> result=MyUtil.putMapParams("state",1);
@@ -2262,7 +2295,9 @@ public class BigcontrolService {
 			if(null!=name){
 				return MyUtil.putMapParams(result, "state", 2);    		//设备已经添加
 			}
-			EquipmentName equipmentNameInfo = new EquipmentName(equipmentName, price, null);
+			String imgUrl = LyUtils.base64OssUploadFile(img, "equipmentName");
+
+			EquipmentName equipmentNameInfo = new EquipmentName(equipmentName, price, null,remark,imgUrl);
 			bigcontrolDao.addEquipmentName(equipmentNameInfo);
 			
 			//增加操作记录
@@ -2272,6 +2307,35 @@ public class BigcontrolService {
 			return result;
 		}
 
+		
+		public Map<String,Object> updateEquipmentName(String token ,Integer equipmentId, String equipmentName,BigDecimal  price , String img ,String remark){
+			Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
+			Map<String,Object> result=MyUtil.putMapParams("state",0);
+			if(null!=em){
+				EquipmentName name = bigcontrolDao.findEquipmentByName(equipmentName);
+				if(null!=name&&name.getEquipmentId()!=equipmentId){			
+					return MyUtil.putMapParams(result, "state", 2);    		//设备已经添加
+				}
+				EquipmentName equipment = bigcontrolDao.findEquipmentNameById(equipmentId);
+				String imgUrl = equipment.getImgUrl();
+				if(!img.isEmpty()){		//上传图片不为空，更新图片
+					try {
+						MyUtilAll.deleteOldOSS(equipment.getImgUrl());	//删除旧图
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					imgUrl = LyUtils.base64OssUploadFile(img, "equipmentName");
+				}
+				bigcontrolDao.updateEquipMentName(new EquipmentName(equipmentName, price, equipmentId, remark, imgUrl));
+				//增加操作记录
+				OperateLog log=new OperateLog(null,em.getName(),equipmentName,em.getEmployeeNo(),equipmentId.toString(),"设备",1, "员工在总控制端更新设备",null);
+				bigcontrolDao.insertOperateLog(log);
+				MyUtil.putMapParams(result, "state", 1);
+			}
+			return result;
+		}
+		
+		
 		public Map<String, Object> deleteEquipmentName(String token ,Integer equipmentId) {
 			Employee em=bigcontrolDao.findEmployeeByToken(token);//根据账号查找到用户,手机号
 
@@ -2279,6 +2343,11 @@ public class BigcontrolService {
 			bigcontrolDao.deleteEquipmentName(equipmentId);
 			//增加操作记录
 			EquipmentName equipmentName = bigcontrolDao.findEquipmentNameById(equipmentId);
+			try {
+				MyUtilAll.deleteOldOSS(equipmentName.getImgUrl());	//删除旧图
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			OperateLog log=new OperateLog(null,em.getName(),equipmentName.getEquipmentName(),em.getEmployeeNo(),equipmentId.toString(),"设备",1, "员工在总控制端删除设备",null);
 			bigcontrolDao.insertOperateLog(log);
 

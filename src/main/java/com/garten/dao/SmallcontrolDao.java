@@ -285,4 +285,8 @@ public interface SmallcontrolDao {
 
 	GartenClass findGartenClassByClassId(Integer classId);
 
+	List<ParentInfoCharge> findParentByClassId(@Param("gartenId")Integer gartenId,@Param("classId")Integer classId);
+
+	GartenRecipe findRecipeById(Integer recipeId);
+
 }

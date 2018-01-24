@@ -35,6 +35,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where gartenId=#{gartenId}
 		and time=FROM_UNIXTIME(#{time},  '%Y-%m-%d %H:%i:%s')
 		and r.isvalid=0
+		order by r.recipeId
 	</select>
 	
 	
@@ -949,5 +950,41 @@ gartenId=1
 	<select id="findGartenClassByClassId" resultType="GartenClass">
 		select * from garten_class
 		where classId=#{classId}
+	</select>
+	<select id="findParentByClassId" resultType="ParentInfoCharge">
+		SELECT
+			p.babyId,
+			p.identity,
+			p.parentName,
+			p.phoneNumber,
+			p.parentHead,
+			p.address,
+			p.parentId,
+			p.pwd,
+			p.monitorTime,
+			p.attendanceTime,
+			p.flower,
+			p.token,
+			p.tokenTime,
+			p.registTime,
+			p.gartenId,
+			b.babyId mainBabyId
+		FROM
+			baby_info b
+		JOIN parent_info p ON b.parentId = p.parentId
+		join  garten_class c on c.classId=b.classId
+		WHERE
+		 b.parentId IS NOT NULL
+		<if test="	classId!=null and classId!=''" >
+				and c.classId=#{classId}
+		</if>
+		and b.gartenId=#{gartenId}
+		AND b.isValid = 0
+		AND p.isValid = 0
+		GROUP BY p.parentId desc
+	</select>
+	<select id="findRecipeById" resultType="GartenRecipe">
+		select * from garten_recipe
+		where recipeId=#{recipeId}
 	</select>
 </mapper> 

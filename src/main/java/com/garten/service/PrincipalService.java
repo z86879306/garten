@@ -1,10 +1,7 @@
 package com.garten.service;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,26 +12,18 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.garten.dao.ParentDao;
 import com.garten.dao.PrincipalDao;
 import com.garten.dao.SmallcontrolDao;
 import com.garten.dao.WorkerDao;
-import com.garten.model.activity.ActivityDetail;
-import com.garten.model.activity.ActivityLog;
-import com.garten.model.baby.BabyInfo;
-import com.garten.model.baby.BabyLeaveLog;
-import com.garten.model.baby.BabyPerformanceLog;
 import com.garten.model.garten.GartenInfo;
-import com.garten.model.garten.GartenLesson;
 import com.garten.model.garten.GartenPhotos;
-import com.garten.model.garten.GartenRecipe;
 import com.garten.model.garten.PhotoDianZan;
 import com.garten.model.garten.Video;
 import com.garten.model.other.Comment;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.Version;
-import com.garten.model.parent.ParentInfo;
-import com.garten.model.worker.WorkerCheckLog;
 import com.garten.model.worker.WorkerInfo;
 import com.garten.model.worker.WorkerLeaveLog;
 import com.garten.util.lxcutil.MyUtilAll;
@@ -46,9 +35,6 @@ import com.garten.vo.parent.ParentInfoShort;
 import com.garten.vo.smallcontrol.GartenClassName;
 import com.garten.vo.teacher.ActivityDetailAll;
 import com.garten.vo.teacher.BabyCheckLogAll;
-import com.garten.vo.teacher.BabyInfoShort;
-import com.garten.vo.teacher.ClassManage;
-import com.garten.vo.teacher.Daijie;
 import com.garten.vo.teacher.Shouye;
 import com.garten.vo.teacher.WorkerCheckLogAll;
 import com.garten.vo.teacher.WorkerInfoShort;
@@ -78,10 +64,6 @@ public class PrincipalService {
 			//uuid=UUID.randomUUID().toString();
 			//param.put("token", uuid);
 			//principalDao.updateToken(param);//调用老师Dao的方法验证更新token
-			GartenInfo gartenInfo = workerDao.findGartenInfoById(worker.getGartenId());
-			if(1==gartenInfo.getAccountState()){
-				return MyUtil.putMapParams(result, "state",2);
-			}
 			MyUtil.putMapParams(result,"state", 1, "info", worker.getToken());//info: token或error  user:首页信息
 		}
 		return result;
@@ -124,8 +106,13 @@ public class PrincipalService {
 		WorkerInfo workerInfo= principalDao.findPrincipalInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
 		if(null!=workerInfo){//验证用户
+			Integer frost =0;
+			GartenInfo gartenInfo = workerDao.findGartenInfoById(workerInfo.getGartenId());
+			if(gartenInfo.getAccountState()==1){
+				frost=1;
+			}
 			List<WorkerCheckLogAll> workerCheckLogs= principalDao.findWorkerCheckByToken(MyUtil.putMapParams("token", token,"time",time));//获取所有宝宝的晨检 考勤信息
-			MyUtil.putMapParams(result, "state",1,"info",workerCheckLogs);//排序
+			MyUtil.putMapParams(result, "state",1,"info",workerCheckLogs,"frost",frost);//排序
 		}
 		return result;
 	}
@@ -134,9 +121,15 @@ public class PrincipalService {
 		WorkerInfo workerInfo= principalDao.findPrincipalInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		if(null!=workerInfo){//验证用户
+			
+			Integer frost =0;
+			GartenInfo gartenInfo = workerDao.findGartenInfoById(workerInfo.getGartenId());
+			if(gartenInfo.getAccountState()==1){
+				frost=1;
+			}
 			Map<String,Object> param=MyUtil.putMapParams("token", token, "time", time);
 			List<UnusualAll> yichangs= principalDao.findUnusualAllByToken(param);
-			MyUtil.putMapParams(result, "state",1, "info", yichangs);
+			MyUtil.putMapParams(result, "state",1, "info", yichangs,"frost",frost);
 		}
 		return result;
 	}
@@ -193,8 +186,13 @@ public class PrincipalService {
 		WorkerInfo workerInfo= principalDao.findPrincipalInfoByToken( token);
 		Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",null);
 		if(null!=workerInfo){//验证用户
+			Integer frost =0;
+			GartenInfo gartenInfo = workerDao.findGartenInfoById(workerInfo.getGartenId());
+			if(gartenInfo.getAccountState()==1){
+				frost=1;
+			}
 			List<BabyCheckLogAll> babyCheckLogs= principalDao.findBabyCheckByClass(MyUtil.putMapParams("classId", classId,"time",time));//获取所有宝宝的晨检 考勤信息
-			MyUtil.putMapParams(result, "state",1,"info",MyUtil.paixuBabyCheckLog(babyCheckLogs));//排序 体温0的在前面 总的按id排序
+			MyUtil.putMapParams(result, "state",1,"info",MyUtil.paixuBabyCheckLog(babyCheckLogs),"frost",frost);//排序 体温0的在前面 总的按id排序
 		}
 		return result;
 	}

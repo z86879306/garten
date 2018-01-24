@@ -1250,7 +1250,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<insert id="addEquipmentName"  useGeneratedKeys="true" keyProperty="equipmentId" parameterType="EquipmentName">
 		insert into  equipment_name   set
-		equipmentName=#{equipmentName},   price=#{price}
+		equipmentName=#{equipmentName},   price=#{price} ,imgUrl=#{imgUrl},remark=#{remark}
 	</insert>
 	<select id="findEquipmentByName" resultType="EquipmentName">
 		select * from equipment_name
@@ -1883,5 +1883,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		</if>
 		 order by registTime desc
 	</select>
-	
+	<update id="updateEquipMentName">
+		update equipment_name
+		set equipmentName=#{equipmentName},price=#{price},remark=#{remark},
+		imgUrl=#{imgUrl}
+		where equipmentId=#{equipmentId}
+	</update>
 </mapper> 

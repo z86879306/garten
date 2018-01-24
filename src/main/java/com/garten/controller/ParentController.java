@@ -147,7 +147,7 @@ public class ParentController {
     		return map;
     	}
      
-     //当前宝宝某天的课程 
+     //当前宝宝某天的课程
      @RequestMapping("lesson")
     	public  @ResponseBody Map<String,Object> lesson(String token, Integer babyId,Long time) throws ParseException  {
         	Map<String ,Object>  map=parentService.lesson(  token, babyId,time );
@@ -156,10 +156,10 @@ public class ParentController {
      
      //当前宝宝某天的食谱 
      @RequestMapping("recipe")
-    	public  @ResponseBody Map<String,Object> recipe(String token, Integer babyId,Long time) throws ParseException  {
-        	Map<String ,Object>  map=parentService.recipe(  token, babyId,time );
-    		return map;
-    	}
+	public  @ResponseBody Map<String,Object> recipe(String token, Integer babyId,Long time) throws ParseException  {
+    	Map<String ,Object>  map=parentService.recipe(  token, babyId,time );
+		return map;
+	}
      
    //当前宝宝某天的表现
      @RequestMapping("performance")

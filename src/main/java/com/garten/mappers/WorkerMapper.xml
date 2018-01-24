@@ -37,6 +37,7 @@ gartenId,babyId,arriveTime,arriveImg,leaveTime,leaveImg,temperature,remark,time
 			</if>
 		and w.gartenId=#{gartenId}
 		AND w.isValid = 0
+		GROUP BY w.workerId
 		
 	</select>
 	
@@ -142,13 +143,15 @@ WHERE v.type = 0 AND (v.pointId!=#{classId}  or #{classId} is null)	)
 	
 	<!--大改  -->
 	<select id="findDaijieByClassId"  resultType="Daijie">
-			SELECT * FROM daijie_info d, baby_info b
+			SELECT * FROM daijie_info d, baby_info b,garten_class c
 		WHERE
-		b.classId=#{classId}
+		c.classId=#{classId}
+		and b.classId=c.classId
 		AND d.babyId = b.babyId
 		AND d.isValid = 0  AND b.isValid = 0 
 		GROUP BY d.daijieId
 	</select>
+
 	
 	<select id="findIntroduceActivityByToken"  resultType="ActivityDetailAll">
 		SELECT d.activityId, d.contentHtml, d.timeStart, d.timeEnd, d.gartenId,
@@ -259,6 +262,7 @@ and l.activityId=#{activityId}
 		 and w.job=i.job
 		 and i.type=#{type}
 		 and w.isValid=0 and i.isValid=0
+		 order by infoId desc
 	</select>
 	
 	
@@ -555,6 +559,7 @@ and l.activityId=#{activityId}
 		w.token = #{token}
 		and UNIX_TIMESTAMP(r.time)=#{time}
 		and i.isValid=0 and w.isValid=0 and r.isValid=0
+		order by recipeId
 	</select>
 	
 	<!--大改  -->
@@ -648,12 +653,14 @@ and l.activityId=#{activityId}
 	
 	
 	<select id="findFlowerByToken"  resultType="FlowerAll">
-		SELECT concat(b.babyName,b.parentRelation) name,b.babyHead headimg,UNIX_TIMESTAMP(f.time ) time,f.flowerId flowerId
-		FROM worker_flower f, baby_info b, worker＿info w
+		SELECT concat(b.babyName,b.parentRelation) name,b.babyHead headimg,f.time time,f.flowerId flowerId
+		FROM worker_flower f, baby_info b, worker＿info w,parent_info p
 		WHERE
 		w.token=#{token} and w.workerId=f.workerId
-		and f.parentId=b.parentId
+		and f.parentId=p.parentId
+		and FIND_IN_SET(b.babyId,p.babyId)
 		and f.isValid=0 and b.isValid=0 and w.isValid=0
+		GROUP BY f.flowerId
 	</select>
 	
 	<select id="findFlowerCountByToken"  resultType="Integer">
@@ -855,4 +862,19 @@ and l.activityId=#{activityId}
     	phoneNumber=#{phoneNumber}
     	where workerId=#{workerId}
     </update>
-</mapper> 
+    <select id="findWorkerByClassId" resultType="WorkerInfo">
+    	select * from worker＿info w
+    	where w.isValid=0
+    	<if test=" classId!=null and classId!='' ">
+    		and  FIND_IN_SET(#{classId},w.classId)
+    	</if>
+    	<if test=" gartenId!=null and gartenId!='' ">
+    		and w.gartenId=#{gartenId}
+    	</if>
+    	
+    </select>
+    <select id="findDaijieById" resultType="DaijieInfo">
+    	select  * from daijie_info 
+    	where daijieId=#{daijieId}
+    </select>
+</mapper>

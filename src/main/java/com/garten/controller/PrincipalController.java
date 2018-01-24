@@ -234,10 +234,10 @@ public class PrincipalController {
 	
   	//某天所有老师的请假
   	 @RequestMapping("leaveLog")
-    	public  @ResponseBody Map<String,Object> leaveLog(String token,Long time) throws ParseException  {
-        	Map<String ,Object>  map=principalService.leaveLog( token,time );
-    		return map;
-    	}
+	public  @ResponseBody Map<String,Object> leaveLog(String token,Long time) throws ParseException  {
+    	Map<String ,Object>  map=principalService.leaveLog( token,time );
+		return map;
+	}
   	 
   	 
   	//同意 或不同意职工请假   type 0:同意 1：不同意

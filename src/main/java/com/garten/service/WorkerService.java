@@ -50,6 +50,7 @@ import com.garten.model.other.InfoLog;
 import com.garten.model.other.Unusual;
 import com.garten.model.other.Version;
 import com.garten.model.other.VisitCount;
+import com.garten.model.parent.DaijieInfo;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerCheckLog;
 import com.garten.model.worker.WorkerInfo;
@@ -113,11 +114,6 @@ public class WorkerService{
 		//如果worker为空则返回error
 		//如果worker不为空则返回uuid,并修改token为uuid
 		if(null!=worker){
-			//验证幼儿园是否冻结
-			GartenInfo gartenInfo = workerDao.findGartenInfoById(worker.getGartenId());
-			if(1==gartenInfo.getAccountState()){
-				return MyUtil.putMapParams(result, "state",2);
-			}
 			uuid=UUID.randomUUID().toString();
 			param.put("token", uuid);
 			workerDao.updateToken(param);
@@ -210,8 +206,14 @@ public class WorkerService{
 			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0,"info",workerInfo);
 			if(null!=workerInfo){//验证用户
+				Integer frost =0;
+				GartenInfo gartenInfo = workerDao.findGartenInfoById(workerInfo.getGartenId());
+				if(gartenInfo.getAccountState()==1){
+					frost=1;
+				}
+				
 				List<BabyCheckLogAll> babyCheckLogs= workerDao.findBabyCheckByClassId(MyUtil.putMapParams("time",time,"classId",classId));//获取所有宝宝的晨检 考勤信息
-				MyUtil.putMapParams(result, "state",1,"info",/*0==babyCheckLogs.size()?babyCheckLogs:*/ MyUtil.paixuBabyCheckLog(babyCheckLogs));//排序 体温0的在前面 总的按id排序
+				MyUtil.putMapParams(result, "state",1,"info",/*0==babyCheckLogs.size()?babyCheckLogs:*/ MyUtil.paixuBabyCheckLog(babyCheckLogs),"frost",frost);//排序 体温0的在前面 总的按id排序
 				
 				//请求一次接口 访问次数加一
 				long current = System.currentTimeMillis();
@@ -502,6 +504,15 @@ public class WorkerService{
 			if(null!=workerInfo){//验证用户
 				workerDao.findAgreeDaijieByDaijieId(MyUtil.putMapParams("daijieId", daijieId));
 				MyUtil.putMapParams(result, "state",1);
+				
+				DaijieInfo dj = workerDao.findDaijieById(daijieId);
+				ClassManage manage = parentDao.findBabyById(dj.getBabyId());
+				try {
+					bigcontrolService.pushOneWithTypeBabyInfo(MyParamAll.JIGUANG_PARENT_APP, MyParamAll.JIGUANG_PARENT_MASTER, MyParamAll.JIGUANG_PARENT_DAIJIE_MESSAGE, dj.getPhoneNumber(), 6, null,JSONObject.toJSONString(manage));
+				}catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			return result;
 		}
@@ -515,9 +526,15 @@ public class WorkerService{
 			WorkerInfo workerInfo= workerDao.findWorkerInfoByToken( token);
 			Map<String,Object> result=MyUtil.putMapParams("state", 0);
 			if(null!=workerInfo){//验证用户
+				//检验幼儿园冻结
+				Integer frost =0;
+				GartenInfo gartenInfo = workerDao.findGartenInfoById(workerInfo.getGartenId());
+				if(gartenInfo.getAccountState()==1){
+					frost=1;
+				}
 				Map<String,Object> param=MyUtil.putMapParams("time", time,"classId",classId);
 				List<UnusualAll> yichangs= workerDao.findUnusualAllByClassId(param);
-				MyUtil.putMapParams(result, "state",1, "info", yichangs);
+				MyUtil.putMapParams(result, "state",1, "info", yichangs,"frost",frost);
 			}
 			return result;
 		}
@@ -1188,7 +1205,7 @@ public class WorkerService{
            for(Map<String,Object> mapone:list){//遍历List每一个<img><content>对象
            	 img=(List<String>) mapone.get("img");
            	 List<String> imgs=new ArrayList<String>();
-   	    	List<String> contents= (List<String>) mapone.get("content");
+   	    	 List<String> contents= (List<String>) mapone.get("content");
            	 if(null!=img){
            		 for(String imgOne:img){
            			 CreateHtml.GenerateImage( imgOne,"C:\\activity.jpg")  ;//把每张图片字符创存入C://

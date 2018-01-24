@@ -21,6 +21,7 @@ import com.garten.model.other.Comment;
 import com.garten.model.other.HXLog;
 import com.garten.model.other.InfoLog;
 import com.garten.model.other.Version;
+import com.garten.model.parent.DaijieInfo;
 import com.garten.model.parent.ParentInfo;
 import com.garten.model.worker.WorkerCheckLog;
 import com.garten.model.worker.WorkerInfo;
@@ -139,5 +140,7 @@ public interface WorkerDao {
 	public void insertActivity(Map<String, Object> param);
 	public void updateIntroduce(Map<String, Object> param);
 	public void updateWorkerPhoneNumber(Map<String, Object> params);
+	public List<WorkerInfo> findWorkerByClassId(@Param("gartenId")Integer gartenId, @Param("classId")Integer classId);
+	public DaijieInfo findDaijieById(Integer daijieId);
 	
 }

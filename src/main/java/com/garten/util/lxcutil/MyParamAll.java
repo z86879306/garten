@@ -98,6 +98,10 @@ public class MyParamAll {
 	public static final String JIGUANG_PARENT_APP= "1b8fed66695934fb27ea9837";
 	public static final String JIGUANG_PARENT_MASTER= "70a03e25b17cc6223340569f";
 	public static final String JIGUANG_RECIPE_MESSAGE= "您有新的食谱!请到食谱界面查看";
+	public static final String JIGUANG_LESSON_MESSAGE= "课程已更新!请到课程界面查看";
+	public static final String JIGUANG_WORKER_DAIJIE_MESSAGE= "您有新的代接申请!请查看";
+	public static final String JIGUANG_PARENT_DAIJIE_MESSAGE= "您申请的代接已成功";
+	public static final String JIGUANG_GARENT_ACTIVITY_MESSAGE= "有新的校园活动哦！~请查看";
 
 	/**
 	 * 云通讯  (短信发送)

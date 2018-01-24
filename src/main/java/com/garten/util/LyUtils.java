@@ -12,6 +12,8 @@ package com.garten.util;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,16 +26,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Date;
 import java.util.Base64.Decoder;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.aliyun.oss.ClientException;
+import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.OSSException;
 import com.cloopen.rest.sdk.utils.encoder.BASE64Decoder;
+import com.garten.util.lxcutil.MyParamAll;
 import com.garten.util.md5.md5Util;
 import com.garten.vo.smallcontrol.CameraDetile;
 import com.mysql.fabric.xmlrpc.base.Array;
@@ -47,9 +55,12 @@ import cn.jpush.api.push.model.PushPayload;
 import cn.jpush.api.push.model.PushPayload.Builder;
 import cn.jpush.api.push.model.audience.Audience;
 import cn.jpush.api.push.model.notification.Notification;
-
+@Component
 public class LyUtils {
 
+	// 创建OSSClient实例
+	static OSSClient ossClient = new OSSClient(MyParamAll.MYOSS_ENDPOINT,MyParamAll.MYOSS_ACCESSKEYID, MyParamAll.MYOSS_ACCESSKEYSECRET);
+	
 	public static void main(String[] args) throws UnsupportedEncodingException, ParseException {
 		System.out.println(md5Util.getMD5("5fdaf123-843f-4bdd-a84f-5f18355afe95"+"1504956639"));
 	}
@@ -357,4 +368,26 @@ public class LyUtils {
 		        }
 		        return file;
 		    }
+		 /*
+		  * base64的文件上传至oss
+		  * str 文件前缀名
+		  */
+		 public static String base64OssUploadFile(String file , String str){
+			 File imgFile = LyUtils.base64ToFile(file, str+".jpg");
+				String imgUrl=null;
+				long now = new Date().getTime();
+				if (imgFile != null) {
+					try {
+						FileInputStream inputStream;
+						inputStream = new FileInputStream(imgFile);
+						imgUrl = MyParamAll.MYOSS_ADDRESS +str+ "=" + now+imgFile.getName().substring(imgFile.getName().lastIndexOf("."));// 获取到刚上传的图片路劲
+						ossClient.putObject(MyParamAll.MYOSS_BUCKET, MyParamAll.MYOSS_BUCKETLUJIN + str + "=" + now+imgFile.getName().substring(imgFile.getName().lastIndexOf(".") ), inputStream);
+					}catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				File file1 = new File("C:/excel", imgFile.getName());
+				file1.delete();
+				return imgUrl;
+		 }
 }
